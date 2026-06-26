@@ -33,6 +33,7 @@ $templates = @(
     @{ Src = "templates/inbox.md"; Dest = "inbox.md" },
     @{ Src = "templates/memory/daily/template.md"; Dest = "memory/daily/template.md" },
     @{ Src = "templates/memory/projects/template.md"; Dest = "memory/projects/template.md" },
+    @{ Src = "templates/memory/handoff.md"; Dest = "memory/handoff.md" },
     @{ Src = "templates/INTERFACES.md"; Dest = "INTERFACES.md" }
 )
 
@@ -52,7 +53,9 @@ $today = (Get-Date).ToString("yyyy-MM-dd")
 $dailyLogDest = Join-Path $targetPath "memory/daily/$today.md"
 if (!(Test-Path $dailyLogDest)) {
     $srcDailyTemplate = Join-Path $scriptDir "templates/memory/daily/template.md"
-    Copy-Item -Path $srcDailyTemplate -Destination $dailyLogDest -Force
+    $content = Get-Content -Path $srcDailyTemplate -Raw
+    $content = $content -replace "\[YYYY-MM-DD\]", $today
+    Set-Content -Path $dailyLogDest -Value $content -Force
     Write-Host "Created today's daily log: memory/daily/$today.md" -ForegroundColor Green
 }
 

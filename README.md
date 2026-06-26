@@ -91,6 +91,9 @@ Initializes a repository from zero, creating standard files, the Second Brain sy
 ### `/compact` — Memory Consolidation (Second Brain Sync)
 Consolidates current session learnings. It writes a daily log summary, updates project cards in `memory/projects/`, refines `MEMORY.md` open loops, and clears `inbox.md`. If toolless, it outputs updated files in markdown blocks for you to paste.
 
+### `/handoff` — Agent Handoff & State Compilation
+Compiles a transition note summarizing accomplishments, active/in-progress files, open loops, blockers, and the next action for the incoming agent. It writes this to `memory/handoff.md` (or prints a markdown block for manual copy-pasting if toolless).
+
 ---
 
 ## Portability: Cross-LLM Fallback Protocol

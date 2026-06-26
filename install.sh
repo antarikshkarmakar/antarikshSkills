@@ -46,13 +46,14 @@ copy_template "$SCRIPT_DIR/templates/MEMORY.md" "$TARGET_PATH/MEMORY.md" "MEMORY
 copy_template "$SCRIPT_DIR/templates/inbox.md" "$TARGET_PATH/inbox.md" "inbox.md"
 copy_template "$SCRIPT_DIR/templates/memory/daily/template.md" "$TARGET_PATH/memory/daily/template.md" "memory/daily/template.md"
 copy_template "$SCRIPT_DIR/templates/memory/projects/template.md" "$TARGET_PATH/memory/projects/template.md" "memory/projects/template.md"
+copy_template "$SCRIPT_DIR/templates/memory/handoff.md" "$TARGET_PATH/memory/handoff.md" "memory/handoff.md"
 copy_template "$SCRIPT_DIR/templates/INTERFACES.md" "$TARGET_PATH/INTERFACES.md" "INTERFACES.md"
 
 # Create Today's Daily Log if it doesn't exist
 TODAY=$(date +%Y-%m-%d)
 DAILY_LOG_DEST="$TARGET_PATH/memory/daily/$TODAY.md"
 if [ ! -f "$DAILY_LOG_DEST" ]; then
-    cp "$SCRIPT_DIR/templates/memory/daily/template.md" "$DAILY_LOG_DEST"
+    sed "s/\[YYYY-MM-DD\]/$TODAY/g" "$SCRIPT_DIR/templates/memory/daily/template.md" > "$DAILY_LOG_DEST"
     echo -e "\033[32mCreated today's daily log: memory/daily/$TODAY.md\033[0m"
 fi
 

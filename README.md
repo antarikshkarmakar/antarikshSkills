@@ -2,13 +2,15 @@
 
 A universal master agent instructions, ruleset, and memory scaffolding framework designed to run seamlessly on **any LLM** (Gemini, OpenAI, Ollama, DeepSeek, Minimax, Claude) and **any assistant interface** (Claude Code, Antigravity CLI, Codex, OpenCode, VS Code Cursor/Cline, or standard Web UIs).
 
-It combines the best paradigms in agentic development:
-- 🌲 **The Ponytail Lazy Developer Ladder**: Native platform features, stdlib first, minimal viable code, and YAGNI.
-- ⚡ **Karpathy Simplicity & Surgical Changes**: Touch only what is requested, clean up your own orphans, no overengineering.
+It integrates the best paradigms in agentic development:
+- 🌲 **The Ponytail Lazy Developer Ladder**: Native platform features, standard library first, minimal viable code, and YAGNI.
+- ⚡ **Karpathy Simplicity & Surgical Changes**: Touch only what is requested, clean up your own orphans, and avoid overengineering.
 - 🪨 **Caveman Communication**: Terse, direct, pleasantry-free responses that cut token consumption by 65%+.
-- 🧠 **4-Layer Memory system (Claude-mem)**: Persistent context across session boundaries (`memory/`).
-- ⚔️ **Adversarial Duel Reviews**: Self-criticism through proposer-attacker verification loops.
+- 🧠 **4-File Second Brain (Claude-mem)**: Continuous context, index routing, and logs across session boundaries (`memory/`).
+- 🔬 **Matt Pocock TDD & Debug Loops**: Strict Red-Green-Refactor and Reproduce-Minimize-Hypothesize-Fix protocols.
+- ⚔️ **Adversarial Duel & Critic Pattern**: Self-criticism proposer-attacker loops and post-execution checks.
 - 🛡️ **Interface Contracts**: Boundary validation mapping via `INTERFACES.md` to prevent multi-agent logical collisions.
+- 📉 **Jcode Cache Optimization**: Lean rulesets and batched reads to prevent expensive cold-cache misses.
 - 🌐 **Cross-LLM Portability**: Dialogue-driven fallbacks for toolless environments (Web UIs/API).
 
 ---
@@ -23,21 +25,20 @@ It combines the best paradigms in agentic development:
 - `install.ps1`: Windows PowerShell deployer script.
 - `install.sh`: macOS/Linux/WSL Bash deployer script.
 - `templates/`: Base structures for initialization:
-  - `memory/IDENTITY.md`: Who the agent is and non-negotiables.
-  - `memory/SEMANTIC.md`: Durable project facts, tech stack, and constraints.
-  - `memory/EPISODIC.md`: Append-only session event timeline.
-  - `memory/WORKING.md`: Current session task scratchpad.
+  - `MEMORY.md`: Root-level Second Brain index of status, projects, focus, and open loops.
+  - `inbox.md`: Staging note inbox.
+  - `memory/daily/template.md`: Daily append-only logs.
+  - `memory/projects/template.md`: Project-specific facts and context cards.
   - `INTERFACES.md`: Shared contracts.
 
 ---
 
 ## How to Install in a Project
 
-Running the installer creates the `memory/` structure, scaffolds templates, and copies rulesets to the root of the target directory.
+Running the installer creates the `memory/` structure, scaffolds Second Brain templates, creates today's daily log (`memory/daily/YYYY-MM-DD.md`), and copies rulesets to the root of the target directory.
 
 ### On Windows (PowerShell)
 ```powershell
-# Open PowerShell and run:
 cd c:\GitHub\antarikshSkills
 .\install.ps1 -TargetDir C:\path\to\your\project
 ```
@@ -56,30 +57,43 @@ cd /path/to/antarikshSkills
 
 Once the rules are installed in your workspace root, any agent reading them will respond to the following slash subcommands:
 
-### `/grill` — The Brutally Honest Mentor Interrogation
-Act as a brutally honest evaluator with 20+ years of experience. The agent will interrogate your task scope, timeline, consistency, and assumptions in blocks before writing code, and output a strict, no-fluff assessment and a 30-60-90 day action plan.
+### `/grill` — Brutally Honest Mentor Interrogation
+The agent acts as a strict evaluator with 20+ years of experience. It interrogates your task scope, constraints, and traps in blocks before coding, and outputs a blunt, structured assessment and a 30-60-90 day action plan.
+
+### `/tdd` — Test-Driven Development Loop (Matt Pocock TDD)
+Pivots to TDD mode:
+1. **RED**: Write a failing test for the requested feature. Run the test and verify it fails.
+2. **GREEN**: Write the minimal code required to pass the test.
+3. **REFACTOR**: Clean and optimize implementation without breaking tests.
+
+### `/diagnose` — Structured Debugging (Matt Pocock Diagnose)
+Follows a rigorous debugging sequence:
+1. **REPRODUCE**: Write a minimal script/test reproducing the bug.
+2. **MINIMIZE**: Isolate the exact file and lines responsible.
+3. **HYPOTHESIZE**: List 1-2 probable causes.
+4. **FIX**: Apply a surgical fix and remove the reproduction script.
 
 ### `/code` — Surgical Implementation
-Instructs the agent to evaluate the task using the Ponytail ladder (Native first, standard library, YAGNI) and write minimal, clean, surgical changes.
+Instructs the agent to evaluate the task using the Ponytail ladder (Native first, standard library, YAGNI), inspect contract boundaries in `INTERFACES.md`, and write minimal, clean changes.
 
-### `/review` — Adversarial Duel Review
-The agent will perform a code review by acting as a Proposer (validating correctness) and then switching context to an Attacker (ruthlessly targeting edge cases, concurrency/race conditions, silent failures, security boundaries, and off-by-ones) to verify if the changes survive.
+### `/review` — Adversarial Duel Review & Critic Widget
+Runs a proposer-attacker duel. The Attacker personality tests the code against edge cases, race conditions, silent failures, assumption violations, security boundaries, and off-by-ones, outputting a clear critic verdict (`PASS/FAIL` and reason).
 
 ### `/doc` — Direct Documentation
 Generates clear, direct documentation using markdown, tables, alert blocks, and mermaid diagrams with zero filler or redundant introductions.
 
 ### `/grok` — Repository Comprehension
-Inspects the local memory files and code structure, outputting a concise map of directory contents and logic boundaries.
+Inspects the local Second Brain and code structure, outputting a concise map of directory contents and logic boundaries.
 
 ### `/scratch` — Scaffold New Project
-Initializes a repository from zero, creating standard files, the 4-layer memory system (`memory/`), and the module boundary tracker (`INTERFACES.md`).
+Initializes a repository from zero, creating standard files, the Second Brain system (`MEMORY.md`, `inbox.md`, `memory/`), and the module boundary tracker (`INTERFACES.md`).
 
-### `/compact` — Memory Consolidation
-Consolidates current session learnings. If the assistant has workspace file tools, it updates the files directly. If running toolless (e.g., standard Web UIs), it prints copy-pasteable blocks of the updated memory files for you to save.
+### `/compact` — Memory Consolidation (Second Brain Sync)
+Consolidates current session learnings. It writes a daily log summary, updates project cards in `memory/projects/`, refines `MEMORY.md` open loops, and clears `inbox.md`. If toolless, it outputs updated files in markdown blocks for you to paste.
 
 ---
 
 ## Portability: Cross-LLM Fallback Protocol
 If you are running the agent in a web browser interface (e.g., Gemini, ChatGPT, DeepSeek, or Minimax Web UI) or toolless API:
 1. **Interactive Commands**: The model will parse typed slash commands in your messages (e.g. `/grill`) and run the corresponding behaviors.
-2. **Dialogue Fallback**: The model will ask you to paste directory structures or file contents, output code updates with exact target file paths, and output full memory updates for you to manually paste into `memory/SEMANTIC.md` and `memory/EPISODIC.md` at session end.
+2. **Dialogue Fallback**: The model will ask you to paste directory structures or file contents, output code updates with exact target file paths, and output full memory updates for you to manually paste into `MEMORY.md` and `memory/daily/` logs.

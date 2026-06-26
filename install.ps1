@@ -15,20 +15,24 @@ if ($null -eq $targetPath) {
 
 Write-Host "Target: $targetPath" -ForegroundColor Cyan
 
-# Create Directories
-$memDir = Join-Path $targetPath "memory"
-if (!(Test-Path $memDir)) {
-    New-Item -ItemType Directory -Path $memDir -Force | Out-Null
-    Write-Host "Created folder: memory/" -ForegroundColor Green
+# Create Folders
+$folders = @("memory", "memory/daily", "memory/projects")
+foreach ($f in $folders) {
+    $dirPath = Join-Path $targetPath $f
+    if (!(Test-Path $dirPath)) {
+        New-Item -ItemType Directory -Path $dirPath -Force | Out-Null
+        Write-Host "Created folder: $f/" -ForegroundColor Green
+    }
 }
 
-# Copy Templates
 $scriptDir = $PSScriptRoot
+
+# Copy Templates
 $templates = @(
-    @{ Src = "templates/memory/IDENTITY.md"; Dest = "memory/IDENTITY.md" },
-    @{ Src = "templates/memory/SEMANTIC.md"; Dest = "memory/SEMANTIC.md" },
-    @{ Src = "templates/memory/EPISODIC.md"; Dest = "memory/EPISODIC.md" },
-    @{ Src = "templates/memory/WORKING.md"; Dest = "memory/WORKING.md" },
+    @{ Src = "templates/MEMORY.md"; Dest = "MEMORY.md" },
+    @{ Src = "templates/inbox.md"; Dest = "inbox.md" },
+    @{ Src = "templates/memory/daily/template.md"; Dest = "memory/daily/template.md" },
+    @{ Src = "templates/memory/projects/template.md"; Dest = "memory/projects/template.md" },
     @{ Src = "templates/INTERFACES.md"; Dest = "INTERFACES.md" }
 )
 
@@ -41,6 +45,15 @@ foreach ($t in $templates) {
     } else {
         Write-Host "Skipped file: $($t.Dest) (already exists, use -Force to overwrite)" -ForegroundColor Yellow
     }
+}
+
+# Create Today's Daily Log if it doesn't exist
+$today = (Get-Date).ToString("yyyy-MM-dd")
+$dailyLogDest = Join-Path $targetPath "memory/daily/$today.md"
+if (!(Test-Path $dailyLogDest)) {
+    $srcDailyTemplate = Join-Path $scriptDir "templates/memory/daily/template.md"
+    Copy-Item -Path $srcDailyTemplate -Destination $dailyLogDest -Force
+    Write-Host "Created today's daily log: memory/daily/$today.md" -ForegroundColor Green
 }
 
 # Deploy Rules

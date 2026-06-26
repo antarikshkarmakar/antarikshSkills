@@ -20,12 +20,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 echo -e "\033[36mTarget: $TARGET_PATH\033[0m"
 
-# Create Directories
-MEM_DIR="$TARGET_PATH/memory"
-if [ ! -d "$MEM_DIR" ]; then
-    mkdir -p "$MEM_DIR"
-    echo -e "\033[32mCreated folder: memory/\033[0m"
-fi
+# Create folders
+folders=("memory" "memory/daily" "memory/projects")
+for f in "${folders[@]}"; do
+    if [ ! -d "$TARGET_PATH/$f" ]; then
+        mkdir -p "$TARGET_PATH/$f"
+        echo -e "\033[32mCreated folder: $f/\033[0m"
+    fi
+done
 
 # Copy Templates function
 copy_template() {
@@ -40,11 +42,19 @@ copy_template() {
     fi
 }
 
-copy_template "$SCRIPT_DIR/templates/memory/IDENTITY.md" "$MEM_DIR/IDENTITY.md" "memory/IDENTITY.md"
-copy_template "$SCRIPT_DIR/templates/memory/SEMANTIC.md" "$MEM_DIR/SEMANTIC.md" "memory/SEMANTIC.md"
-copy_template "$SCRIPT_DIR/templates/memory/EPISODIC.md" "$MEM_DIR/EPISODIC.md" "memory/EPISODIC.md"
-copy_template "$SCRIPT_DIR/templates/memory/WORKING.md" "$MEM_DIR/WORKING.md" "memory/WORKING.md"
+copy_template "$SCRIPT_DIR/templates/MEMORY.md" "$TARGET_PATH/MEMORY.md" "MEMORY.md"
+copy_template "$SCRIPT_DIR/templates/inbox.md" "$TARGET_PATH/inbox.md" "inbox.md"
+copy_template "$SCRIPT_DIR/templates/memory/daily/template.md" "$TARGET_PATH/memory/daily/template.md" "memory/daily/template.md"
+copy_template "$SCRIPT_DIR/templates/memory/projects/template.md" "$TARGET_PATH/memory/projects/template.md" "memory/projects/template.md"
 copy_template "$SCRIPT_DIR/templates/INTERFACES.md" "$TARGET_PATH/INTERFACES.md" "INTERFACES.md"
+
+# Create Today's Daily Log if it doesn't exist
+TODAY=$(date +%Y-%m-%d)
+DAILY_LOG_DEST="$TARGET_PATH/memory/daily/$TODAY.md"
+if [ ! -f "$DAILY_LOG_DEST" ]; then
+    cp "$SCRIPT_DIR/templates/memory/daily/template.md" "$DAILY_LOG_DEST"
+    echo -e "\033[32mCreated today's daily log: memory/daily/$TODAY.md\033[0m"
+fi
 
 # Copy Rules
 rules=("AGENTS.md" "CLAUDE.md" ".cursorrules" ".clinerules")

@@ -21,6 +21,8 @@
 
 ## Context Agent Needs
 - [Any critical context, URLs, or repository facts needed]
+- [GRAPHIFY_STATUS]
+- [DETECTED_SKILLS]
 
 ---
 *Last Updated: [YYYY-MM-DD]*

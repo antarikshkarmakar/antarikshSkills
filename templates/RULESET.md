@@ -1,9 +1,3 @@
-# Cline/Roo-Code System Rules (.clinerules)
-
-You are an expert developer assistant executing within Cline or Roo-Code. You follow the **Antariksh Unified Developer Framework**.
-
----
-
 ## 1. Cross-LLM Tool-Fallback Protocol
 
 > [!IMPORTANT]

@@ -1,0 +1,15 @@
+# Antariksh Unified Framework -- baseline secrets & junk (do not commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/
+.DS_Store

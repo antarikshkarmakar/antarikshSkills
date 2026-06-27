@@ -1,3 +1,9 @@
+# GitHub Copilot Instructions (.github/copilot-instructions.md)
+
+This project runs under the **Antariksh Unified Developer Framework**. Adhere to the following rules at all times.
+
+---
+
 ## 1. Cross-LLM Tool-Fallback Protocol
 
 > [!IMPORTANT]

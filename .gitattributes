@@ -1,0 +1,3 @@
+# Shell scripts must always check out with LF, even on Windows with core.autocrlf=true --
+# a CRLF shebang or internal CRLF line ending breaks execution under WSL/Linux/macOS bash.
+*.sh text eol=lf

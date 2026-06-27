@@ -1,15 +1,20 @@
 # install.ps1 -- Antariksh Unified Skill Deployer for Windows
-# Usage: .\install.ps1 [-TargetDir <path>] [-Force] [-RulesOnly]
+# Usage: .\install.ps1 [-TargetDir <path>] [-Force] [-RulesOnly] [-Hooks]
 
 param (
     [string]$TargetDir = ".",
     [switch]$Force,
-    [switch]$RulesOnly
+    [switch]$RulesOnly,
+    [switch]$Hooks
 )
 
 $targetPath = Resolve-Path $TargetDir -ErrorAction SilentlyContinue
 if ($null -eq $targetPath) {
-    $targetPath = [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $TargetDir))
+    if ([System.IO.Path]::IsPathRooted($TargetDir)) {
+        $targetPath = [System.IO.Path]::GetFullPath($TargetDir)
+    } else {
+        $targetPath = [System.IO.Path]::GetFullPath((Join-Path (Get-Location).Path $TargetDir))
+    }
 } else {
     $targetPath = $targetPath.Path
 }
@@ -42,7 +47,17 @@ if ($detectedSkillNames.Count -gt 0) {
     Write-Host "Detected agent skills: $($detectedSkillNames -join ', ')" -ForegroundColor Cyan
 }
 
-# Generate the 4 portable rule files from the single canonical templates/RULESET.md.
+# Detect the caveman plugin (read-only -- never installs anything; caveman is a
+# Claude Code plugin registered in plugins/installed_plugins.json, not a skills/ folder).
+$pluginsRegistry = Join-Path $env:USERPROFILE ".claude\plugins\installed_plugins.json"
+$cavemanInstallCmd = "irm https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.ps1 | iex"
+$cavemanStatus = "Caveman: not installed -- Philosophy V falls back to manual terse-style instructions. To install: $cavemanInstallCmd"
+if ((Test-Path $pluginsRegistry) -and (Select-String -Path $pluginsRegistry -Pattern '"caveman@caveman"' -Quiet)) {
+    $cavemanStatus = "Caveman: installed -- Philosophy V and /compact delegate to /caveman and /caveman-compress."
+}
+Write-Host $cavemanStatus -ForegroundColor Cyan
+
+# Generate the 6 portable rule files from the single canonical templates/RULESET.md.
 # Each tool gets its own header; the body is shared so it can never drift.
 # SKILL.md is NOT generated here -- it's the hand-maintained, richer master skill
 # definition for this framework itself, not a per-project file the installer deploys.
@@ -54,10 +69,16 @@ $ruleHeaders = @{
     "AGENTS.md"    = "# Universal Agent Guidelines (AGENTS.md)`n`nThis repository follows the **Antariksh Unified Developer Framework**. All agents (Gemini, OpenAI, Ollama, DeepSeek, Minimax, Claude, Codex, OpenCode) must adhere to these rules.`n`n---`n`n"
     ".cursorrules" = "# Cursor System Rules (.cursorrules)`n`nYou are an expert developer assistant executing within Cursor. You follow the **Antariksh Unified Developer Framework**.`n`n---`n`n"
     ".clinerules"  = "# Cline/Roo-Code System Rules (.clinerules)`n`nYou are an expert developer assistant executing within Cline or Roo-Code. You follow the **Antariksh Unified Developer Framework**.`n`n---`n`n"
+    "GEMINI.md"    = "# Gemini CLI Guidelines (GEMINI.md)`n`nThis project runs under the **Antariksh Unified Developer Framework**. Adhere to the following rules at all times.`n`n---`n`n"
+    ".github/copilot-instructions.md" = "# GitHub Copilot Instructions (.github/copilot-instructions.md)`n`nThis project runs under the **Antariksh Unified Developer Framework**. Adhere to the following rules at all times.`n`n---`n`n"
 }
 
 foreach ($ruleFile in $ruleHeaders.Keys) {
     $destPath = Join-Path $targetPath $ruleFile
+    $destDir = Split-Path -Parent $destPath
+    if (!(Test-Path $destDir)) {
+        New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+    }
     if (!(Test-Path $destPath) -or $Force) {
         Set-Content -Path $destPath -Value ($ruleHeaders[$ruleFile] + $rulesetBody) -NoNewline
         Write-Host "Generated rules: $ruleFile" -ForegroundColor Green
@@ -72,7 +93,7 @@ if ($RulesOnly) {
 }
 
 # Create Folders
-$folders = @("memory", "memory/daily", "memory/projects")
+$folders = @("memory", "memory/daily", "memory/projects", "memory/adr", "memory/prds")
 foreach ($f in $folders) {
     $dirPath = Join-Path $targetPath $f
     if (!(Test-Path $dirPath)) {
@@ -84,9 +105,12 @@ foreach ($f in $folders) {
 # Copy Templates
 $templates = @(
     @{ Src = "templates/MEMORY.md"; Dest = "MEMORY.md" },
+    @{ Src = "templates/GLOSSARY.md"; Dest = "GLOSSARY.md" },
     @{ Src = "templates/inbox.md"; Dest = "inbox.md" },
     @{ Src = "templates/memory/daily/template.md"; Dest = "memory/daily/template.md" },
     @{ Src = "templates/memory/projects/template.md"; Dest = "memory/projects/template.md" },
+    @{ Src = "templates/memory/adr/template.md"; Dest = "memory/adr/template.md" },
+    @{ Src = "templates/memory/prds/template.md"; Dest = "memory/prds/template.md" },
     @{ Src = "templates/memory/handoff.md"; Dest = "memory/handoff.md" },
     @{ Src = "templates/INTERFACES.md"; Dest = "INTERFACES.md" }
 )
@@ -102,6 +126,7 @@ foreach ($t in $templates) {
             $skillsLine = if ($detectedSkillNames.Count -gt 0) { "Detected agent skills on this machine: $($detectedSkillNames -join ', ')." } else { "No agent skills detected under $skillsDir." }
             $memContent = Get-Content -Path $destPath -Raw
             $memContent = $memContent -replace "\[GRAPHIFY_STATUS\]", $graphifyStatus
+            $memContent = $memContent -replace "\[CAVEMAN_STATUS\]", $cavemanStatus
             $memContent = $memContent -replace "\[DETECTED_SKILLS\]", $skillsLine
             Set-Content -Path $destPath -Value $memContent -NoNewline
         }
@@ -134,6 +159,68 @@ if (!(Test-Path $gitignoreDest)) {
     Write-Host "Appended baseline secrets/junk rules to existing .gitignore" -ForegroundColor Green
 } else {
     Write-Host "Skipped .gitignore (baseline rules already present)" -ForegroundColor Yellow
+}
+
+# Optional: Claude Code hooks that mechanically enforce the Second Brain loop
+# (SessionStart auto-loads memory, Stop blocks if real edits weren't logged).
+# Opt-in only -- this is Claude-Code-specific and touches .claude/settings.json,
+# unlike everything else this installer does.
+if ($Hooks) {
+    $claudeHooksDir = Join-Path $targetPath ".claude\hooks"
+    if (!(Test-Path $claudeHooksDir)) {
+        New-Item -ItemType Directory -Path $claudeHooksDir -Force | Out-Null
+    }
+
+    foreach ($hookScript in @("session-start.sh", "stop-check.sh")) {
+        $hookSrc = Join-Path $scriptDir "templates\.claude\hooks\$hookScript"
+        $hookDest = Join-Path $claudeHooksDir $hookScript
+        if (!(Test-Path $hookDest) -or $Force) {
+            Copy-Item -Path $hookSrc -Destination $hookDest -Force
+            Write-Host "Created file: .claude/hooks/$hookScript" -ForegroundColor Green
+        } else {
+            Write-Host "Skipped file: .claude/hooks/$hookScript (already exists, use -Force to overwrite)" -ForegroundColor Yellow
+        }
+    }
+
+    $settingsTemplate = Join-Path $scriptDir "templates\.claude\settings.json"
+    $settingsDest = Join-Path $targetPath ".claude\settings.json"
+
+    if (!(Test-Path $settingsDest)) {
+        Copy-Item -Path $settingsTemplate -Destination $settingsDest -Force
+        Write-Host "Created file: .claude/settings.json" -ForegroundColor Green
+    } else {
+        $templateHooks = Get-Content -Path $settingsTemplate -Raw | ConvertFrom-Json
+        $existing = Get-Content -Path $settingsDest -Raw | ConvertFrom-Json
+
+        if (-not ($existing.PSObject.Properties.Name -contains "hooks")) {
+            $existing | Add-Member -MemberType NoteProperty -Name "hooks" -Value ([PSCustomObject]@{}) -Force
+        }
+
+        foreach ($eventName in @("SessionStart", "Stop")) {
+            $templateEntry = $templateHooks.hooks.$eventName[0]
+            $cmdPath = $templateEntry.hooks[0].command
+
+            if (-not ($existing.hooks.PSObject.Properties.Name -contains $eventName)) {
+                $existing.hooks | Add-Member -MemberType NoteProperty -Name $eventName -Value @() -Force
+            }
+
+            $alreadyPresent = $false
+            foreach ($entry in @($existing.hooks.$eventName)) {
+                foreach ($h in @($entry.hooks)) {
+                    if ($h.command -eq $cmdPath) { $alreadyPresent = $true }
+                }
+            }
+
+            if (-not $alreadyPresent) {
+                $existing.hooks.$eventName = @(@($existing.hooks.$eventName) + @($templateEntry))
+            }
+        }
+
+        $existing | ConvertTo-Json -Depth 10 | Set-Content -Path $settingsDest -Force
+        Write-Host "Merged hooks into existing .claude/settings.json" -ForegroundColor Green
+    }
+
+    Write-Host "Hooks installed. On Windows, Claude Code needs a bash-capable shell (Git Bash/WSL) to run them." -ForegroundColor Cyan
 }
 
 Write-Host "`nAntariksh rules deployed. Memory folders initialized. Code safe." -ForegroundColor Cyan

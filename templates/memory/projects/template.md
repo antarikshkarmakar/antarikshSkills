@@ -14,6 +14,7 @@
   - `src/`: Core application logic
   - `tests/`: Automated tests
 - **System Boundaries**: [Details of APIs or external services]
+- **Last `/grok` scan**: [commit hash or YYYY-MM-DD] — re-runs diff against this point instead of rescanning from zero.
 
 ## Decisions Log
 - [YYYY-MM-DD]: [Decision details and why it was made. Note reversals here, do not delete old ones.]

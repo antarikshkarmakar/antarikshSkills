@@ -110,6 +110,9 @@ Specifically, it checks `~/.claude/skills/` (`%USERPROFILE%\.claude\skills\` on 
 It also checks `~/.claude/plugins/installed_plugins.json` (a different mechanism — [caveman](https://github.com/JuliusBrussee/caveman) is a Claude Code *plugin*, not a skills-folder entry) for:
 - **caveman**: if installed, Philosophy V and `/compact` delegate to its `/caveman` (output compression) and `/caveman-compress` (memory-file compression) commands. If not installed, the installer prints the one-line install command for the user to run themselves — **it never executes a third-party installer automatically**, consistent with Philosophy VIII.
 
+And it checks for the [CodeGraph](https://github.com/colbymchenry/codegraph) CLI on PATH (a third option for `/grok`'s knowledge-graph step, alongside graphify and Understand-Anything):
+- **CodeGraph**: if found, `/grok` and `/audit-arch` can delegate to it — beyond a structural map, it exposes real call-graph and blast-radius queries (`codegraph_explore`, `codegraph_impact`, `codegraph_callers`), useful for "what calls this" / "what breaks if I change this." If not found, both fall back the same way they already did (Understand-Anything → manual scan for `/grok`; pathfinder → manual smell-scan for `/audit-arch`).
+
 ---
 
 ## Optional: Claude Code Hooks
@@ -167,10 +170,10 @@ Checks whether `gh` is authenticated; if not, falls back to plain `git diff`/`gi
 Generates clear, direct documentation using markdown, tables, alert blocks, and mermaid diagrams with zero filler or redundant introductions.
 
 ### `/grok` — Repository Comprehension (Context Graph)
-Checks `memory/projects/<name>.md` first — if a previous scan is recorded with a commit hash/date, diffs the repo against that point and only re-analyzes what changed, instead of rescanning from zero. Then checks whether graphify or Understand-Anything is available (see Agent Skill Detection above) and delegates to whichever is found; if neither is available, falls back to a manual scan of manifest files, test framework, and entry points. Either way, persists the findings (stamped with the current commit hash/date) to `memory/projects/<name>.md` so the next run can do an incremental update.
+Checks `memory/projects/<name>.md` first — if a previous scan is recorded with a commit hash/date, diffs the repo against that point and only re-analyzes what changed, instead of rescanning from zero. Then checks whether graphify, Understand-Anything, or CodeGraph is available (see Agent Skill Detection above) and delegates to whichever is found — CodeGraph specifically also offers real call-graph/blast-radius queries beyond a structural map; if none is available, falls back to a manual scan of manifest files, test framework, and entry points. Either way, persists the findings (stamped with the current commit hash/date) to `memory/projects/<name>.md` so the next run can do an incremental update.
 
 ### `/audit-arch` — Architecture Health Check
-Run periodically, not just when something's broken. Delegates to a codebase-mapping skill (e.g. `claude-mem:pathfinder`) if available; otherwise falls back to a manual smell-scan (god objects, shallow modules, duplicated logic, tangled dependencies). Outputs a prioritized refactor queue, not an unprompted rewrite — see Philosophy XII (Continuous Architecture Care).
+Run periodically, not just when something's broken. Delegates to a codebase-mapping tool if available — `claude-mem:pathfinder` or CodeGraph (real blast-radius/dependency-tangle data via `codegraph impact`/`codegraph callers`); otherwise falls back to a manual smell-scan (god objects, shallow modules, duplicated logic, tangled dependencies). Outputs a prioritized refactor queue, not an unprompted rewrite — see Philosophy XII (Continuous Architecture Care).
 
 ### `/scratch` — Scaffold New Project
 Initializes a repository from zero, creating standard files, the Second Brain system (`MEMORY.md`, `GLOSSARY.md`, `inbox.md`, `memory/`), and the module boundary tracker (`INTERFACES.md`). Per Philosophy VI, also ensures a `.gitignore` covers secrets and common build/dependency junk — created fresh if missing, or merged in if one exists without those entries.

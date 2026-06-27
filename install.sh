@@ -61,6 +61,13 @@ if [ -f "$PLUGINS_REGISTRY" ] && grep -qF '"caveman@caveman"' "$PLUGINS_REGISTRY
 fi
 echo -e "\033[36m$CAVEMAN_STATUS\033[0m"
 
+# Detect the CodeGraph CLI (read-only -- checks PATH only, never installs anything).
+CODEGRAPH_STATUS="CodeGraph: not found on PATH -- /grok and /audit-arch fall back to graphify/Understand-Anything/manual scan."
+if command -v codegraph >/dev/null 2>&1; then
+    CODEGRAPH_STATUS="CodeGraph: detected on PATH -- /grok and /audit-arch can delegate to it for call-graph/blast-radius queries."
+fi
+echo -e "\033[36m$CODEGRAPH_STATUS\033[0m"
+
 # Generate the 6 portable rule files from the single canonical templates/RULESET.md.
 # Each tool gets its own header; the body is shared so it can never drift.
 # SKILL.md is NOT generated here -- it's the hand-maintained, richer master skill
@@ -163,7 +170,7 @@ if [ ! -f "$MEMORY_DEST" ] || [ "$FORCE" = true ]; then
     if [ -n "$DETECTED_SKILLS" ]; then
         SKILLS_LINE="Detected agent skills on this machine: $DETECTED_SKILLS."
     fi
-    sed -e "s#\[GRAPHIFY_STATUS\]#$GRAPHIFY_STATUS#" -e "s#\[CAVEMAN_STATUS\]#$CAVEMAN_STATUS#" -e "s#\[DETECTED_SKILLS\]#$SKILLS_LINE#" \
+    sed -e "s#\[GRAPHIFY_STATUS\]#$GRAPHIFY_STATUS#" -e "s#\[CODEGRAPH_STATUS\]#$CODEGRAPH_STATUS#" -e "s#\[CAVEMAN_STATUS\]#$CAVEMAN_STATUS#" -e "s#\[DETECTED_SKILLS\]#$SKILLS_LINE#" \
         "$SCRIPT_DIR/templates/MEMORY.md" > "$MEMORY_DEST"
     echo -e "\033[32mCreated file: MEMORY.md\033[0m"
 else

@@ -22,6 +22,7 @@
 ## Context Agent Needs
 - [Any critical context, URLs, or repository facts needed]
 - [GRAPHIFY_STATUS]
+- [CODEGRAPH_STATUS]
 - [CAVEMAN_STATUS]
 - [DETECTED_SKILLS]
 

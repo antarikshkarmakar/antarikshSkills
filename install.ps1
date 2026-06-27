@@ -57,6 +57,13 @@ if ((Test-Path $pluginsRegistry) -and (Select-String -Path $pluginsRegistry -Pat
 }
 Write-Host $cavemanStatus -ForegroundColor Cyan
 
+# Detect the CodeGraph CLI (read-only -- checks PATH only, never installs anything).
+$codegraphStatus = "CodeGraph: not found on PATH -- /grok and /audit-arch fall back to graphify/Understand-Anything/manual scan."
+if (Get-Command codegraph -ErrorAction SilentlyContinue) {
+    $codegraphStatus = "CodeGraph: detected on PATH -- /grok and /audit-arch can delegate to it for call-graph/blast-radius queries."
+}
+Write-Host $codegraphStatus -ForegroundColor Cyan
+
 # Generate the 6 portable rule files from the single canonical templates/RULESET.md.
 # Each tool gets its own header; the body is shared so it can never drift.
 # SKILL.md is NOT generated here -- it's the hand-maintained, richer master skill
@@ -126,6 +133,7 @@ foreach ($t in $templates) {
             $skillsLine = if ($detectedSkillNames.Count -gt 0) { "Detected agent skills on this machine: $($detectedSkillNames -join ', ')." } else { "No agent skills detected under $skillsDir." }
             $memContent = Get-Content -Path $destPath -Raw
             $memContent = $memContent -replace "\[GRAPHIFY_STATUS\]", $graphifyStatus
+            $memContent = $memContent -replace "\[CODEGRAPH_STATUS\]", $codegraphStatus
             $memContent = $memContent -replace "\[CAVEMAN_STATUS\]", $cavemanStatus
             $memContent = $memContent -replace "\[DETECTED_SKILLS\]", $skillsLine
             Set-Content -Path $destPath -Value $memContent -NoNewline

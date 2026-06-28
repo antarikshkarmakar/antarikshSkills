@@ -93,6 +93,17 @@ Copilot Chat/agent mode in VS Code auto-detects `.github/copilot-instructions.md
 ### Antigravity
 Google's agentic IDE reads both `AGENTS.md` and `GEMINI.md` natively (requires Antigravity v1.20.3+; per its own rule hierarchy, `GEMINI.md` takes precedence over `AGENTS.md` when both exist — that's fine, they're generated from the same `RULESET.md` body so there's nothing to conflict on in practice). Open the installed project folder.
 
+### Hermes Agent
+*   **Global Identity**: Append the Core Philosophies of `templates/RULESET.md` directly to your global identity file at `~/.hermes/SOUL.md`.
+*   **Modular Skills**: Copy the templates' modular skills into Hermes' custom skills folder:
+    ```bash
+    cp -r templates/.agents/skills/* ~/.hermes/skills/
+    ```
+
+### OpenClaw
+*   **Identity & Guidelines**: Append the philosophies to your agent's workspace configuration manual (`AGENT.md` or `SOUL.md` in `~/.openclaw/agents/<name>/`).
+*   **On-Demand Skills**: Projects created with our installer already have `.agents/skills/` copied recursively; OpenClaw will automatically discover and parse these skills on workspace load.
+
 ### Everything else (also covered, not asked for above but worth knowing)
 - **Cline / Roo-Code**: reads `.clinerules`.
 - **Gemini CLI**: reads `GEMINI.md` as its own native convention.

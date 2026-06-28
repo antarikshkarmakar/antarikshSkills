@@ -1,0 +1,23 @@
+# Ignore generated targets in the framework repository itself
+/.agents/
+/.cursor/
+/GLOSSARY.md
+/INTERFACES.md
+/MEMORY.md
+/inbox.md
+/memory/
+
+# Ignore standard build and environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/

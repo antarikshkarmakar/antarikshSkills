@@ -54,7 +54,7 @@ fi
 # Detect the caveman plugin (read-only -- never installs anything; caveman is a
 # Claude Code plugin registered in plugins/installed_plugins.json, not a skills/ folder).
 PLUGINS_REGISTRY="$HOME/.claude/plugins/installed_plugins.json"
-CAVEMAN_INSTALL_CMD='curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash'
+CAVEMAN_INSTALL_CMD="curl -fsSL -o install_caveman.sh https://github.com/JuliusBrussee/caveman/raw/main/install.sh && less install_caveman.sh && bash install_caveman.sh"
 CAVEMAN_STATUS="Caveman: not installed -- Philosophy V falls back to manual terse-style instructions. To install: $CAVEMAN_INSTALL_CMD"
 if [ -f "$PLUGINS_REGISTRY" ] && grep -qF '"caveman@caveman"' "$PLUGINS_REGISTRY"; then
     CAVEMAN_STATUS="Caveman: installed -- Philosophy V and /compact delegate to /caveman and /caveman-compress."
@@ -68,10 +68,9 @@ if command -v codegraph >/dev/null 2>&1; then
 fi
 echo -e "\033[36m$CODEGRAPH_STATUS\033[0m"
 
-# Generate the 6 portable rule files from the single canonical templates/RULESET.md.
+# Generate the portable rule files from the single canonical templates/RULESET.md.
 # Each tool gets its own header; the body is shared so it can never drift.
-# SKILL.md is NOT generated here -- it's the hand-maintained, richer master skill
-# definition for this framework itself, not a per-project file the installer deploys.
+# This includes generating SKILL.md for the agent skill system.
 RULESET_PATH="$SCRIPT_DIR/templates/RULESET.md"
 
 generate_rule_file() {
@@ -137,9 +136,90 @@ This project runs under the **Antariksh Unified Developer Framework**. Adhere to
 
 " ".github/copilot-instructions.md"
 
+generate_rule_file "$TARGET_PATH/SKILL.md" "---
+name: antariksh-unified-skill
+description: Master developer skill combining planning (grill, align), simplicity (ponytail/karpathy), TDD & diagnosis (mattpocock), token efficiency (caveman), continuous second brain (MEMORY/AGENTS/GLOSSARY/daily/projects/adr/prds), shared language and architecture care, gated PR review, and adversarial verification (duel).
+---
+
+# Antariksh Unified Agent Skill (Master Developer Framework)
+
+You are a senior-level, pragmatic, and brutally honest developer agent who values simplicity, safety, and token-efficiency above all else. Your thinking and actions are governed by this framework across coding, code reviews, documentation, and repository discovery.
+
+---
+
+" "SKILL.md"
+
+# Split RULESET.md into sections.
+# Every time we see a line that is exactly "---" (ignoring carriage returns), we increment the counter.
+section_1=""
+section_2=""
+section_3=""
+section_4=""
+current_section=1
+
+while IFS= read -r line || [ -n "$line" ]; do
+    clean_line=$(echo "$line" | tr -d '\r')
+    if [ "$clean_line" = "---" ]; then
+        current_section=$((current_section + 1))
+        continue
+    fi
+    case $current_section in
+        1) section_1="${section_1}${line}"$'\n' ;;
+        2) section_2="${section_2}${line}"$'\n' ;;
+        3) section_3="${section_3}${line}"$'\n' ;;
+        4) section_4="${section_4}${line}"$'\n' ;;
+    esac
+done < "$RULESET_PATH"
+
+# Generate modular Cursor MDC rules under .cursor/rules/
+CURSOR_RULES_DIR="$TARGET_PATH/.cursor/rules"
+mkdir -p "$CURSOR_RULES_DIR"
+
+if [ "$current_section" -ge 4 ]; then
+    CORE_MDC_PATH="$CURSOR_RULES_DIR/core.mdc"
+    CORE_MDC_HEADER="---
+description: Core developer philosophies, fallback protocols, and Second Brain standards
+globs: *
+---
+
+"
+    if [ ! -f "$CORE_MDC_PATH" ] || [ "$FORCE" = true ]; then
+        printf '%s' "$CORE_MDC_HEADER" > "$CORE_MDC_PATH"
+        printf '%s\n\n---\n\n%s\n\n---\n\n%s' "$section_1" "$section_2" "$section_4" >> "$CORE_MDC_PATH"
+        echo -e "\033[32mGenerated Cursor MDC: core.mdc\033[0m"
+    else
+        echo -e "\033[33mSkipped Cursor MDC: core.mdc (already exists, use --force to overwrite)\033[0m"
+    fi
+
+    COMMANDS_MDC_PATH="$CURSOR_RULES_DIR/commands.mdc"
+    COMMANDS_MDC_HEADER="---
+description: Interactive agent slash commands (/tdd, /diagnose, /align, etc.)
+globs: *
+---
+
+"
+    if [ ! -f "$COMMANDS_MDC_PATH" ] || [ "$FORCE" = true ]; then
+        printf '%s' "$COMMANDS_MDC_HEADER" > "$COMMANDS_MDC_PATH"
+        printf '%s' "$section_3" >> "$COMMANDS_MDC_PATH"
+        echo -e "\033[32mGenerated Cursor MDC: commands.mdc\033[0m"
+    else
+        echo -e "\033[33mSkipped Cursor MDC: commands.mdc (already exists, use --force to overwrite)\033[0m"
+    fi
+fi
+
 if [ "$RULES_ONLY" = true ]; then
-    echo -e "\n\033[36mRules regenerated from templates/RULESET.md. Skipped memory scaffolding (--rules-only).\033[0m"
+    echo -e "\n\033[36mRules and Cursor MDC regenerated from templates/RULESET.md. Skipped memory scaffolding (--rules-only).\033[0m"
     exit 0
+fi
+
+# Copy the .agents/ folder if it exists in templates
+if [ -d "$SCRIPT_DIR/templates/.agents" ]; then
+    if [ ! -d "$TARGET_PATH/.agents" ] || [ "$FORCE" = true ]; then
+        cp -r "$SCRIPT_DIR/templates/.agents" "$TARGET_PATH/"
+        echo -e "\033[32mCreated folder: .agents/ (modular agent skills)\033[0m"
+    else
+        echo -e "\033[33mSkipped folder: .agents/ (already exists, use --force to overwrite)\033[0m"
+    fi
 fi
 
 # Create folders
@@ -164,19 +244,20 @@ copy_template() {
     fi
 }
 
-MEMORY_DEST="$TARGET_PATH/MEMORY.md"
-if [ ! -f "$MEMORY_DEST" ] || [ "$FORCE" = true ]; then
+LOCAL_ENV_DEST="$TARGET_PATH/memory/local_env.md"
+if [ ! -f "$LOCAL_ENV_DEST" ] || [ "$FORCE" = true ]; then
     SKILLS_LINE="No agent skills detected under $SKILLS_DIR."
     if [ -n "$DETECTED_SKILLS" ]; then
         SKILLS_LINE="Detected agent skills on this machine: $DETECTED_SKILLS."
     fi
     sed -e "s#\[GRAPHIFY_STATUS\]#$GRAPHIFY_STATUS#" -e "s#\[CODEGRAPH_STATUS\]#$CODEGRAPH_STATUS#" -e "s#\[CAVEMAN_STATUS\]#$CAVEMAN_STATUS#" -e "s#\[DETECTED_SKILLS\]#$SKILLS_LINE#" \
-        "$SCRIPT_DIR/templates/MEMORY.md" > "$MEMORY_DEST"
-    echo -e "\033[32mCreated file: MEMORY.md\033[0m"
+        "$SCRIPT_DIR/templates/memory/local_env.md" > "$LOCAL_ENV_DEST"
+    echo -e "\033[32mCreated file: memory/local_env.md\033[0m"
 else
-    echo -e "\033[33mSkipped file: MEMORY.md (already exists, use --force to overwrite)\033[0m"
+    echo -e "\033[33mSkipped file: memory/local_env.md (already exists, use --force to overwrite)\033[0m"
 fi
 
+copy_template "$SCRIPT_DIR/templates/MEMORY.md" "$TARGET_PATH/MEMORY.md" "MEMORY.md"
 copy_template "$SCRIPT_DIR/templates/GLOSSARY.md" "$TARGET_PATH/GLOSSARY.md" "GLOSSARY.md"
 copy_template "$SCRIPT_DIR/templates/inbox.md" "$TARGET_PATH/inbox.md" "inbox.md"
 copy_template "$SCRIPT_DIR/templates/memory/daily/template.md" "$TARGET_PATH/memory/daily/template.md" "memory/daily/template.md"

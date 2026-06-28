@@ -12,4 +12,5 @@ __pycache__/
 venv/
 dist/
 build/
-.DS_Store
+# Antariksh Unified Framework -- local env & secrets (do not commit)
+memory/local_env.md

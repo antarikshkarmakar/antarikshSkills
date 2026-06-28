@@ -34,8 +34,9 @@ It integrates the best paradigms in agentic development, grouped by what problem
 
 ## Repository Structure
 
-- `templates/RULESET.md`: **The single canonical source** for the shared rules body (philosophies, command protocol, Second Brain protocol). Edit this file, not the 6 generated rule files below — they drift out of sync if hand-edited directly.
-- `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md`: **Generated** from `templates/RULESET.md` plus a small tool-specific header, at install time. Used by Codex/OpenCode/CLI assistants, Claude Code, Cursor, Cline/Roo-Code, Gemini CLI, and GitHub Copilot Chat respectively. (`.cursorrules` is Cursor's legacy format — still read, but Cursor's current standard is `.cursor/rules/*.mdc`; Cursor users are covered either way since Cursor also reads `AGENTS.md` natively. Copilot's autonomous coding agent already reads `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` directly — `.github/copilot-instructions.md` is what closes the gap for everyday Copilot Chat.)
+- `templates/RULESET.md`: **The single canonical source** for the shared rules body (philosophies, command protocol, Second Brain protocol). Slash commands are a lean lookup table pointing to `.agents/skills/` — detailed instructions live in modular skill files, not in RULESET.md itself. Edit this file, not the 6 generated rule files below — they drift out of sync if hand-edited directly.
+- `templates/.agents/skills/`: **Modular on-demand skill files.** Each slash command is a thin pointer in RULESET.md; the full workflow lives in its own `.agents/skills/<name>/SKILL.md`. This keeps RULESET.md lean (~150 lines) and context-cache-friendly. Currently includes: `align/`, `tdd/`, `diagnose/`, `review/`, `prreview/`, `grok/`, `audit-arch/`, `compact/`, `handoff/`.
+- `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md`: **Generated** from `templates/RULESET.md` plus a tool-specific header, at install time. Also copies `.agents/skills/` recursively to the target directory. Used by Codex/OpenCode/CLI assistants, Claude Code, Cursor, Cline/Roo-Code, Gemini CLI, and GitHub Copilot Chat respectively. (`.cursorrules` is Cursor's legacy format — still read, but Cursor's current standard is `.cursor/rules/*.mdc`; Cursor users are covered either way since Cursor also reads `AGENTS.md` natively. Copilot's autonomous coding agent already reads `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` directly — `.github/copilot-instructions.md` is what closes the gap for everyday Copilot Chat.)
 - `SKILL.md`: Hand-maintained master skill definition for this framework itself (used by Claude Code's Skill system, Antigravity, OpenClaw, etc.). Richer/more detailed than the 6 generated files and **not** regenerated from `RULESET.md` — only its `/grok` section and Second Brain references are kept in sync by hand.
 - `install.ps1`: Windows PowerShell deployer script.
 - `install.sh`: macOS/Linux/WSL Bash deployer script.
@@ -55,7 +56,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 
 ## How to Install in a Project
 
-Running the installer detects locally installed agent skills (see below), generates the 6 rule files from `templates/RULESET.md`, creates the `memory/` structure (including `adr/` and `prds/`), scaffolds Second Brain templates (including `GLOSSARY.md`), creates today's daily log (`memory/daily/YYYY-MM-DD.md`), ensures a `.gitignore` covers secrets/junk (creating one if missing, or appending only the missing baseline entries if one already exists — never overwrites your own rules), and writes everything to the root of the target directory.
+Running the installer detects locally installed agent skills (see below), generates the 6 rule files from `templates/RULESET.md`, copies `.agents/skills/` recursively to the target directory (so slash commands have their full workflow files), creates the `memory/` structure (including `adr/` and `prds/`), scaffolds Second Brain templates (including `GLOSSARY.md`), creates today's daily log (`memory/daily/YYYY-MM-DD.md`), ensures a `.gitignore` covers secrets/junk (creating one if missing, or appending only the missing baseline entries if one already exists — never overwrites your own rules), and writes everything to the root of the target directory.
 
 ### On Windows (PowerShell)
 ```powershell
@@ -136,7 +137,7 @@ Once the rules are installed in your workspace root, any agent reading them will
 The agent acts as a strict evaluator with 20+ years of experience. It interrogates your task scope, constraints, and traps in blocks before coding, and outputs a blunt, structured assessment and a 30-60-90 day action plan.
 
 ### `/align` — Pre-Coding Scope Alignment
-Use before starting any non-trivial change. Interrogates the goal, constraints, "done" criteria, and explicit non-goals; if the request is ambiguous, lists the plausible interpretations instead of silently picking one; confirms scope back before any code is written. The deliberate, structured form of Philosophy IX (Think Before Coding). If scope changes mid-task, classifies it first — **Expansion** (new `/align` pass), **Selective Expansion** (confirm and continue), **Hold Scope** (defer as an open loop), or **Reduction** (confirm the smaller scope) — instead of silently absorbing it.
+Use before starting any non-trivial change. Interrogates the goal, constraints, "done" criteria, and explicit non-goals; if the request is ambiguous, lists the plausible interpretations instead of silently picking one; confirms scope back before any code is written. The deliberate, structured form of Philosophy IX (Think Before Coding). If scope changes mid-task, classifies it first — **Expansion** (new `/align` pass), **Selective Expansion** (confirm and continue), **Hold Scope** (defer as an open loop), or **Reduction** (confirm the smaller scope) — instead of silently absorbing it. Full workflow in `.agents/skills/align/SKILL.md`.
 
 ### `/align-docs` — Scope Alignment + Shared Language
 Everything `/align` does, plus building the project's shared language: adds undefined domain terms surfaced during the interrogation to `GLOSSARY.md`, and writes an ADR (`memory/adr/<NNN>-<slug>.md`) for any hard-to-explain decision (tradeoff, rejected alternative, constraint).
@@ -149,6 +150,7 @@ Pivots to TDD mode. If no test framework exists yet, bootstraps the minimal one 
 1. **RED**: Write a failing test for the requested feature. Run the test and verify it fails.
 2. **GREEN**: Write the minimal code required to pass the test.
 3. **REFACTOR**: Clean and optimize implementation without breaking tests.
+Full workflow in `.agents/skills/tdd/SKILL.md`.
 
 ### `/diagnose` — Structured Debugging (Matt Pocock Diagnose)
 Follows a rigorous debugging sequence:
@@ -156,33 +158,34 @@ Follows a rigorous debugging sequence:
 2. **MINIMIZE**: **Divide and conquer** — bisect the system to isolate the exact file and lines responsible.
 3. **HYPOTHESIZE**: List 1-2 probable causes.
 4. **FIX**: Apply a surgical fix, changing **one variable at a time** so you know exactly what worked, then remove the reproduction script.
+Full workflow in `.agents/skills/diagnose/SKILL.md`.
 
 ### `/code` — Surgical Implementation
 Instructs the agent to evaluate the task using the Ponytail ladder (Native first, standard library, YAGNI), inspect contract boundaries in `INTERFACES.md`, and write minimal, clean changes.
 
 ### `/review` — Adversarial Duel Review & Critic Widget
-Runs a proposer-attacker duel. First routes the attack — skips axes the diff can't trigger (no Security Surfaces on a pure copy change, no UI axis on backend-only work) — then the Attacker personality tests the code against the axes that apply: edge cases, race conditions, silent failures, assumption violations, security boundaries, and off-by-ones, outputting a clear critic verdict (`PASS/FAIL` and reason).
+Runs a proposer-attacker duel. First routes the attack — skips axes the diff can't trigger (no Security Surfaces on a pure copy change, no UI axis on backend-only work) — then the Attacker personality tests the code against the axes that apply: edge cases, race conditions, silent failures, assumption violations, security boundaries, and off-by-ones, outputting a clear critic verdict (`PASS/FAIL` and reason). Full workflow in `.agents/skills/review/SKILL.md`.
 
 ### `/prreview` — Gated GitHub PR Review (Draft → Approve → Post)
-Checks whether `gh` is authenticated; if not, falls back to plain `git diff`/`git log` and a manually-pasted draft. Drafts inline PR comments (with `​```suggestion​` blocks where a fix applies) and an overall verdict, shows the *exact* comments and event type (`APPROVE`/`REQUEST_CHANGES`/`COMMENT`) for explicit yes/no approval, then posts via a batched `gh api` pending review. Never posts without approval — see Philosophy VIII (Visible & Hard-to-Reverse Action Gate).
+Checks whether `gh` is authenticated; if not, falls back to plain `git diff`/`git log` and a manually-pasted draft. Drafts inline PR comments (with `​```suggestion​` blocks where a fix applies) and an overall verdict, shows the *exact* comments and event type (`APPROVE`/`REQUEST_CHANGES`/`COMMENT`) for explicit yes/no approval, then posts via a batched `gh api` pending review. Never posts without approval — see Philosophy VIII (Visible & Hard-to-Reverse Action Gate). Full workflow in `.agents/skills/prreview/SKILL.md`.
 
 ### `/doc` — Direct Documentation
 Generates clear, direct documentation using markdown, tables, alert blocks, and mermaid diagrams with zero filler or redundant introductions.
 
 ### `/grok` — Repository Comprehension (Context Graph)
-Checks `memory/projects/<name>.md` first — if a previous scan is recorded with a commit hash/date, diffs the repo against that point and only re-analyzes what changed, instead of rescanning from zero. Then checks whether graphify, Understand-Anything, or CodeGraph is available (see Agent Skill Detection above) and delegates to whichever is found — CodeGraph specifically also offers real call-graph/blast-radius queries beyond a structural map; if none is available, falls back to a manual scan of manifest files, test framework, and entry points. Either way, persists the findings (stamped with the current commit hash/date) to `memory/projects/<name>.md` so the next run can do an incremental update.
+Checks `memory/projects/<name>.md` first — if a previous scan is recorded with a commit hash/date, diffs the repo against that point and only re-analyzes what changed, instead of rescanning from zero. Then checks whether graphify, Understand-Anything, or CodeGraph is available (see Agent Skill Detection above) and delegates to whichever is found — CodeGraph specifically also offers real call-graph/blast-radius queries beyond a structural map. If graphify is available, it runs a two-phase manifest-driven pipeline: Phase 1 (detect files, extract code AST, create job manifest for docs/images, exit); the agent then dispatches subagents for doc/image chunks and runs Phase 2 (`--resume`) to merge and finish. If no graph tool is available, falls back to a manual scan of manifest files, test framework, and entry points. Either way, persists the findings (stamped with the current commit hash/date) to `memory/projects/<name>.md` so the next run can do an incremental update. Full workflow in `.agents/skills/grok/SKILL.md`.
 
 ### `/audit-arch` — Architecture Health Check
-Run periodically, not just when something's broken. Delegates to a codebase-mapping tool if available — `claude-mem:pathfinder` or CodeGraph (real blast-radius/dependency-tangle data via `codegraph impact`/`codegraph callers`); otherwise falls back to a manual smell-scan (god objects, shallow modules, duplicated logic, tangled dependencies). Outputs a prioritized refactor queue, not an unprompted rewrite — see Philosophy XII (Continuous Architecture Care).
+Run periodically, not just when something's broken. Delegates to a codebase-mapping tool if available — `claude-mem:pathfinder` or CodeGraph (real blast-radius/dependency-tangle data via `codegraph impact`/`codegraph callers`); otherwise falls back to a manual smell-scan (god objects, shallow modules, duplicated logic, tangled dependencies). Outputs a prioritized refactor queue, not an unprompted rewrite — see Philosophy XII (Continuous Architecture Care). Full workflow in `.agents/skills/audit-arch/SKILL.md`.
 
 ### `/scratch` — Scaffold New Project
 Initializes a repository from zero, creating standard files, the Second Brain system (`MEMORY.md`, `GLOSSARY.md`, `inbox.md`, `memory/`), and the module boundary tracker (`INTERFACES.md`). Per Philosophy VI, also ensures a `.gitignore` covers secrets and common build/dependency junk — created fresh if missing, or merged in if one exists without those entries.
 
 ### `/compact` — Memory Consolidation (Second Brain Sync)
-Consolidates current session learnings. It writes a daily log summary, updates project cards in `memory/projects/`, refines `MEMORY.md` open loops, and clears `inbox.md`. If the `caveman` plugin is installed, runs `/caveman-compress` on the updated memory files as the final step. If toolless, it outputs updated files in markdown blocks for you to paste.
+Consolidates current session learnings. It writes a daily log summary, updates project cards in `memory/projects/`, refines `MEMORY.md` open loops, and clears `inbox.md`. If the `caveman` plugin is installed, runs `/caveman-compress` on the updated memory files as the final step. If toolless, it outputs updated files in markdown blocks for you to paste. Full workflow in `.agents/skills/compact/SKILL.md`.
 
 ### `/handoff` — Agent Handoff & State Compilation
-Compiles a transition note summarizing accomplishments, active/in-progress files, open loops, blockers, and the next action for the incoming agent. It writes this to `memory/handoff.md` (or prints a markdown block for manual copy-pasting if toolless).
+Compiles a transition note summarizing accomplishments, active/in-progress files, open loops, blockers, and the next action for the incoming agent. It writes this to `memory/handoff.md` (or prints a markdown block for manual copy-pasting if toolless). Full workflow in `.agents/skills/handoff/SKILL.md`.
 
 ---
 

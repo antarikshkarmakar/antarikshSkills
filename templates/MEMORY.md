@@ -21,10 +21,7 @@
 
 ## Context Agent Needs
 - [Any critical context, URLs, or repository facts needed]
-- [GRAPHIFY_STATUS]
-- [CODEGRAPH_STATUS]
-- [CAVEMAN_STATUS]
-- [DETECTED_SKILLS]
+- Refer to `memory/local_env.md` (git-ignored) for local tools, skills, and plugins detected on this machine.
 
 ---
 *Last Updated: [YYYY-MM-DD]*

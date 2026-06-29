@@ -88,7 +88,7 @@ The installer drops the right file for every tool in one pass (see Repository St
 | **VS Code (GitHub Copilot)** | Project-Local | `.github/copilot-instructions.md` / `AGENTS.md` | Run project installer, then open project folder |
 | **OpenCode** | Project-Local | `AGENTS.md` | Run project installer, then open project folder |
 | **Antigravity** | Local or Global | `AGENTS.md` / `GEMINI.md` | Run project installer OR symlink plugin to `~/.gemini/config/plugins/` |
-| **Hermes Agent** | Global | `~/.hermes/SOUL.md` / `~/.hermes/skills/` | Copy philosophies to SOUL.md and skills to skills folder |
+| **Hermes Agent** | Global | `~/.hermes/SOUL.md` / `~/.hermes/skills/` | Copy philosophies to SOUL.md and skills to skills folder `cp -r skills/* ~/.hermes/skills/`|
 | **OpenClaw** | Local | `AGENT.md` / `.agents/skills/` | Run project installer, then load workspace |
 
 
@@ -125,27 +125,6 @@ This repository is fully compatible with Codex's plugin marketplace configuratio
    ```
    *Make sure hooks are enabled in your global configuration `~/.codex/config.toml` (under `[features]` set `codex_hooks = true`) for stop-gate automation.*
 
-### Cursor
-No separate Cursor Marketplace extension is needed. Cursor's built-in AI assistant automatically reads the rules generated at project root:
-*   **AI Chat & Agent**: Automatically read [AGENTS.md](file:///c:/GitHub/antarikshSkills/AGENTS.md) and [.cursorrules](file:///c:/GitHub/antarikshSkills/.cursorrules) at startup.
-*   **Modern MDC Rules**: Automatically honor [.cursor/rules/core.mdc](file:///c:/GitHub/antarikshSkills/.cursor/rules/core.mdc) and [.cursor/rules/commands.mdc](file:///c:/GitHub/antarikshSkills/.cursor/rules/commands.mdc) for contextual code generation.
-*   **How Slash Commands Work**: When you type a slash command (e.g. `/tdd`), the Cursor LLM reads the instruction index in `AGENTS.md`, loads the target skill file (e.g. `.agents/skills/tdd/SKILL.md`), and executes the structured loop.
-
-### VS Code (GitHub Copilot)
-No VS Code Extension Marketplace plugin is required. GitHub Copilot's built-in agents automatically pick up your project configuration:
-*   **Copilot Chat**: Automatically reads and applies [.github/copilot-instructions.md](file:///c:/GitHub/antarikshSkills/.github/copilot-instructions.md) to all your workspace chat queries.
-*   **Copilot Edits (Agent Mode)**: Automatically reads [AGENTS.md](file:///c:/GitHub/antarikshSkills/AGENTS.md) to guide autonomous refactoring.
-*   **How Slash Commands Work**: Typing a command like `/diagnose` triggers the Copilot LLM to read the index inside `AGENTS.md` and load/execute the corresponding skill file at `.agents/skills/diagnose/SKILL.md`.
-
-### Antigravity & OpenCode
-Google's agentic IDE and OpenCode read [AGENTS.md](file:///c:/GitHub/antarikshSkills/AGENTS.md) (and [GEMINI.md](file:///c:/GitHub/antarikshSkills/GEMINI.md)) natively. Open the project folder in either editor; the agent automatically parses the ruleset and respects the modular skills folders at `.agents/skills/` during execution.
-
-### Hermes Agent
-*   **Global Identity**: Append the Core Philosophies of `templates/RULESET.md` directly to your global identity file at `~/.hermes/SOUL.md`.
-*   **Modular Skills**: Copy the templates' modular skills into Hermes' custom skills folder:
-    ```bash
-    cp -r skills/* ~/.hermes/skills/
-    ```
 
 ### OpenClaw
 *   **Identity & Guidelines**: Append the philosophies to your agent's workspace configuration manual (`AGENT.md` or `SOUL.md` in `~/.openclaw/agents/<name>/`).

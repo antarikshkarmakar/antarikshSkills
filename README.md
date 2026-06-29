@@ -112,13 +112,19 @@ This repository is fully compatible with Codex's plugin marketplace configuratio
    *Make sure hooks are enabled in your global configuration `~/.codex/config.toml` (under `[features]` set `codex_hooks = true`) for stop-gate automation.*
 
 ### Cursor
-Reads `AGENTS.md` natively (Cursor's current standard) and also honors the legacy `.cursorrules` if present for older setups. Just open the installed project folder in Cursor.
+No separate Cursor Marketplace extension is needed. Cursor's built-in AI assistant automatically reads the rules generated at project root:
+*   **AI Chat & Agent**: Automatically read [AGENTS.md](file:///c:/GitHub/antarikshSkills/AGENTS.md) and [.cursorrules](file:///c:/GitHub/antarikshSkills/.cursorrules) at startup.
+*   **Modern MDC Rules**: Automatically honor [.cursor/rules/core.mdc](file:///c:/GitHub/antarikshSkills/.cursor/rules/core.mdc) and [.cursor/rules/commands.mdc](file:///c:/GitHub/antarikshSkills/.cursor/rules/commands.mdc) for contextual code generation.
+*   **How Slash Commands Work**: When you type a slash command (e.g. `/tdd`), the Cursor LLM reads the instruction index in `AGENTS.md`, loads the target skill file (e.g. `.agents/skills/tdd/SKILL.md`), and executes the structured loop.
 
 ### VS Code (GitHub Copilot)
-Copilot Chat/agent mode in VS Code auto-detects `.github/copilot-instructions.md` and applies it to all chat requests in the workspace; Copilot's autonomous coding agent additionally reads `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` directly. Open the installed project folder — both are already in place.
+No VS Code Extension Marketplace plugin is required. GitHub Copilot's built-in agents automatically pick up your project configuration:
+*   **Copilot Chat**: Automatically reads and applies [.github/copilot-instructions.md](file:///c:/GitHub/antarikshSkills/.github/copilot-instructions.md) to all your workspace chat queries.
+*   **Copilot Edits (Agent Mode)**: Automatically reads [AGENTS.md](file:///c:/GitHub/antarikshSkills/AGENTS.md) to guide autonomous refactoring.
+*   **How Slash Commands Work**: Typing a command like `/diagnose` triggers the Copilot LLM to read the index inside `AGENTS.md` and load/execute the corresponding skill file at `.agents/skills/diagnose/SKILL.md`.
 
-### Antigravity
-Google's agentic IDE reads both `AGENTS.md` and `GEMINI.md` natively (requires Antigravity v1.20.3+; per its own rule hierarchy, `GEMINI.md` takes precedence over `AGENTS.md` when both exist — that's fine, they're generated from the same `RULESET.md` body so there's nothing to conflict on in practice). Open the installed project folder.
+### Antigravity & OpenCode
+Google's agentic IDE and OpenCode read [AGENTS.md](file:///c:/GitHub/antarikshSkills/AGENTS.md) (and [GEMINI.md](file:///c:/GitHub/antarikshSkills/GEMINI.md)) natively. Open the project folder in either editor; the agent automatically parses the ruleset and respects the modular skills folders at `.agents/skills/` during execution.
 
 ### Hermes Agent
 *   **Global Identity**: Append the Core Philosophies of `templates/RULESET.md` directly to your global identity file at `~/.hermes/SOUL.md`.

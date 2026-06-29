@@ -192,11 +192,11 @@ Full workflow in `.agents/skills/tdd/SKILL.md`.
 
 ### `/diagnose` — Structured Debugging (Matt Pocock Diagnose)
 Follows a rigorous debugging sequence:
-1. **REPRODUCE**: Smallest, simplest repro that fails consistently — or **log and trace** (verbose output/breakpoints) when a deterministic repro isn't feasible.
+1. **REPRODUCE**: Smallest, simplest repro that fails consistently. **Sentry telemetry** integrates natively: if a Sentry Issue ID/URL is provided, the agent automatically queries Sentry via CLI or REST API to pull the exact stack traces, request payloads, and variables in scope. Otherwise, falls back to **log and trace** (verbose output/breakpoints).
 2. **MINIMIZE**: **Divide and conquer** — bisect the system to isolate the exact file and lines responsible.
 3. **HYPOTHESIZE**: List 1-2 probable causes.
 4. **FIX**: Apply a surgical fix, changing **one variable at a time** so you know exactly what worked, then remove the reproduction script.
-Full workflow in `.agents/skills/diagnose/SKILL.md`.
+Full workflow in [skills/diagnose/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/diagnose/SKILL.md) (deployed to `.agents/skills/diagnose/SKILL.md`).
 
 ### `/code` — Surgical Implementation
 Instructs the agent to evaluate the task using the Ponytail ladder (Native first, standard library, YAGNI), inspect contract boundaries in `INTERFACES.md`, and write minimal, clean changes.

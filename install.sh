@@ -222,8 +222,8 @@ fi
 # Copy the skills/ folder if it exists in the root
 if [ -d "$SCRIPT_DIR/skills" ]; then
     if [ ! -d "$TARGET_PATH/.agents/skills" ] || [ "$FORCE" = true ]; then
-        mkdir -p "$TARGET_PATH/.agents"
-        cp -r "$SCRIPT_DIR/skills" "$TARGET_PATH/.agents/"
+        mkdir -p "$TARGET_PATH/.agents/skills"
+        cp -R "$SCRIPT_DIR/skills/." "$TARGET_PATH/.agents/skills/"
         echo -e "\033[32mCreated folder: .agents/skills/ (modular agent skills)\033[0m"
     else
         echo -e "\033[33mSkipped folder: .agents/skills/ (already exists, use --force to overwrite)\033[0m"

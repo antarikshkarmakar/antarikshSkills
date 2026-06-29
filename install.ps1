@@ -145,10 +145,10 @@ $skillsSrc = Join-Path $scriptDir "skills"
 $skillsDest = Join-Path $targetPath ".agents\skills"
 if (Test-Path $skillsSrc) {
     if (!(Test-Path $skillsDest) -or $Force) {
-        if (!(Test-Path (Split-Path -Parent $skillsDest))) {
-            New-Item -ItemType Directory -Path (Split-Path -Parent $skillsDest) -Force | Out-Null
+        if (!(Test-Path $skillsDest)) {
+            New-Item -ItemType Directory -Path $skillsDest -Force | Out-Null
         }
-        Copy-Item -Path $skillsSrc -Destination $skillsDest -Recurse -Force
+        Copy-Item -Path "$skillsSrc\*" -Destination $skillsDest -Recurse -Force
         Write-Host "Created folder: .agents/skills/ (modular agent skills)" -ForegroundColor Green
     } else {
         Write-Host "Skipped folder: .agents/skills/ (already exists, use -Force to overwrite)" -ForegroundColor Yellow

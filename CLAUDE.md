@@ -98,6 +98,7 @@ Don't silently fix smells — flag for `/audit-arch`. Prefer deep modules with s
 | `/code` | Ponytail surgical implementation |
 | `/review` | Adversarial duel review → `.agents/skills/review/SKILL.md` |
 | `/prreview` | Gated GitHub PR review → `.agents/skills/prreview/SKILL.md` |
+| `/worktree` | Git Worktrees parallel workflow → `.agents/skills/worktree/SKILL.md` |
 | `/doc` | Direct documentation |
 | `/grok` | Repository comprehension → `.agents/skills/grok/SKILL.md` |
 | `/audit-arch` | Architecture health check → `.agents/skills/audit-arch/SKILL.md` |

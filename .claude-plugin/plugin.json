@@ -15,6 +15,7 @@
     { "name": "diagnose", "path": "skills/diagnose/SKILL.md" },
     { "name": "review", "path": "skills/review/SKILL.md" },
     { "name": "prreview", "path": "skills/prreview/SKILL.md" },
+    { "name": "worktree", "path": "skills/worktree/SKILL.md" },
     { "name": "grok", "path": "skills/grok/SKILL.md" },
     { "name": "audit-arch", "path": "skills/audit-arch/SKILL.md" },
     { "name": "compact", "path": "skills/compact/SKILL.md" },

@@ -207,6 +207,9 @@ Runs a proposer-attacker duel. First routes the attack — skips axes the diff c
 ### `/prreview` — Gated GitHub PR Review (Draft → Approve → Post)
 Checks whether `gh` is authenticated; if not, falls back to plain `git diff`/`git log` and a manually-pasted draft. Drafts inline PR comments (with `​```suggestion​` blocks where a fix applies) and an overall verdict, shows the *exact* comments and event type (`APPROVE`/`REQUEST_CHANGES`/`COMMENT`) for explicit yes/no approval, then posts via a batched `gh api` pending review. Never posts without approval — see Philosophy VIII (Visible & Hard-to-Reverse Action Gate). Full workflow in `.agents/skills/prreview/SKILL.md`.
 
+### `/worktree` — Isolated Concurrent Task Execution (Git Worktrees)
+Instructs the agent to check out task branches into clean sibling directories to prevent active file collisions and database locks during concurrent tasks. Includes setup and teardown procedures. Full workflow in [skills/worktree/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/worktree/SKILL.md) (deployed to `.agents/skills/worktree/SKILL.md`).
+
 ### `/doc` — Direct Documentation
 Generates clear, direct documentation using markdown, tables, alert blocks, and mermaid diagrams with zero filler or redundant introductions.
 

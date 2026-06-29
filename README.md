@@ -98,6 +98,19 @@ This repository is pre-configured as a **Claude Code Plugin Marketplace**. You c
 ### Codex (CLI)
 OpenAI's Codex CLI reads `AGENTS.md` as its primary instruction file. Run `codex` from inside the installed project directory — zero extra configuration.
 
+#### Installing as a Global Plugin
+This repository is fully compatible with Codex's plugin marketplace configuration:
+
+1. **Add the Marketplace**: Tap the repository inside Codex CLI:
+   ```bash
+   codex plugin marketplace add <github-username>/antarikshSkills
+   ```
+2. **Install the Plugin**:
+   ```bash
+   codex plugin install antariksh-skills
+   ```
+   *Make sure hooks are enabled in your global configuration `~/.codex/config.toml` (under `[features]` set `codex_hooks = true`) for stop-gate automation.*
+
 ### Cursor
 Reads `AGENTS.md` natively (Cursor's current standard) and also honors the legacy `.cursorrules` if present for older setups. Just open the installed project folder in Cursor.
 

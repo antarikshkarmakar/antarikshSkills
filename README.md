@@ -76,7 +76,21 @@ cd /path/to/antarikshSkills
 
 ## Setup Per Tool
 
-The installer drops the right file for every tool in one pass (see Repository Structure above) — there's no separate per-tool configuration step. Open the installed project in whichever of these you use; each one picks its rules up automatically:
+The installer drops the right file for every tool in one pass (see Repository Structure above) — there's no separate per-tool configuration step. Open the installed project in whichever of these you use; each one picks its rules up automatically.
+
+### IDE & Tool Installation Reference Table
+
+| Tool / IDE | Setup Type | Primary Configuration File(s) | Installation Command / Method |
+| :--- | :--- | :--- | :--- |
+| **Claude Code (CLI)** | Local or Global | `CLAUDE.md` / `settings.json` | Run project installer OR `/plugin install antariksh-skills` |
+| **Codex (CLI)** | Local or Global | `AGENTS.md` / `hooks.json` | Run project installer OR `codex plugin install antariksh-skills` |
+| **Cursor** | Project-Local | `AGENTS.md` / `.cursorrules` / `.cursor/rules/` | Run project installer, then open project folder |
+| **VS Code (GitHub Copilot)** | Project-Local | `.github/copilot-instructions.md` / `AGENTS.md` | Run project installer, then open project folder |
+| **OpenCode** | Project-Local | `AGENTS.md` | Run project installer, then open project folder |
+| **Antigravity** | Local or Global | `AGENTS.md` / `GEMINI.md` | Run project installer OR symlink plugin to `~/.gemini/config/plugins/` |
+| **Hermes Agent** | Global | `~/.hermes/SOUL.md` / `~/.hermes/skills/` | Copy philosophies to SOUL.md and skills to skills folder |
+| **OpenClaw** | Local | `AGENT.md` / `.agents/skills/` | Run project installer, then load workspace |
+
 
 ### Claude Code (CLI)
 Reads `CLAUDE.md` from the project root automatically. Run `claude` from inside the installed project directory. Add `-Hooks`/`--hooks` at install time for mechanical Second Brain enforcement (see [Optional: Claude Code Hooks](#optional-claude-code-hooks)).
@@ -240,3 +254,47 @@ Compiles a transition note summarizing accomplishments, active/in-progress files
 If you are running the agent in a web browser interface (e.g., Gemini, ChatGPT, DeepSeek, or Minimax Web UI) or toolless API:
 1. **Interactive Commands**: The model will parse typed slash commands in your messages (e.g. `/grill`) and run the corresponding behaviors.
 2. **Dialogue Fallback**: The model will ask you to paste directory structures or file contents, output code updates with exact target file paths, and output full memory updates for you to manually paste into `MEMORY.md` and `memory/daily/` logs.
+
+---
+
+## Advanced: Packaging as a Plugin / Extension
+
+If you want to package and distribute this framework as a marketplace plugin, you can build wrappers around the installer:
+
+### 1. VS Code, Cursor, and OpenCode (VS Code Extension)
+Because Cursor and OpenCode are based on VS Code/VSCodium, a single VS Code extension will run in all three:
+1. Create a standard VS Code extension using `yo code`.
+2. Add a command contribution inside `package.json`:
+   ```json
+   "contributes": {
+     "commands": [{
+       "command": "antariksh.initialize",
+       "title": "Antariksh: Initialize/Update Framework"
+     }]
+   }
+   ```
+3. Use the terminal/process Node APIs in `src/extension.ts` to run the installer:
+   ```typescript
+   import { exec } from 'child_process';
+   import * as vscode from 'vscode';
+   
+   vscode.commands.registerCommand('antariksh.initialize', () => {
+       const workspace = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+       if (!workspace) return;
+       const cmd = process.platform === 'win32'
+           ? `powershell.exe -ExecutionPolicy Bypass -File "${installPs1Path}" -TargetDir "${workspace}" -Force`
+           : `bash "${installShPath}" "${workspace}" --force`;
+       exec(cmd, (err, stdout, stderr) => { ... });
+   });
+   ```
+
+### 2. Antigravity (Native Agent Plugin)
+Antigravity searches for custom plugins inside `~/.gemini/config/plugins/`. Because this repository already contains [.claude-plugin/plugin.json](file:///.claude-plugin/plugin.json) and [.claude-plugin/marketplace.json](file:///.claude-plugin/marketplace.json), you can install it globally by symlinking it:
+* **Windows (PowerShell)**:
+  ```powershell
+  New-Item -ItemType SymbolicLink -Path "C:\Users\antar\.gemini\config\plugins\antarikshSkills" -Value "C:\GitHub\antarikshSkills"
+  ```
+* **macOS/Linux (Bash)**:
+  ```bash
+  ln -s /path/to/antarikshSkills ~/.gemini/config/plugins/antarikshSkills
+  ```

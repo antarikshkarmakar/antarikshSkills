@@ -7,9 +7,12 @@ trigger: /diagnose
 # /diagnose — Structured Debugging
 
 ## 1. REPRODUCE
-Write a minimal script or test case that reliably reproduces the bug. Smallest, simplest version that fails consistently.
-
-If deterministic repro isn't feasible → **log and trace**: add verbose output or breakpoints to watch data flow in real time.
+*   **Minimal Repro**: Write a minimal script or test case that reliably reproduces the bug. Smallest, simplest version that fails consistently.
+*   **Sentry Error Telemetry**: If the user provides a Sentry Issue ID, Event ID, or Trace URL, check `memory/local_env.md` for Sentry configuration (Org slug, auth token). Run:
+    *   *Sentry CLI*: `sentry issue events <issue-id>` or `sentry issue view <issue-id>`
+    *   *Sentry API*: `curl -s -H "Authorization: Bearer <auth-token>" "https://sentry.io/api/0/organizations/<org-slug>/issues/<issue-id>/events/?full=true"`
+    Use the returned stack trace, request payloads, local variables, and breadcrumbs to directly pinpoint the error and construct the reproduction test.
+*   **Fallback Log & Trace**: If a deterministic repro isn't feasible and Sentry isn't configured, add verbose output or breakpoints to watch data flow in real time.
 
 ## 2. MINIMIZE
 Isolate the code surface area using divide and conquer:

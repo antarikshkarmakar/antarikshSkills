@@ -64,6 +64,13 @@ if (Get-Command codegraph -ErrorAction SilentlyContinue) {
 }
 Write-Host $codegraphStatus -ForegroundColor Cyan
 
+# Detect Sentry CLI (read-only -- checks PATH only, never installs anything).
+$sentryStatus = "Sentry: not found -- /diagnose falls back to manual reproduction script or log-tracing."
+if ((Get-Command sentry -ErrorAction SilentlyContinue) -or (Get-Command sentry-cli -ErrorAction SilentlyContinue)) {
+    $sentryStatus = "Sentry: detected on PATH -- /diagnose can pull telemetry and crash traces directly using the CLI or REST API."
+}
+Write-Host $sentryStatus -ForegroundColor Cyan
+
 # Generate the portable rule files from the single canonical templates/RULESET.md.
 # Each tool gets its own header; the body is shared so it can never drift.
 # This includes generating SKILL.md for the agent skill system.
@@ -185,6 +192,9 @@ foreach ($t in $templates) {
             $envContent = $envContent -replace "\[GRAPHIFY_STATUS\]", $graphifyStatus
             $envContent = $envContent -replace "\[CODEGRAPH_STATUS\]", $codegraphStatus
             $envContent = $envContent -replace "\[CAVEMAN_STATUS\]", $cavemanStatus
+            $envContent = $envContent -replace "\[SENTRY_STATUS\]", $sentryStatus
+            $envContent = $envContent -replace "\[SENTRY_ORG_SLUG\]", "FILL_ME_IF_USING_SENTRY"
+            $envContent = $envContent -replace "\[SENTRY_AUTH_TOKEN\]", "FILL_ME_IF_USING_SENTRY"
             $envContent = $envContent -replace "\[DETECTED_SKILLS\]", $skillsLine
             Set-Content -Path $destPath -Value $envContent -NoNewline
         }

@@ -68,6 +68,13 @@ if command -v codegraph >/dev/null 2>&1; then
 fi
 echo -e "\033[36m$CODEGRAPH_STATUS\033[0m"
 
+# Detect Sentry CLI (read-only -- checks PATH only, never installs anything).
+SENTRY_STATUS="Sentry: not found -- /diagnose falls back to manual reproduction script or log-tracing."
+if command -v sentry >/dev/null 2>&1 || command -v sentry-cli >/dev/null 2>&1; then
+    SENTRY_STATUS="Sentry: detected on PATH -- /diagnose can pull telemetry and crash traces directly using the CLI or REST API."
+fi
+echo -e "\033[36m$SENTRY_STATUS\033[0m"
+
 # Generate the portable rule files from the single canonical templates/RULESET.md.
 # Each tool gets its own header; the body is shared so it can never drift.
 # This includes generating SKILL.md for the agent skill system.
@@ -251,7 +258,7 @@ if [ ! -f "$LOCAL_ENV_DEST" ] || [ "$FORCE" = true ]; then
     if [ -n "$DETECTED_SKILLS" ]; then
         SKILLS_LINE="Detected agent skills on this machine: $DETECTED_SKILLS."
     fi
-    sed -e "s#\[GRAPHIFY_STATUS\]#$GRAPHIFY_STATUS#" -e "s#\[CODEGRAPH_STATUS\]#$CODEGRAPH_STATUS#" -e "s#\[CAVEMAN_STATUS\]#$CAVEMAN_STATUS#" -e "s#\[DETECTED_SKILLS\]#$SKILLS_LINE#" \
+    sed -e "s#\[GRAPHIFY_STATUS\]#$GRAPHIFY_STATUS#" -e "s#\[CODEGRAPH_STATUS\]#$CODEGRAPH_STATUS#" -e "s#\[CAVEMAN_STATUS\]#$CAVEMAN_STATUS#" -e "s#\[SENTRY_STATUS\]#$SENTRY_STATUS#" -e "s#\[SENTRY_ORG_SLUG\]#FILL_ME_IF_USING_SENTRY#" -e "s#\[SENTRY_AUTH_TOKEN\]#FILL_ME_IF_USING_SENTRY#" -e "s#\[DETECTED_SKILLS\]#$SKILLS_LINE#" \
         "$SCRIPT_DIR/templates/memory/local_env.md" > "$LOCAL_ENV_DEST"
     echo -e "\033[32mCreated file: memory/local_env.md\033[0m"
 else

@@ -1,5 +1,7 @@
 # Ignore generated targets in the framework repository itself
 /.agents/
+/.claude/
+/.codex/
 /.cursor/
 /GLOSSARY.md
 /INTERFACES.md

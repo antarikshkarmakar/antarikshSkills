@@ -343,6 +343,52 @@ if [ "$WITH_HOOKS" = true ]; then
     fi
 
     echo -e "\033[36mHooks installed. Claude Code needs a bash-capable shell to run them.\033[0m"
+
+    # Codex CLI Hooks
+    mkdir -p "$TARGET_PATH/.codex/hooks"
+
+    for hook_script in session-start.sh stop-check.sh; do
+        hook_src="$SCRIPT_DIR/templates/.claude/hooks/$hook_script"
+        hook_dest="$TARGET_PATH/.codex/hooks/$hook_script"
+        if [ ! -f "$hook_dest" ] || [ "$FORCE" = true ]; then
+            cp "$hook_src" "$hook_dest"
+            chmod +x "$hook_dest"
+            echo -e "\033[32mCreated file: .codex/hooks/$hook_script\033[0m"
+        else
+            echo -e "\033[33mSkipped file: .codex/hooks/$hook_script (already exists, use --force to overwrite)\033[0m"
+        fi
+    done
+
+    CODEX_SETTINGS_TEMPLATE="$SCRIPT_DIR/templates/.claude/settings.json"
+    CODEX_SETTINGS_DEST="$TARGET_PATH/.codex/hooks.json"
+
+    if [ ! -f "$CODEX_SETTINGS_DEST" ]; then
+        sed -e 's/CLAUDE_PROJECT_DIR/CODEX_PROJECT_DIR/g' -e 's/\.claude\/hooks/\.codex\/hooks/g' "$CODEX_SETTINGS_TEMPLATE" > "$CODEX_SETTINGS_DEST"
+        echo -e "\033[32mCreated file: .codex/hooks.json\033[0m"
+    elif command -v jq >/dev/null 2>&1; then
+        SESSION_CMD=$(jq -r '.hooks.SessionStart[0].hooks[0].command' "$CODEX_SETTINGS_TEMPLATE" | sed -e 's/CLAUDE_PROJECT_DIR/CODEX_PROJECT_DIR/g' -e 's/\.claude\/hooks/\.codex\/hooks/g')
+        STOP_CMD=$(jq -r '.hooks.Stop[0].hooks[0].command' "$CODEX_SETTINGS_TEMPLATE" | sed -e 's/CLAUDE_PROJECT_DIR/CODEX_PROJECT_DIR/g' -e 's/\.claude\/hooks/\.codex\/hooks/g')
+
+        jq --arg cmd "$SESSION_CMD" '
+            .hooks //= {} | .hooks.SessionStart //= [] |
+            if (.hooks.SessionStart | any(.hooks[]?.command == $cmd)) then .
+            else .hooks.SessionStart += [{"hooks":[{"type":"command","command":$cmd,"timeout":30}]}]
+            end
+        ' "$CODEX_SETTINGS_DEST" > "$CODEX_SETTINGS_DEST.tmp" && mv "$CODEX_SETTINGS_DEST.tmp" "$CODEX_SETTINGS_DEST"
+
+        jq --arg cmd "$STOP_CMD" '
+            .hooks //= {} | .hooks.Stop //= [] |
+            if (.hooks.Stop | any(.hooks[]?.command == $cmd)) then .
+            else .hooks.Stop += [{"hooks":[{"type":"command","command":$cmd,"timeout":10}]}]
+            end
+        ' "$CODEX_SETTINGS_DEST" > "$CODEX_SETTINGS_DEST.tmp" && mv "$CODEX_SETTINGS_DEST.tmp" "$CODEX_SETTINGS_DEST"
+
+        echo -e "\033[32mMerged hooks into existing .codex/hooks.json\033[0m"
+    else
+        echo -e "\033[33m.codex/hooks.json already exists and 'jq' isn't available to merge safely.\033[0m"
+    fi
+
+    echo -e "\033[36mPowerShell/Bash hooks installed successfully (Claude Code + Codex CLI).\033[0m"
 fi
 
 echo -e "\n\033[36mAntariksh rules deployed. Memory folders initialized. Code safe.\033[0m"

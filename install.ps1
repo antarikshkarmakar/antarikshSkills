@@ -314,7 +314,98 @@ if ($Hooks) {
         Write-Host "Merged PowerShell hooks into existing .claude/settings.json" -ForegroundColor Green
     }
 
-    Write-Host "PowerShell hooks installed successfully." -ForegroundColor Cyan
+    # Codex CLI Hooks
+    $codexHooksDir = Join-Path $targetPath ".codex\hooks"
+    if (!(Test-Path $codexHooksDir)) {
+        New-Item -ItemType Directory -Path $codexHooksDir -Force | Out-Null
+    }
+
+    foreach ($hookScript in @("session-start.ps1", "stop-check.ps1")) {
+        $hookSrc = Join-Path $scriptDir "templates\.claude\hooks\$hookScript"
+        $hookDest = Join-Path $codexHooksDir $hookScript
+        if (!(Test-Path $hookDest) -or $Force) {
+            Copy-Item -Path $hookSrc -Destination $hookDest -Force
+            Write-Host "Created file: .codex/hooks/$hookScript" -ForegroundColor Green
+        } else {
+            Write-Host "Skipped file: .codex/hooks/$hookScript (already exists, use -Force to overwrite)" -ForegroundColor Yellow
+        }
+    }
+
+    $codexSettingsDest = Join-Path $targetPath ".codex\hooks.json"
+    $codexHookConfigs = @{
+        "SessionStart" = "powershell.exe -ExecutionPolicy Bypass -File `${CODEX_PROJECT_DIR}/.codex/hooks/session-start.ps1"
+        "Stop"         = "powershell.exe -ExecutionPolicy Bypass -File `${CODEX_PROJECT_DIR}/.codex/hooks/stop-check.ps1"
+    }
+
+    if (!(Test-Path $codexSettingsDest)) {
+        $codexSettingsObject = [PSCustomObject]@{
+            hooks = [PSCustomObject]@{
+                SessionStart = @(
+                    [PSCustomObject]@{
+                        hooks = @(
+                            [PSCustomObject]@{
+                                type = "command"
+                                command = $codexHookConfigs["SessionStart"]
+                                timeout = 30
+                            }
+                        )
+                    }
+                )
+                Stop = @(
+                    [PSCustomObject]@{
+                        hooks = @(
+                            [PSCustomObject]@{
+                                type = "command"
+                                command = $codexHookConfigs["Stop"]
+                                timeout = 10
+                            }
+                        )
+                    }
+                )
+            }
+        }
+        $codexSettingsObject | ConvertTo-Json -Depth 10 | Set-Content -Path $codexSettingsDest -Force
+        Write-Host "Created file: .codex/hooks.json" -ForegroundColor Green
+    } else {
+        $existingCodex = Get-Content -Path $codexSettingsDest -Raw | ConvertFrom-Json
+
+        if (-not ($existingCodex.PSObject.Properties.Name -contains "hooks")) {
+            $existingCodex | Add-Member -MemberType NoteProperty -Name "hooks" -Value ([PSCustomObject]@{}) -Force
+        }
+
+        foreach ($eventName in @("SessionStart", "Stop")) {
+            $cmdPath = $codexHookConfigs[$eventName]
+
+            if (-not ($existingCodex.hooks.PSObject.Properties.Name -contains $eventName)) {
+                $existingCodex.hooks | Add-Member -MemberType NoteProperty -Name $eventName -Value @() -Force
+            }
+
+            $alreadyPresent = $false
+            foreach ($entry in @($existingCodex.hooks.$eventName)) {
+                foreach ($h in @($entry.hooks)) {
+                    if ($h.command -eq $cmdPath) { $alreadyPresent = $true }
+                }
+            }
+
+            if (-not $alreadyPresent) {
+                $newEntry = [PSCustomObject]@{
+                    hooks = @(
+                        [PSCustomObject]@{
+                            type = "command"
+                            command = $cmdPath
+                            timeout = if ($eventName -eq "SessionStart") { 30 } else { 10 }
+                        }
+                    )
+                }
+                $existingCodex.hooks.$eventName = @(@($existingCodex.hooks.$eventName) + @($newEntry))
+            }
+        }
+
+        $existingCodex | ConvertTo-Json -Depth 10 | Set-Content -Path $codexSettingsDest -Force
+        Write-Host "Merged PowerShell hooks into existing .codex/hooks.json" -ForegroundColor Green
+    }
+
+    Write-Host "PowerShell hooks installed successfully (Claude Code + Codex CLI)." -ForegroundColor Cyan
 }
 
 Write-Host "`nAntariksh rules deployed. Memory folders initialized. Code safe." -ForegroundColor Cyan

@@ -153,16 +153,20 @@ And it checks for the [CodeGraph](https://github.com/colbymchenry/codegraph) CLI
 
 ---
 
-## Optional: Claude Code Hooks
+## Optional: Claude Code & Codex CLI Session Hooks
 
-Everything above is pure prompt text — it works, but it relies on the agent remembering to follow the Start-of-Session/End-of-Session Loop every time. `-Hooks`/`--hooks` adds actual mechanical enforcement, **opt-in only** since it's Claude-Code-specific (no equivalent standard across Cursor/Cline/Codex) and touches `.claude/settings.json` rather than just dropping a template:
+Everything above is pure prompt text — it works, but it relies on the agent remembering to follow the Start-of-Session/End-of-Session Loop every time. `-Hooks`/`--hooks` (or `-k`/`--hooks`) adds actual mechanical enforcement, **opt-in only** since it's CLI-specific and alters local settings:
 
-- **`SessionStart`** (`.claude/hooks/session-start.sh`): automatically loads `memory/handoff.md`, `MEMORY.md`, and `GLOSSARY.md` into context — the agent doesn't have to be told to read them.
-- **`Stop`** (`.claude/hooks/stop-check.sh`): **blocks** ending the turn if source files were edited more recently than today's daily log (`memory/daily/YYYY-MM-DD.md`) — but only when real edits happened outside `memory/` itself, so read-only/Q&A sessions are never nagged. Requires a git repo to detect edits; no-ops otherwise.
+*   **Claude Code**: Deploys hooks to `.claude/hooks/` and registers them inside `.claude/settings.json`.
+*   **Codex CLI**: Deploys hooks to `.codex/hooks/` and registers them inside `.codex/hooks.json`.
 
-If `.claude/settings.json` doesn't exist yet, it's created from scratch. If it already exists, the installer merges the two hooks in without touching any of your existing hooks or settings (PowerShell does this natively via JSON parsing; the bash installer uses `jq` if available, or prints the snippet to add by hand if not — it will never attempt a risky text-based merge). Re-running is idempotent — it won't duplicate the hook entries.
+### Event Triggers (Shared Scripts)
+- **`SessionStart`** (`session-start.sh` / `session-start.ps1`): automatically loads `memory/handoff.md`, `MEMORY.md`, and `GLOSSARY.md` into context — the agent doesn't have to be told to read them.
+- **`Stop`** (`stop-check.sh` / `stop-check.ps1`): **blocks** ending the turn if source files were edited more recently than today's daily log (`memory/daily/YYYY-MM-DD.md`) — but only when real edits happened outside `memory/` itself, so read-only/Q&A sessions are never nagged. Requires a git repo to detect edits; no-ops otherwise.
 
-Requires Claude Code to run with a bash-capable shell to execute the hook scripts (Git Bash or WSL on Windows — consistent with everything else in this repo).
+If the settings file (`.claude/settings.json` or `.codex/hooks.json`) doesn't exist yet, it's created from scratch. If it already exists, the installer merges the two hooks in without touching any of your existing hooks or settings (PowerShell does this natively via JSON parsing; the bash installer uses `jq` if available, or prints the snippet to add by hand if not). Re-running is idempotent — it won't duplicate the hook entries.
+
+Requires the CLI to run with a bash-capable shell to execute the hook scripts (Git Bash or WSL on Windows — consistent with everything else in this repo). Note that Codex CLI requires hooks to be enabled globally in your `~/.codex/config.toml` under `[features]` with `codex_hooks = true`.
 
 ---
 

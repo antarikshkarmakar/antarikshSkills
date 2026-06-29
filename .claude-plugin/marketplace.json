@@ -1,0 +1,14 @@
+{
+  "name": "antariksh-skills-marketplace",
+  "description": "Unified Agent Developer Framework marketplace containing core skills and hooks",
+  "owner": {
+    "name": "Antariksh",
+    "email": "antariksh@example.com"
+  },
+  "plugins": [
+    {
+      "name": "antariksh-skills",
+      "source": "./"
+    }
+  ]
+}

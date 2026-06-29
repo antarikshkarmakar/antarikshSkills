@@ -79,7 +79,21 @@ cd /path/to/antarikshSkills
 The installer drops the right file for every tool in one pass (see Repository Structure above) — there's no separate per-tool configuration step. Open the installed project in whichever of these you use; each one picks its rules up automatically:
 
 ### Claude Code (CLI)
-Reads `CLAUDE.md` from the project root automatically. Run `claude` from inside the installed project directory. Add `-Hooks`/`--hooks` at install time for mechanical Second Brain enforcement (see [Optional: Claude Code Hooks](#optional-claude-code-hooks)) — that part *is* Claude-Code-specific and opt-in; everything else here is not.
+Reads `CLAUDE.md` from the project root automatically. Run `claude` from inside the installed project directory. Add `-Hooks`/`--hooks` at install time for mechanical Second Brain enforcement (see [Optional: Claude Code Hooks](#optional-claude-code-hooks)).
+
+#### Publishing & Installing as a Global Plugin
+This repository is pre-configured as a **Claude Code Plugin Marketplace**. You can register and install it globally so that the modular slash commands are always available on your system, even outside initialized target projects:
+
+1. **Add the Marketplace**: Tap this repository to register it in your local Claude Code configuration:
+   ```bash
+   /plugin marketplace add <github-username>/antarikshSkills
+   ```
+   *(For local testing, run `/plugin marketplace add /path/to/local/antarikshSkills`)*
+2. **Install the Plugin**:
+   ```bash
+   /plugin install antariksh-skills
+   ```
+   This registers the master `antariksh-unified-skill` and the 9 modular command skills globally inside your Claude Code binary.
 
 ### Codex (CLI)
 OpenAI's Codex CLI reads `AGENTS.md` as its primary instruction file. Run `codex` from inside the installed project directory — zero extra configuration.

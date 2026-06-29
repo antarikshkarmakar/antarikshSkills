@@ -133,15 +133,18 @@ if ($RulesOnly) {
     exit 0
 }
 
-# Copy the .agents/ folder if it exists in templates
-$agentsSrc = Join-Path $scriptDir "templates\.agents"
-$agentsDest = Join-Path $targetPath ".agents"
-if (Test-Path $agentsSrc) {
-    if (!(Test-Path $agentsDest) -or $Force) {
-        Copy-Item -Path $agentsSrc -Destination $targetPath -Recurse -Force
-        Write-Host "Created folder: .agents/ (modular agent skills)" -ForegroundColor Green
+# Copy the skills/ folder if it exists in the root
+$skillsSrc = Join-Path $scriptDir "skills"
+$skillsDest = Join-Path $targetPath ".agents\skills"
+if (Test-Path $skillsSrc) {
+    if (!(Test-Path $skillsDest) -or $Force) {
+        if (!(Test-Path (Split-Path -Parent $skillsDest))) {
+            New-Item -ItemType Directory -Path (Split-Path -Parent $skillsDest) -Force | Out-Null
+        }
+        Copy-Item -Path $skillsSrc -Destination $skillsDest -Recurse -Force
+        Write-Host "Created folder: .agents/skills/ (modular agent skills)" -ForegroundColor Green
     } else {
-        Write-Host "Skipped folder: .agents/ (already exists, use -Force to overwrite)" -ForegroundColor Yellow
+        Write-Host "Skipped folder: .agents/skills/ (already exists, use -Force to overwrite)" -ForegroundColor Yellow
     }
 }
 

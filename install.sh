@@ -212,13 +212,14 @@ if [ "$RULES_ONLY" = true ]; then
     exit 0
 fi
 
-# Copy the .agents/ folder if it exists in templates
-if [ -d "$SCRIPT_DIR/templates/.agents" ]; then
-    if [ ! -d "$TARGET_PATH/.agents" ] || [ "$FORCE" = true ]; then
-        cp -r "$SCRIPT_DIR/templates/.agents" "$TARGET_PATH/"
-        echo -e "\033[32mCreated folder: .agents/ (modular agent skills)\033[0m"
+# Copy the skills/ folder if it exists in the root
+if [ -d "$SCRIPT_DIR/skills" ]; then
+    if [ ! -d "$TARGET_PATH/.agents/skills" ] || [ "$FORCE" = true ]; then
+        mkdir -p "$TARGET_PATH/.agents"
+        cp -r "$SCRIPT_DIR/skills" "$TARGET_PATH/.agents/"
+        echo -e "\033[32mCreated folder: .agents/skills/ (modular agent skills)\033[0m"
     else
-        echo -e "\033[33mSkipped folder: .agents/ (already exists, use --force to overwrite)\033[0m"
+        echo -e "\033[33mSkipped folder: .agents/skills/ (already exists, use --force to overwrite)\033[0m"
     fi
 fi
 

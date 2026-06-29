@@ -1,0 +1,23 @@
+{
+  "name": "antariksh-skills",
+  "version": "1.2.0",
+  "description": "Master developer skill framework combining planning, simplified TDD/diagnosis loops, adversarial reviews, and context compression rules.",
+  "author": "Antariksh",
+  "homepage": "https://github.com/antarikshSkills",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antarikshSkills.git"
+  },
+  "skills": [
+    { "name": "antariksh-unified-skill", "path": "SKILL.md" },
+    { "name": "align", "path": "skills/align/SKILL.md" },
+    { "name": "tdd", "path": "skills/tdd/SKILL.md" },
+    { "name": "diagnose", "path": "skills/diagnose/SKILL.md" },
+    { "name": "review", "path": "skills/review/SKILL.md" },
+    { "name": "prreview", "path": "skills/prreview/SKILL.md" },
+    { "name": "grok", "path": "skills/grok/SKILL.md" },
+    { "name": "audit-arch", "path": "skills/audit-arch/SKILL.md" },
+    { "name": "compact", "path": "skills/compact/SKILL.md" },
+    { "name": "handoff", "path": "skills/handoff/SKILL.md" }
+  ]
+}

@@ -111,7 +111,7 @@ Google's agentic IDE reads both `AGENTS.md` and `GEMINI.md` natively (requires A
 *   **Global Identity**: Append the Core Philosophies of `templates/RULESET.md` directly to your global identity file at `~/.hermes/SOUL.md`.
 *   **Modular Skills**: Copy the templates' modular skills into Hermes' custom skills folder:
     ```bash
-    cp -r templates/.agents/skills/* ~/.hermes/skills/
+    cp -r skills/* ~/.hermes/skills/
     ```
 
 ### OpenClaw

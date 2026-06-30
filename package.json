@@ -1,0 +1,35 @@
+{
+  "name": "antariksh-skills",
+  "version": "1.2.0",
+  "description": "Master developer skill framework combining planning, TDD/diagnose loops, adversarial reviews, and context compression rules.",
+  "keywords": [
+    "ai-agent",
+    "skills",
+    "cursorrules",
+    "claude-code",
+    "skillkit"
+  ],
+  "author": "Antariksh",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antarikshSkills.git"
+  },
+  "bugs": {
+    "url": "https://github.com/antarikshSkills/issues"
+  },
+  "homepage": "https://github.com/antarikshSkills#readme",
+  "skills": {
+    "antariksh-unified-skill": "SKILL.md",
+    "align": "skills/align/SKILL.md",
+    "tdd": "skills/tdd/SKILL.md",
+    "diagnose": "skills/diagnose/SKILL.md",
+    "review": "skills/review/SKILL.md",
+    "prreview": "skills/prreview/SKILL.md",
+    "worktree": "skills/worktree/SKILL.md",
+    "grok": "skills/grok/SKILL.md",
+    "audit-arch": "skills/audit-arch/SKILL.md",
+    "compact": "skills/compact/SKILL.md",
+    "handoff": "skills/handoff/SKILL.md"
+  }
+}

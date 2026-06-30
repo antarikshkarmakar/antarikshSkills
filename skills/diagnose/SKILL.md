@@ -1,6 +1,6 @@
 ---
 name: diagnose
-description: Structured Debugging — REPRODUCE, MINIMIZE, HYPOTHESIZE, FIX
+description: Structured Debugging — REPRODUCE, MINIMIZE, 5-WHYS ROOT CAUSE, FIX & PREVENT
 trigger: /diagnose
 ---
 
@@ -20,13 +20,21 @@ Isolate the code surface area using divide and conquer:
 - Check which half still fails
 - Repeat until exact file and lines responsible are found
 
-## 3. HYPOTHESIZE
-State 1-2 hypotheses explaining the cause of the failure.
+## 3. ROOT CAUSE (5 Whys Analysis)
+Trace the failure backward to its source by asking "Why" 5 times iteratively:
+1. **Why** did the immediate failure occur? (e.g., database constraint error)
+2. **Why** was that constraint violated? (e.g., foreign key value was null)
+3. **Why** was it null? (e.g., API payload didn't map the parameter)
+4. **Why** did the mapper fail? (e.g., upstream validator was bypassed)
+5. **Why** was the validator bypassed? (e.g., no regression test for the interface contract in `INTERFACES.md`)
 
-## 4. FIX
-Apply the surgical fix. If testing multiple candidate fixes, **change one variable at a time** — so if it doesn't work, you know exactly which change caused it.
+This identifies the systemic root cause, rather than just patching the immediate symptom.
 
-Verify the repro script passes. Then remove the repro script.
+## 4. FIX & PREVENT
+Apply a surgical fix to resolve the root cause. If testing candidate fixes, **change one variable at a time** so you can identify exactly what works.
+*   **Prevent Recurrence**: Add regression tests, update API validations, or adjust `INTERFACES.md` contracts as indicated by the 5 Whys.
+*   Verify the repro script passes. Then clean up/remove the repro script.
 
 ## Evidence Over Claims
 Never claim the bug is fixed based on code inspection. Run the repro. Show it passing as proof.
+

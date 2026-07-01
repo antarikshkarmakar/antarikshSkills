@@ -13,9 +13,9 @@ It integrates the best paradigms in agentic development, grouped by what problem
 - ⚡ **Karpathy Simplicity & Surgical Changes**: Touch only what is requested, clean up your own orphans, avoid overengineering, and enforce a strict design-and-plan gate (banish the "too simple to need a design" bypass).
 - 🔬 **Matt Pocock TDD & Debug Loops**: Strict Red-Green-Refactor and Reproduce-Minimize-Hypothesize-Fix protocols.
 - ⚔️ **Adversarial Duel & Critic Pattern**: Self-criticism proposer-attacker loops and post-execution checks.
-- 🏗️ **Continuous Architecture Care**: Deep modules, simple interfaces, flagged (not silently fixed) ball-of-mud smells — `/audit-arch` is its periodic, deliberate form.
+- 🏗️ **Continuous Architecture Care**: Deep modules, simple interfaces, flagged (not silently fixed) ball-of-mud smells — `/ak-audit-arch` is its periodic, deliberate form.
 - 🧩 **Think Before Coding**: State assumptions, surface tradeoffs, push back when a simpler approach exists, and stop to ask when genuinely confused — only when ambiguity would change the outcome.
-- 🎯 **Goal-Driven Execution**: Turn imperative asks into verifiable success criteria and loop until they're actually checked, not just plausible — the default behind `/tdd` and `/diagnose`, applied everywhere.
+- 🎯 **Goal-Driven Execution**: Turn imperative asks into verifiable success criteria and loop until they're actually checked, not just plausible — the default behind `/ak-tdd` and `/ak-diagnose`, applied everywhere.
 
 **Memory & Continuity**
 - 🧠 **Second Brain (Claude-mem)**: Continuous context, index routing, and logs across session boundaries (`memory/`, `GLOSSARY.md`, `memory/adr/`, `memory/prds/`).
@@ -27,7 +27,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 
 **Efficiency & Portability**
 - 🪨 **Caveman Communication**: Terse, direct, pleasantry-free responses that cut token consumption by 65%+. Delegates to the [caveman](https://github.com/JuliusBrussee/caveman) plugin's real multi-level compression (`/caveman`, `/caveman-compress`) when it's installed.
-- 📉 **Jcode Cache Optimization & Subagent Delegation**: Lean rulesets and batched reads to prevent expensive cold-cache misses. Compress before content enters context, and delegate heavy, token-intensive tasks (like `/grok` scans, `/diagnose` loops, or `/audit-arch` sweeps) to background subagents when supported by the runner tool to keep the main session's token cache lean.
+- 📉 **Jcode Cache Optimization & Subagent Delegation**: Lean rulesets and batched reads to prevent expensive cold-cache misses. Compress before content enters context, and delegate heavy, token-intensive tasks (like `/ak-grok` scans, `/ak-diagnose` loops, or `/ak-audit-arch` sweeps) to background subagents when supported by the runner tool to keep the main session's token cache lean.
 - 🌐 **Cross-LLM Portability**: Dialogue-driven fallbacks for toolless environments (Web UIs/API).
 
 ---
@@ -37,7 +37,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 - `templates/RULESET.md`: **The single canonical source** for the shared rules body (philosophies, command protocol, Second Brain protocol). Slash commands are a lean lookup table pointing to `.agents/skills/` — detailed instructions live in modular skill files, not in RULESET.md itself. Edit this file, not the 6 generated rule files below — they drift out of sync if hand-edited directly.
 - `skills/`: **Modular on-demand skill files.** Each slash command is a thin pointer in RULESET.md; the full workflow lives in its own `.agents/skills/<name>/SKILL.md`. This keeps RULESET.md lean (~150 lines) and context-cache-friendly. Currently includes: `align/`, `tdd/`, `diagnose/`, `review/`, `prreview/`, `worktree/`, `grok/`, `audit-arch/`, `compact/`, `handoff/`.
 - `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md`: **Generated** from `templates/RULESET.md` plus a tool-specific header, at install time. Also copies the root-level `skills/` recursively to the target directory as `.agents/skills/`. Used by Codex/OpenCode/CLI assistants, Claude Code, Cursor, Cline/Roo-Code, Gemini CLI, and GitHub Copilot Chat respectively. (`.cursorrules` is Cursor's legacy format — still read, but Cursor's current standard is `.cursor/rules/*.mdc`; Cursor users are covered either way since Cursor also reads `AGENTS.md` natively. Copilot's autonomous coding agent already reads `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` directly — `.github/copilot-instructions.md` is what closes the gap for everyday Copilot Chat.)
-- `SKILL.md`: Hand-maintained master skill definition for this framework itself (used by Claude Code's Skill system, Antigravity, OpenClaw, etc.). Richer/more detailed than the 6 generated files and **not** regenerated from `RULESET.md` — only its `/grok` section and Second Brain references are kept in sync by hand.
+- `SKILL.md`: Hand-maintained master skill definition for this framework itself (used by Claude Code's Skill system, Antigravity, OpenClaw, etc.). Richer/more detailed than the 6 generated files and **not** regenerated from `RULESET.md` — only its `/ak-grok` section and Second Brain references are kept in sync by hand.
 - `install.ps1`: Windows PowerShell deployer script.
 - `install.sh`: macOS/Linux/WSL Bash deployer script.
 - `templates/`: Base structures for initialization:
@@ -142,14 +142,14 @@ This repository is fully compatible with Codex's plugin marketplace configuratio
 The installer never installs or copies skills into your project — it only checks whether they're already available on the machine and records what it found in `MEMORY.md` under **Context Agent Needs**, so every agent reading the project's rules knows what's usable without re-probing the filesystem each session.
 
 Specifically, it checks `~/.claude/skills/` (`%USERPROFILE%\.claude\skills\` on Windows) for:
-- **graphify**: if found, `/grok` uses it to build a real knowledge graph of the repo (`graphify-out/`). If not found, `/grok` checks for Understand-Anything next, then falls back to a manual directory/stack scan. This makes graphify-backed repo comprehension work the same way in Claude Code, Cursor, Codex CLI, or Ollama CLI — any tool with terminal/file access can read graphify's `SKILL.md` directly from the detected path and follow its instructions; no Claude-specific "Skill tool" is required.
+- **graphify**: if found, `/ak-grok` uses it to build a real knowledge graph of the repo (`graphify-out/`). If not found, `/ak-grok` checks for Understand-Anything next, then falls back to a manual directory/stack scan. This makes graphify-backed repo comprehension work the same way in Claude Code, Cursor, Codex CLI, or Ollama CLI — any tool with terminal/file access can read graphify's `SKILL.md` directly from the detected path and follow its instructions; no Claude-specific "Skill tool" is required.
 - Any other skill folders present, listed for visibility (e.g. `deep-research`, `claude-mem`, etc.).
 
 It also checks `~/.claude/plugins/installed_plugins.json` (a different mechanism — [caveman](https://github.com/JuliusBrussee/caveman) is a Claude Code *plugin*, not a skills-folder entry) for:
-- **caveman**: if installed, Philosophy V and `/compact` delegate to its `/caveman` (output compression) and `/caveman-compress` (memory-file compression) commands. If not installed, the installer prints the one-line install command for the user to run themselves — **it never executes a third-party installer automatically**, consistent with Philosophy VIII.
+- **caveman**: if installed, Philosophy V and `/ak-compact` delegate to its `/caveman` (output compression) and `/caveman-compress` (memory-file compression) commands. If not installed, the installer prints the one-line install command for the user to run themselves — **it never executes a third-party installer automatically**, consistent with Philosophy VIII.
 
 And it checks for the [CodeGraph](https://github.com/colbymchenry/codegraph) CLI on PATH (a third option for `/grok`'s knowledge-graph step, alongside graphify and Understand-Anything):
-- **CodeGraph**: if found, `/grok` and `/audit-arch` can delegate to it — beyond a structural map, it exposes real call-graph and blast-radius queries (`codegraph_explore`, `codegraph_impact`, `codegraph_callers`), useful for "what calls this" / "what breaks if I change this." If not found, both fall back the same way they already did (Understand-Anything → manual scan for `/grok`; pathfinder → manual smell-scan for `/audit-arch`).
+- **CodeGraph**: if found, `/ak-grok` and `/ak-audit-arch` can delegate to it — beyond a structural map, it exposes real call-graph and blast-radius queries (`codegraph_explore`, `codegraph_impact`, `codegraph_callers`), useful for "what calls this" / "what breaks if I change this." If not found, both fall back the same way they already did (Understand-Anything → manual scan for `/ak-grok`; pathfinder → manual smell-scan for `/ak-audit-arch`).
 
 ---
 
@@ -174,26 +174,26 @@ Requires the CLI to run with a bash-capable shell to execute the hook scripts (G
 
 Once the rules are installed in your workspace root, any agent reading them will respond to the following slash subcommands:
 
-### `/grill` — Brutally Honest Mentor Interrogation
+### `/ak-grill` — Brutally Honest Mentor Interrogation
 The agent acts as a strict evaluator with 20+ years of experience. It interrogates your task scope, constraints, and traps in blocks before coding, and outputs a blunt, structured assessment and a 30-60-90 day action plan.
 
-### `/align` — Pre-Coding Scope Alignment
+### `/ak-align` — Pre-Coding Scope Alignment
 Use before starting any non-trivial change. Interrogates the goal, constraints, "done" criteria, and explicit non-goals; confirms scope and checks the strict implementation plan gate (banishing the "too simple" bypass) before any code is written. The deliberate, structured form of Philosophy IX (Think Before Coding). If scope changes mid-task, classifies it first — **Expansion** (new `/align` pass), **Selective Expansion** (confirm and continue), **Hold Scope** (defer as an open loop), or **Reduction** (confirm the smaller scope) — instead of silently absorbing it. Full workflow in `.agents/skills/align/SKILL.md`.
 
-### `/align-docs` — Scope Alignment + Shared Language
-Everything `/align` does, plus building the project's shared language: adds undefined domain terms surfaced during the interrogation to `GLOSSARY.md`, and writes an ADR (`memory/adr/<NNN>-<slug>.md`) for any hard-to-explain decision (tradeoff, rejected alternative, constraint).
+### `/ak-align-docs` — Scope Alignment + Shared Language
+Everything `/ak-align` does, plus building the project's shared language: adds undefined domain terms surfaced during the interrogation to `GLOSSARY.md`, and writes an ADR (`memory/adr/<NNN>-<slug>.md`) for any hard-to-explain decision (tradeoff, rejected alternative, constraint).
 
-### `/to-prd` — Product Requirements Doc with Module Quiz
+### `/ak-to-prd` — Product Requirements Doc with Module Quiz
 Asks which modules/files a change will touch and why before drafting, then writes the PRD to `memory/prds/<feature-slug>.md` (problem statement, goals, non-goals, modules touched, acceptance criteria).
 
-### `/tdd` — Test-Driven Development Loop (Matt Pocock TDD)
+### `/ak-tdd` — Test-Driven Development Loop (Matt Pocock TDD)
 Pivots to TDD mode. If no test framework exists yet, bootstraps the minimal one for the stack first — never skips RED-GREEN-REFACTOR just because nothing was there to begin with:
 1. **RED**: Write a failing test for the requested feature. Run the test and verify it fails.
 2. **GREEN**: Write the minimal code required to pass the test.
 3. **REFACTOR**: Clean and optimize implementation without breaking tests.
 Full workflow in `.agents/skills/tdd/SKILL.md`.
 
-### `/diagnose` — Structured Debugging (Matt Pocock Diagnose)
+### `/ak-diagnose` — Structured Debugging (Matt Pocock Diagnose)
 Follows a rigorous debugging sequence:
 1. **REPRODUCE**: Smallest, simplest repro that fails consistently. **Sentry telemetry** integrates natively: if a Sentry Issue ID/URL is provided, the agent automatically queries Sentry via CLI or REST API to pull the exact stack traces, request payloads, and variables in scope. Otherwise, falls back to **log and trace** (verbose output/breakpoints).
 2. **MINIMIZE**: **Divide and conquer** — bisect the system to isolate the exact file and lines responsible.
@@ -202,41 +202,41 @@ Follows a rigorous debugging sequence:
 For complex or multi-step debugging iterations, the REPRODUCE/MINIMIZE loops can be delegated to isolated subagents to preserve main session context. Full workflow in [skills/diagnose/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/diagnose/SKILL.md) (deployed to `.agents/skills/diagnose/SKILL.md`).
 
 
-### `/code` — Surgical Implementation
+### `/ak-code` — Surgical Implementation
 Instructs the agent to evaluate the task using the Ponytail ladder (Native first, standard library, YAGNI), inspect contract boundaries in `INTERFACES.md`, and write minimal, clean changes.
 
-### `/review` — Adversarial Duel Review & Critic Widget
+### `/ak-review` — Adversarial Duel Review & Critic Widget
 Runs a proposer-attacker duel. First routes the attack — skips axes the diff can't trigger (no Security Surfaces on a pure copy change, no UI axis on backend-only work) — then the Attacker personality tests the code against the axes that apply: edge cases, race conditions, silent failures, assumption violations, security boundaries, and off-by-ones, outputting a clear critic verdict (`PASS/FAIL` and reason). Full workflow in `.agents/skills/review/SKILL.md`.
 
-### `/prreview` — Gated GitHub PR Review (Draft → Approve → Post)
+### `/ak-prreview` — Gated GitHub PR Review (Draft → Approve → Post)
 Checks whether `gh` is authenticated; if not, falls back to plain `git diff`/`git log` and a manually-pasted draft. Drafts inline PR comments (with `​```suggestion​` blocks where a fix applies) and an overall verdict, shows the *exact* comments and event type (`APPROVE`/`REQUEST_CHANGES`/`COMMENT`) for explicit yes/no approval, then posts via a batched `gh api` pending review. Never posts without approval — see Philosophy VIII (Visible & Hard-to-Reverse Action Gate). Full workflow in `.agents/skills/prreview/SKILL.md`.
 
-### `/worktree` — Isolated Concurrent Task Execution (Git Worktrees)
+### `/ak-worktree` — Isolated Concurrent Task Execution (Git Worktrees)
 Instructs the agent to check out task branches into clean sibling directories to prevent active file collisions and database locks during concurrent tasks. Includes setup and teardown procedures. Full workflow in [skills/worktree/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/worktree/SKILL.md) (deployed to `.agents/skills/worktree/SKILL.md`).
 
-### `/doc` — Direct Documentation
+### `/ak-doc` — Direct Documentation
 Generates clear, direct documentation using markdown, tables, alert blocks, and mermaid diagrams with zero filler or redundant introductions.
 
-### `/grok` — Repository Comprehension (Context Graph)
-Checks `memory/projects/<name>.md` first — if a previous scan is recorded with a commit hash/date, diffs the repo against that point and only re-analyzes what changed, instead of rescanning from zero. Then checks whether graphify, Understand-Anything, or CodeGraph is available (see Agent Skill Detection above) and delegates to whichever is found — CodeGraph specifically also offers real call-graph/blast-radius queries beyond a structural map. If graphify is available, it runs a two-phase manifest-driven pipeline: Phase 1 (detect files, extract code AST, create job manifest for docs/images, exit); the agent then dispatches subagents for doc/image chunks and runs Phase 2 (`--resume`) to merge and finish. If no graph tool is available, falls back to a manual scan of manifest files, test framework, and entry points. Either way, persists the findings (stamped with the current commit hash/date) to `memory/projects/<name>.md` so the next run can do an incremental update. Full repository scans consume significant context tokens, so it is recommended to delegate `/grok` to a background subagent when supported. Full workflow in `.agents/skills/grok/SKILL.md`.
+### `/ak-grok` — Repository Comprehension (Context Graph)
+Checks `memory/projects/<name>.md` first — if a previous scan is recorded with a commit hash/date, diffs the repo against that point and only re-analyzes what changed, instead of rescanning from zero. Then checks whether graphify, Understand-Anything, or CodeGraph is available (see Agent Skill Detection above) and delegates to whichever is found — CodeGraph specifically also offers real call-graph/blast-radius queries beyond a structural map. If graphify is available, it runs a two-phase manifest-driven pipeline: Phase 1 (detect files, extract code AST, create job manifest for docs/images, exit); the agent then dispatches subagents for doc/image chunks and runs Phase 2 (`--resume`) to merge and finish. If no graph tool is available, falls back to a manual scan of manifest files, test framework, and entry points. Either way, persists the findings (stamped with the current commit hash/date) to `memory/projects/<name>.md` so the next run can do an incremental update. Full repository scans consume significant context tokens, so it is recommended to delegate `/ak-grok` to a background subagent when supported. Full workflow in `.agents/skills/grok/SKILL.md`.
 
-### `/audit-arch` — Architecture Health Check
+### `/ak-audit-arch` — Architecture Health Check
 Run periodically, not just when something's broken. Delegates to a codebase-mapping tool if available — `claude-mem:pathfinder` or CodeGraph (real blast-radius/dependency-tangle data via `codegraph impact`/`codegraph callers`); otherwise falls back to a manual smell-scan (god objects, shallow modules, duplicated logic, tangled dependencies). Outputs a prioritized refactor queue, not an unprompted rewrite — see Philosophy XII (Continuous Architecture Care). Audits are recommended to run in background subagents to keep the main chat session lean. Full workflow in `.agents/skills/audit-arch/SKILL.md`.
 
-### `/scratch` — Scaffold New Project
+### `/ak-scratch` — Scaffold New Project
 Initializes a repository from zero, creating standard files, the Second Brain system (`MEMORY.md`, `GLOSSARY.md`, `inbox.md`, `memory/`), and the module boundary tracker (`INTERFACES.md`). Per Philosophy VI, also ensures a `.gitignore` covers secrets and common build/dependency junk — created fresh if missing, or merged in if one exists without those entries.
 
-### `/compact` — Memory Consolidation (Second Brain Sync)
+### `/ak-compact` — Memory Consolidation (Second Brain Sync)
 Consolidates current session learnings. It writes a daily log summary, updates project cards in `memory/projects/`, refines `MEMORY.md` open loops, and clears `inbox.md`. If the `caveman` plugin is installed, runs `/caveman-compress` on the updated memory files as the final step. If toolless, it outputs updated files in markdown blocks for you to paste. Full workflow in `.agents/skills/compact/SKILL.md`.
 
-### `/handoff` — Agent Handoff & State Compilation
+### `/ak-handoff` — Agent Handoff & State Compilation
 Compiles a transition note summarizing accomplishments, active/in-progress files, open loops, blockers, and the next action for the incoming agent. It writes this to `memory/handoff.md` (or prints a markdown block for manual copy-pasting if toolless). Full workflow in `.agents/skills/handoff/SKILL.md`.
 
 ---
 
 ## Portability: Cross-LLM Fallback Protocol
 If you are running the agent in a web browser interface (e.g., Gemini, ChatGPT, DeepSeek, or Minimax Web UI) or toolless API:
-1. **Interactive Commands**: The model will parse typed slash commands in your messages (e.g. `/grill`) and run the corresponding behaviors.
+1. **Interactive Commands**: The model will parse typed slash commands in your messages (e.g. `/ak-grill`) and run the corresponding behaviors.
 2. **Dialogue Fallback**: The model will ask you to paste directory structures or file contents, output code updates with exact target file paths, and output full memory updates for you to manually paste into `MEMORY.md` and `memory/daily/` logs.
 
 ---
@@ -292,7 +292,7 @@ To install `antarikshSkills` globally or in your project using SkillKit:
 ```bash
 skillkit add <github-username>/antarikshSkills
 ```
-This registers the master `antariksh-unified-skill` and the modular commands (`/align`, `/tdd`, `/diagnose`, `/review`, `/prreview`, `/worktree`, `/grok`, `/audit-arch`, `/compact`, `/handoff`) in your active agent environments.
+This registers the master `antariksh-unified-skill` and the modular commands (`/ak-align`, `/ak-tdd`, `/ak-diagnose`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-grok`, `/ak-audit-arch`, `/ak-compact`, `/ak-handoff`) in your active agent environments.
 
 #### Format Translation Adapter
 You can translate any modular skill in `skills/` to your favorite agent format using SkillKit's translation engine:
@@ -306,5 +306,42 @@ Before initializing, run SkillKit's collision checking command to ensure that th
 ```bash
 skillkit conflicts
 ```
-This analyzes the triggers (e.g., `/align`, `/tdd`, `/diagnose`) defined in each modular `SKILL.md`'s frontmatter and reports any overlaps.
+This analyzes the triggers (e.g., `/ak-align`, `/ak-tdd`, `/ak-diagnose`) defined in each modular `SKILL.md`'s frontmatter and reports any overlaps.
+
+---
+
+### 4. Factory Droid Integration
+
+Factory Droid can pull and install custom plugins directly from your public repository.
+
+#### Add the Marketplace
+To register this repository as a plugin marketplace in Factory Droid:
+```bash
+droid plugin marketplace add https://github.com/<github-username>/antarikshSkills
+```
+
+#### Install the Plugin
+```bash
+droid plugin install antariksh-skills@antariksh-skills
+```
+
+---
+
+### 5. VS Code, Cursor & GitHub Copilot Marketplace Registration Guidelines
+
+Because of the architectural differences between IDEs and agents, publishing prompt-level rule files requires specific methods:
+
+#### Cursor & VS Code Marketplace
+Cursor and VS Code do not offer a native prompt marketplace. To distribute this framework to their users globally:
+1. **VS Code Extension Wrapper**: Build a lightweight VS Code extension that places your `.cursorrules`, `.cursor/rules/*.mdc`, and `.clinerules` configurations into workspace folders programmatically.
+2. **Publish**: Package the extension and publish it on the official [Visual Studio Marketplace](https://marketplace.visualstudio.com/) or the [Open VSX Registry](https://open-vsx.org/).
+3. **Cursor Directory**: Submit your namespaced MDC rules to community directories like [cursor.directory](https://cursor.directory/) for easy copy-pasting.
+
+#### GitHub Copilot CLI & Copilot Chat
+GitHub Copilot does not support general prompt marketplaces.
+1. **Repository Scope**: Commit `.github/copilot-instructions.md` directly to your repository's root directory. Copilot Chat will read and respect these rules automatically.
+2. **Copilot Extensions**: To make this an official Copilot extension (integrated into the `@` agent dropdown):
+   * Build a custom web service (e.g., in Node.js or Python) that acts as a chat agent and responds to user inputs.
+   * Register it as a **GitHub App** and enable the **Copilot Agent** capability in settings.
+   * Publish it to the official **GitHub Marketplace**.
 

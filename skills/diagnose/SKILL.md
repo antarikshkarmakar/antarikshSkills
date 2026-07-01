@@ -1,10 +1,10 @@
 ---
-name: diagnose
+name: ak-diagnose
 description: Structured Debugging — REPRODUCE, MINIMIZE, 5-WHYS ROOT CAUSE, FIX & PREVENT
-trigger: /diagnose
+trigger: /ak-diagnose
 ---
 
-# /diagnose — Structured Debugging
+# /ak-diagnose — Structured Debugging
 
 ## 1. REPRODUCE
 *   **Minimal Repro**: Write a minimal script or test case that reliably reproduces the bug. Smallest, simplest version that fails consistently.

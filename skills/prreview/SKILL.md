@@ -1,10 +1,10 @@
 ---
-name: prreview
+name: ak-prreview
 description: Gated GitHub PR Review — Draft → Approve → Post (Philosophy VIII gate)
-trigger: /prreview
+trigger: /ak-prreview
 ---
 
-# /prreview — Gated GitHub PR Review
+# /ak-prreview — Gated GitHub PR Review
 
 Posting a PR review is **visible to others** — never post without explicit approval (Philosophy VIII).
 

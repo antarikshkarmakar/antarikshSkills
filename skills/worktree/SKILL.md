@@ -1,10 +1,10 @@
 ---
-name: worktree
+name: ak-worktree
 description: Git Worktrees — manage parallel tasks in isolated workspaces without branch-switching collisions
-trigger: /worktree
+trigger: /ak-worktree
 ---
 
-# /worktree — Git Worktrees
+# /ak-worktree — Git Worktrees
 
 Use Git worktrees to check out and work on independent branches in separate sibling directories, allowing concurrent task execution and testing without disrupting files in the main workspace.
 

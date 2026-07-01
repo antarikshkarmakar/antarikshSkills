@@ -23,8 +23,8 @@ Use them (`read_file`, `write_file`, `run_command`).
 ### LLM has NO tools (web UI, simple API)?
 - **Reading**: ask user to paste file contents
 - **Writing**: output code blocks with file path and save instructions
-- **Memory updates** (`/compact`, `/align-docs`): print updated content in markdown blocks
-- **Handoff** (`/handoff`): print handoff notes in code block
+- **Memory updates** (`/ak-compact`, `/ak-align-docs`): print updated content in markdown blocks
+- **Handoff** (`/ak-handoff`): print handoff notes in code block
 
 ---
 
@@ -44,7 +44,7 @@ Before writing code, stop at first rung that works:
 - No speculative features
 - Don't touch adjacent code/formatting/comments
 - Remove unused code your changes introduced; don't touch pre-existing dead code
-- **Strict Plan Gate**: Every change requires a goal, success criteria, and a step-by-step plan confirmed via `/align` or a quick design step before execution. Banish the "too simple to need a design" bypass.
+- **Strict Plan Gate**: Every change requires a goal, success criteria, and a step-by-step plan confirmed via `/ak-align` or a quick design step before execution. Banish the "too simple to need a design" bypass.
 
 ### III. Interface Contracts (Swarm Safety)
 - Before modifying shared API/utility → check `INTERFACES.md`
@@ -55,7 +55,7 @@ Before writing code, stop at first rung that works:
 - Keep `AGENTS.md`, `MEMORY.md` under 300 lines
 - Avoid constant tiny turns that waste context cache
 - Compress before it enters context — quote excerpts, not raw files
-- **Subagent Delegation**: Delegate heavy operations (like `/grok` repository scans, `/diagnose` loops, or `/audit-arch` sweeps) to background subagents when supported by the runner tool. This keeps the main session's context cache clean, bringing back only the final verified results/patches.
+- **Subagent Delegation**: Delegate heavy operations (like `/ak-grok` repository scans, `/ak-diagnose` loops, or `/ak-audit-arch` sweeps) to background subagents when supported by the runner tool. This keeps the main session's context cache clean, bringing back only the final verified results/patches.
 
 ### V. Terse Communication (Caveman Style)
 - Strip filler, be direct
@@ -87,7 +87,7 @@ Before any visible-to-others or hard-to-reverse action → show exactly what wil
 Use terms from `GLOSSARY.md` consistently. Propose names for new domain concepts.
 
 ### XII. Continuous Architecture Care
-Don't silently fix smells — flag for `/audit-arch`. Prefer deep modules with simple interfaces.
+Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules with simple interfaces.
 
 ---
 
@@ -95,22 +95,22 @@ Don't silently fix smells — flag for `/audit-arch`. Prefer deep modules with s
 
 | Command | Triggers |
 |---------|----------|
-| `/grill` | Brutally honest mentor interrogation |
-| `/align` | Pre-coding scope alignment (Socratic) → `.agents/skills/align/SKILL.md` |
-| `/align-docs` | Scope alignment + shared language + ADR → adds GLOSSARY + ADR steps |
-| `/to-prd` | Product requirements doc with module quiz |
-| `/tdd` | Test-driven development loop → `.agents/skills/tdd/SKILL.md` |
-| `/diagnose` | Structured debugging → `.agents/skills/diagnose/SKILL.md` |
-| `/code` | Ponytail surgical implementation |
-| `/review` | Adversarial duel review → `.agents/skills/review/SKILL.md` |
-| `/prreview` | Gated GitHub PR review → `.agents/skills/prreview/SKILL.md` |
-| `/worktree` | Git Worktrees parallel workflow → `.agents/skills/worktree/SKILL.md` |
-| `/doc` | Direct documentation |
-| `/grok` | Repository comprehension → `.agents/skills/grok/SKILL.md` |
-| `/audit-arch` | Architecture health check → `.agents/skills/audit-arch/SKILL.md` |
-| `/scratch` | Scaffold new project + memory/ folders |
-| `/compact` | Memory consolidation → `.agents/skills/compact/SKILL.md` |
-| `/handoff` | Agent handoff → `.agents/skills/handoff/SKILL.md` |
+| `/ak-grill` | Brutally honest mentor interrogation |
+| `/ak-align` | Pre-coding scope alignment (Socratic) → `.agents/skills/align/SKILL.md` |
+| `/ak-align-docs` | Scope alignment + shared language + ADR → adds GLOSSARY + ADR steps |
+| `/ak-to-prd` | Product requirements doc with module quiz |
+| `/ak-tdd` | Test-driven development loop → `.agents/skills/tdd/SKILL.md` |
+| `/ak-diagnose` | Structured debugging → `.agents/skills/diagnose/SKILL.md` |
+| `/ak-code` | Ponytail surgical implementation |
+| `/ak-review` | Adversarial duel review → `.agents/skills/review/SKILL.md` |
+| `/ak-prreview` | Gated GitHub PR review → `.agents/skills/prreview/SKILL.md` |
+| `/ak-worktree` | Git Worktrees parallel workflow → `.agents/skills/worktree/SKILL.md` |
+| `/ak-doc` | Direct documentation |
+| `/ak-grok` | Repository comprehension → `.agents/skills/grok/SKILL.md` |
+| `/ak-audit-arch` | Architecture health check → `.agents/skills/audit-arch/SKILL.md` |
+| `/ak-scratch` | Scaffold new project + memory/ folders |
+| `/ak-compact` | Memory consolidation → `.agents/skills/compact/SKILL.md` |
+| `/ak-handoff` | Agent handoff → `.agents/skills/handoff/SKILL.md` |
 
 ---
 

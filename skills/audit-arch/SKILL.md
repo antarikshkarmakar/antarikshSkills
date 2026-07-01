@@ -1,10 +1,10 @@
 ---
-name: audit-arch
+name: ak-audit-arch
 description: Architecture Health Check — periodic smell scan, output queue not rewrite
-trigger: /audit-arch
+trigger: /ak-audit-arch
 ---
 
-# /audit-arch — Architecture Health Check
+# /ak-audit-arch — Architecture Health Check
 
 Run periodically (every few days) or when smells accumulate per Philosophy XII — not just when something is broken.
 
@@ -29,5 +29,5 @@ List findings as discrete, surgical refactor candidates. The user acts on them l
 Do NOT refactor unprompted (Philosophy II — Surgical Changes).
 
 > [!TIP]
-> **Subagent Delegation**: Running codebase audits consumes large amounts of file context. If supported, run the `/audit-arch` sweep in an isolated subagent and paste only the final prioritized refactor queue into the main chat session.
+> **Subagent Delegation**: Running codebase audits consumes large amounts of file context. If supported, run the `/ak-audit-arch` sweep in an isolated subagent and paste only the final prioritized refactor queue into the main chat session.
 

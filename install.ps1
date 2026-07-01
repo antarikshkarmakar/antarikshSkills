@@ -125,7 +125,7 @@ if ($sections.Count -ge 4) {
     }
 
     $commandsMdcPath = Join-Path $cursorRulesDir "commands.mdc"
-    $commandsMdcHeader = "---`ndescription: Interactive agent slash commands (/tdd, /diagnose, /align, etc.)`nglobs: *`n---`n`n"
+    $commandsMdcHeader = "---`ndescription: Interactive agent slash commands (/ak-tdd, /ak-diagnose, /ak-align, etc.)`nglobs: *`n---`n`n"
     $commandsMdcBody = "$sec3`n"
     if (!(Test-Path $commandsMdcPath) -or $Force) {
         Set-Content -Path $commandsMdcPath -Value ($commandsMdcHeader + $commandsMdcBody) -NoNewline

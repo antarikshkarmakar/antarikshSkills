@@ -1,10 +1,10 @@
 ---
-name: align
+name: ak-align
 description: Pre-Coding Scope Alignment (Socratic Refinement) — close requirements gaps before writing anything
-trigger: /align
+trigger: /ak-align
 ---
 
-# /align — Pre-Coding Scope Alignment
+# /ak-align — Pre-Coding Scope Alignment
 
 Use before starting any non-trivial change, code or non-code. Closes the requirements gap before anything is written.
 
@@ -32,7 +32,7 @@ If the request is ambiguous, list the plausible interpretations and ask which on
 
 ## Step 5 — Mid-Task Scope Changes
 If new requirements surface after work started, classify before continuing:
-- **Expansion** — genuinely new, separate need → new `/align` pass
+- **Expansion** — genuinely new, separate need → new `/ak-align` pass
 - **Selective Expansion** — small, directly related → confirm explicitly, then continue
 - **Hold Scope** — defer it as open loop, finish agreed scope first
 - **Reduction** — scope was too large → confirm smaller scope explicitly

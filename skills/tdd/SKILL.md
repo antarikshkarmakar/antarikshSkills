@@ -1,10 +1,10 @@
 ---
-name: tdd
+name: ak-tdd
 description: Matt Pocock Test-Driven Development Loop — RED, GREEN, REFACTOR
-trigger: /tdd
+trigger: /ak-tdd
 ---
 
-# /tdd — Test-Driven Development Loop
+# /ak-tdd — Test-Driven Development Loop
 
 ## Bootstrap (if no test framework exists)
 Run the Ponytail ladder: stdlib or already-installed dependency first. Do NOT add new dependencies just for testing.

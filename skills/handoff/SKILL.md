@@ -1,10 +1,10 @@
 ---
-name: handoff
+name: ak-handoff
 description: Agent Handoff — compile state for next session or next agent
-trigger: /handoff
+trigger: /ak-handoff
 ---
 
-# /handoff — Agent Handoff & State Compilation
+# /ak-handoff — Agent Handoff & State Compilation
 
 Run when ending turn or transferring to another agent/session.
 

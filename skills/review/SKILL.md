@@ -1,10 +1,10 @@
 ---
-name: review
+name: ak-review
 description: Adversarial Duel Review — Proposer vs Attacker phase
-trigger: /review
+trigger: /ak-review
 ---
 
-# /review — Adversarial Duel Review
+# /ak-review — Adversarial Duel Review
 
 ## 1. Proposer Phase
 Review the code for correctness, coverage, and structure.

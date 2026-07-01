@@ -1,10 +1,10 @@
 ---
-name: compact
+name: ak-compact
 description: Memory Consolidation — end-of-session: logs, project files, MEMORY.md, inbox
-trigger: /compact
+trigger: /ak-compact
 ---
 
-# /compact — Memory Consolidation
+# /ak-compact — Memory Consolidation
 
 ## 1. Consolidate Logs
 Append to today's daily log (`memory/daily/YYYY-MM-DD.md`):

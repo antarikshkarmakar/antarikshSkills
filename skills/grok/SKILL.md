@@ -1,13 +1,13 @@
 ---
-name: grok
+name: ak-grok
 description: Repository Comprehension — build/update knowledge graph of the codebase
-trigger: /grok
+trigger: /ak-grok
 ---
 
-# /grok — Repository Comprehension
+# /ak-grok — Repository Comprehension
 
 ## 1. Check Memory First
-Read `memory/projects/<name>.md` if it exists. If a previous `/grok` run recorded the stack, conventions, and module boundaries (with commit hash or date), don't rescan from zero — diff the repo against that point:
+Read `memory/projects/<name>.md` if it exists. If a previous `/ak-grok` run recorded the stack, conventions, and module boundaries (with commit hash or date), don't rescan from zero — diff the repo against that point:
 ```bash
 git diff --name-only <hash>..HEAD
 ```
@@ -34,7 +34,7 @@ Write to `memory/projects/<name>.md`:
 - Conventions observed
 - Stamp with current commit hash and date
 
-So next `/grok` run is incremental, not full scan.
+So next `/ak-grok` run is incremental, not full scan.
 
 > [!TIP]
-> **Subagent Cache Hygiene**: Full repository scans consume significant context tokens. If supported by your runner (e.g. Antigravity subagents or CLI parallel runs), delegate `/grok` to a background subagent, persisting findings to `memory/projects/<name>.md` outside the main session to keep the token cache lean.
+> **Subagent Cache Hygiene**: Full repository scans consume significant context tokens. If supported by your runner (e.g. Antigravity subagents or CLI parallel runs), delegate `/ak-grok` to a background subagent, persisting findings to `memory/projects/<name>.md` outside the main session to keep the token cache lean.

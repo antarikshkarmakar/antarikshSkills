@@ -200,7 +200,7 @@ globs: *
 
     COMMANDS_MDC_PATH="$CURSOR_RULES_DIR/commands.mdc"
     COMMANDS_MDC_HEADER="---
-description: Interactive agent slash commands (/tdd, /diagnose, /align, etc.)
+description: Interactive agent slash commands (/ak-tdd, /ak-diagnose, /ak-align, etc.)
 globs: *
 ---
 

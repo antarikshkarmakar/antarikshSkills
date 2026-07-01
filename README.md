@@ -260,6 +260,7 @@ And it checks for the [CodeGraph](https://github.com/colbymchenry/codegraph) CLI
 
 ---
 
+<a id="optional-claude-code-hooks"></a>
 ## Optional: Claude Code & Codex CLI Session Hooks
 
 Everything above is pure prompt text — it works, but it relies on the agent remembering to follow the Start-of-Session/End-of-Session Loop every time. `-Hooks`/`--hooks` (or `-k`/`--hooks`) adds actual mechanical enforcement, **opt-in only** since it's CLI-specific and alters local settings:

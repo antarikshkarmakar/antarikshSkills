@@ -191,7 +191,7 @@ To install `antarikshSkills` globally or in your project using SkillKit:
 ```bash
 skillkit add <github-username>/antarikshSkills
 ```
-This registers the master `antariksh-unified-skill` and the modular commands (`/ak-align`, `/ak-tdd`, `/ak-diagnose`, `/ak-devops`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-grok`, `/ak-audit-arch`, `/ak-compact`, `/ak-handoff`) in your active agent environments.
+This registers the master `antariksh-unified-skill` and the modular commands (`/ak-align`, `/ak-tdd`, `/ak-diagnose`, `/ak-devops`, `/ak-ci-check`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-grok`, `/ak-audit-arch`, `/ak-compact`, `/ak-handoff`) in your active agent environments.
 
 ##### Format Translation Adapter
 You can translate any modular skill in `skills/` to your favorite agent format using SkillKit's translation engine:
@@ -286,6 +286,7 @@ Once the rules are installed in your workspace root, any agent reading them will
 | **`/ak-tdd`** | MATT POCOCK Test-Driven Development (RED-GREEN-REFACTOR) cycle, bootstrapping minimal test setups if needed. | [skills/tdd/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/tdd/SKILL.md) |
 | **`/ak-diagnose`** | Structured debugging loop (REPRODUCE via Sentry/logs → MINIMIZE via bisection → 5-WHYS root cause → FIX & PREVENT). | [skills/diagnose/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/diagnose/SKILL.md) |
 | **`/ak-devops`** | End-to-end DevOps automation (scaffold container/IaC/pipeline files, run linters/scanners, validate dry-runs, debug environments). | [skills/devops/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/devops/SKILL.md) |
+| **`/ak-ci-check`** | Runs local validation checks (line endings, ShellCheck lint, ruleset sync, Trivy scan) to verify PR compliance locally. | [skills/ci-check/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/ci-check/SKILL.md) |
 | **`/ak-code`** | Surgical code implementation using the Ponytail ladder (Native first, standard library, YAGNI). | *Built-in (Master System)* |
 | **`/ak-review`** | Adversarial proposer-attacker duel verification testing against edge cases, race conditions, and security surfaces. | [skills/review/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/review/SKILL.md) |
 | **`/ak-prreview`** | Gated GitHub PR Review loop creating draft comments and reviews for explicit user approval before posting. | [skills/prreview/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/prreview/SKILL.md) |

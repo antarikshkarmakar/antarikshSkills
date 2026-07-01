@@ -1,0 +1,80 @@
+---
+name: ak-ci-check
+description: Run local pre-PR validation checks (CRLF check, ShellCheck, ruleset sync verification, Trivy) to ensure remote CI passes.
+trigger: /ak-ci-check
+---
+
+# /ak-ci-check — Local CI pre-check
+
+This skill allows you to run all validation, linting, ruleset synchronization, and security checks locally on your machine before pushing changes to GitHub. Ensuring these check pass locally keeps the Git history clean and prevents failing remote CI runs.
+
+---
+
+## 1. Line Endings Normalization (CRLF to LF)
+Before committing, check that no text, script, or config files contain CRLF line endings.
+- **On macOS / Linux / Git Bash**:
+  ```bash
+  grep -rlI $'\r' --include=\*.sh --include=\*.md --include=\*.json --include=\*.yml --include=\*.yaml --include=\*.ps1 .
+  ```
+- **On Windows (PowerShell)**:
+  ```powershell
+  Get-ChildItem -Recurse -Include *.sh, *.md, *.json, *.yml, *.yaml, *.ps1 | Where-Object { (Get-Content -Path $_.FullName -Raw) -match '\r\n' } | Select-Object -ExpandProperty FullName
+  ```
+
+**How to Fix**:
+If CRLF endings are found, run Git renormalization to convert them based on `.gitattributes`:
+```bash
+git add --renormalize .
+```
+
+---
+
+## 2. Script Linting (ShellCheck)
+Ensure that all bash script modifications comply with ShellCheck rules:
+- **On Linux (apt)**: `sudo apt install shellcheck`
+- **On macOS (Homebrew)**: `brew install shellcheck`
+- **On Windows (Scoop)**: `scoop install shellcheck`
+
+**Command to run**:
+```bash
+sh_files=$(find . -name "*.sh" -not -path "*/.git/*" -not -path "*/.agents/*")
+if [ -n "$sh_files" ]; then shellcheck $sh_files; fi
+```
+
+---
+
+## 3. Ruleset Compilation Drift Check
+If you modified `templates/RULESET.md` or any root guideline configuration files, you MUST compile the ruleset to generate the portable headers. Do not modify rule files like `CLAUDE.md`, `AGENTS.md`, or Cursor MDC files directly.
+
+**Compile Commands**:
+- **On Windows (PowerShell)**:
+  ```powershell
+  .\install.ps1 -RulesOnly -Force
+  ```
+- **On macOS / Linux (Bash)**:
+  ```bash
+  bash install.sh --rules-only --force
+  ```
+
+**Check Drift**:
+Run `git diff --exit-code` to confirm that compiled files do not show unstaged diffs. If diffs appear, stage and commit the compiled updates.
+
+---
+
+## 4. Local Security & CVE Scanning
+Run local security audits to ensure no secrets have been leaked and configurations are safe:
+- **Trivy File Scan**:
+  ```bash
+  trivy config .
+  trivy fs .
+  ```
+- **Checkov Scan**:
+  ```bash
+  checkov -d .
+  ```
+Fix all warnings/violations flagged as `CRITICAL` or `HIGH` before staging.
+
+---
+
+## Evidence Over Claims
+Before declaring a branch ready to be pushed or PR created, run `/ak-ci-check` and verify all outcomes are green.

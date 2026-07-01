@@ -129,9 +129,10 @@ Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules wit
 2. Read `MEMORY.md`
 3. Read `memory/local_env.md` if exists (local skills/tools)
 4. Read `AGENTS.md` + `GLOSSARY.md`
-5. Read last 5 daily log entries or relevant project file
-6. Set up today's log in `memory/daily/YYYY-MM-DD.md`
-7. Terse status + *"Is there anything new before we start?"*
+5. **Context Validation Check**: Check if `memory/projects/<name>.md` exists. If not, alert the user and advise running `/ak-grok` first to grok the repo before executing any coding, debugging, or documentation tasks.
+6. Read last 5 daily log entries or relevant project file
+7. Set up today's log in `memory/daily/YYYY-MM-DD.md`
+8. Terse status + *"Is there anything new before we start?"*
 
 ### End-of-Session Loop:
 1. Write session summary to daily log

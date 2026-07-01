@@ -8,6 +8,9 @@ trigger: /ak-align
 
 Use before starting any non-trivial change, code or non-code. Closes the requirements gap before anything is written.
 
+## Context Prerequisite
+Before executing `/ak-align`, verify that `memory/projects/<name>.md` exists (the repository context file). If it does not exist, alert the user and advise running `/ak-grok` first to build the codebase context.
+
 ## Step 1 — Interrogate
 Ask targeted questions about:
 - The goal — what are we actually building?

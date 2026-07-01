@@ -49,6 +49,7 @@ git reset --hard >/dev/null
 
 status_name="sentry_"
 status_name="${status_name}token"
+# shellcheck disable=SC2016
 printf '%s=$(escape_sed "$SENTRY_TOKEN_STATUS")\n' "$status_name" > status.sh
 git add status.sh
 
@@ -63,6 +64,7 @@ git reset --hard >/dev/null
 
 prefix_bypass_name="to"
 prefix_bypass_name="${prefix_bypass_name}ken"
+# shellcheck disable=SC2016
 prefix_bypass_value='$FAKEVARLOOKSLIKESECRETsk_live_abcdef123456'
 printf '%s = "%s"\n' "$prefix_bypass_name" "$prefix_bypass_value" > app.py
 git add app.py

@@ -1,0 +1,39 @@
+{
+  "name": "antariksh-skills",
+  "version": "1.2.0",
+  "description": "Unified developer workflow framework with planning, TDD, diagnosis, security checks, adversarial review, and memory protocols.",
+  "author": {
+    "name": "Antariksh",
+    "url": "https://github.com/antarikshkarmakar"
+  },
+  "homepage": "https://github.com/antarikshkarmakar/antarikshSkills#readme",
+  "repository": "https://github.com/antarikshkarmakar/antarikshSkills",
+  "license": "MIT",
+  "keywords": [
+    "ai-agent",
+    "codex",
+    "developer-workflow",
+    "skills",
+    "devops"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Antariksh Skills",
+    "shortDescription": "Developer, DevOps, and architecture workflows for Codex.",
+    "longDescription": "A portable developer framework that packages scoped planning, TDD, diagnosis, CI checks, security scanning, adversarial review, documentation, worktrees, and memory routines as reusable Codex skills.",
+    "developerName": "Antariksh",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "Review"
+    ],
+    "websiteURL": "https://github.com/antarikshkarmakar/antarikshSkills",
+    "defaultPrompt": [
+      "Use ak-align to scope this coding task.",
+      "Run ak-ci-check before I open a PR.",
+      "Use ak-diagnose to debug this failure."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

@@ -1,6 +1,6 @@
 ---
 name: ak-compact
-description: Memory Consolidation — end-of-session: logs, project files, MEMORY.md, inbox
+description: "Memory Consolidation — end-of-session: logs, project files, MEMORY.md, inbox"
 trigger: /ak-compact
 ---
 

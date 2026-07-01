@@ -42,12 +42,20 @@ def main():
     package_skills = package_data.get("skills", {})
 
     # Load .claude-plugin/plugin.json
-    plugin_json_path = os.path.join(root, ".claude-plugin", "plugin.json")
-    plugin_data = load_json_no_duplicates(plugin_json_path, errors, root)
-    plugin_skills = plugin_data.get("skills", [])
-    plugin_skill_names = [item.get("name") for item in plugin_skills if item.get("name")]
-    for name in sorted({name for name in plugin_skill_names if plugin_skill_names.count(name) > 1}):
+    claude_plugin_json_path = os.path.join(root, ".claude-plugin", "plugin.json")
+    claude_plugin_data = load_json_no_duplicates(claude_plugin_json_path, errors, root)
+    claude_plugin_skills = claude_plugin_data.get("skills", [])
+    claude_plugin_skill_names = [item.get("name") for item in claude_plugin_skills if item.get("name")]
+    for name in sorted({name for name in claude_plugin_skill_names if claude_plugin_skill_names.count(name) > 1}):
         errors.append(f".claude-plugin/plugin.json declares duplicate skill name '{name}'")
+
+    # Load .codex-plugin/plugin.json
+    codex_plugin_json_path = os.path.join(root, ".codex-plugin", "plugin.json")
+    codex_plugin_data = load_json_no_duplicates(codex_plugin_json_path, errors, root)
+
+    # Load Codex repo marketplace metadata
+    codex_marketplace_path = os.path.join(root, ".agents", "plugins", "marketplace.json")
+    codex_marketplace_data = load_json_no_duplicates(codex_marketplace_path, errors, root)
 
     # Load README.md
     readme_path = os.path.join(root, "README.md")
@@ -70,8 +78,8 @@ def main():
         elif package_skills[skill_name] != expected_path:
             errors.append(f"package.json has incorrect path for '{skill_name}': expected '{expected_path}', got '{package_skills[skill_name]}'")
 
-        # B. check plugin.json
-        plugin_match = next((s for s in plugin_skills if s.get("name") == skill_name), None)
+        # B. check Claude plugin.json
+        plugin_match = next((s for s in claude_plugin_skills if s.get("name") == skill_name), None)
         if not plugin_match:
             errors.append(f".claude-plugin/plugin.json is missing skill '{skill_name}'")
         elif plugin_match.get("path") != expected_path:
@@ -111,7 +119,7 @@ def main():
         if folder_name not in skill_folders:
             errors.append(f"package.json declares skill '{key}', but folder 'skills/{folder_name}' does not exist")
 
-    for item in plugin_skills:
+    for item in claude_plugin_skills:
         name = item.get("name")
         path = item.get("path")
         if name == "antariksh-unified-skill":
@@ -122,13 +130,45 @@ def main():
         if folder_name not in skill_folders:
             errors.append(f".claude-plugin/plugin.json declares skill '{name}', but folder 'skills/{folder_name}' does not exist")
 
+    # Verify Codex-native plugin metadata
+    expected_codex_name = package_data.get("name")
+    if codex_plugin_data.get("name") != expected_codex_name:
+        errors.append(f".codex-plugin/plugin.json name must match package.json name '{expected_codex_name}'")
+    if codex_plugin_data.get("version") != package_data.get("version"):
+        errors.append(".codex-plugin/plugin.json version must match package.json version")
+    if codex_plugin_data.get("skills") != "./skills/":
+        errors.append(".codex-plugin/plugin.json must expose skills via './skills/'")
+
+    codex_interface = codex_plugin_data.get("interface", {})
+    for key in ("displayName", "shortDescription", "longDescription", "developerName", "category", "capabilities", "defaultPrompt"):
+        if key not in codex_interface:
+            errors.append(f".codex-plugin/plugin.json interface is missing '{key}'")
+
+    marketplace_plugins = codex_marketplace_data.get("plugins", [])
+    marketplace_match = next((p for p in marketplace_plugins if p.get("name") == expected_codex_name), None)
+    if not marketplace_match:
+        errors.append(f".agents/plugins/marketplace.json is missing plugin '{expected_codex_name}'")
+    else:
+        source = marketplace_match.get("source", {})
+        policy = marketplace_match.get("policy", {})
+        if source.get("source") != "local":
+            errors.append(".agents/plugins/marketplace.json source.source must be 'local'")
+        if source.get("path") != "./":
+            errors.append(".agents/plugins/marketplace.json source.path must be './' for this repo-root plugin")
+        if policy.get("installation") != "AVAILABLE":
+            errors.append(".agents/plugins/marketplace.json policy.installation must be 'AVAILABLE'")
+        if policy.get("authentication") != "ON_INSTALL":
+            errors.append(".agents/plugins/marketplace.json policy.authentication must be 'ON_INSTALL'")
+        if marketplace_match.get("category") != "Productivity":
+            errors.append(".agents/plugins/marketplace.json category must be 'Productivity'")
+
     if errors:
         print("\nManifest parity checks FAILED with the following errors:")
         for err in errors:
             print(f" - {err}")
         sys.exit(1)
     else:
-        print("\nManifest parity checks PASSED successfully! package.json, plugin.json, skill files, README, and RULESET are in sync.")
+        print("\nManifest parity checks PASSED successfully! package.json, Claude/Codex plugin metadata, skill files, README, and RULESET are in sync.")
         sys.exit(0)
 
 if __name__ == "__main__":

@@ -1,0 +1,20 @@
+{
+  "name": "antariksh-skills",
+  "interface": {
+    "displayName": "Antariksh Skills"
+  },
+  "plugins": [
+    {
+      "name": "antariksh-skills",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

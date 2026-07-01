@@ -91,7 +91,7 @@ The installer drops the right file for every tool in one pass (see Repository St
 | Tool / IDE | Setup Type | Primary Configuration File(s) | Installation Command / Method |
 | :--- | :--- | :--- | :--- |
 | **Claude Code (CLI)** | Local or Global | `CLAUDE.md` / `settings.json` | Run project installer OR `/plugin install antariksh-skills` |
-| **Codex (CLI)** | Local or Global | `AGENTS.md` / `hooks.json` | Run project installer OR `codex plugin install antariksh-skills` |
+| **Codex (CLI)** | Local or Global | `AGENTS.md` / `hooks.json` | Run project installer OR install from the Codex plugin browser |
 | **Cursor** | Project-Local | `AGENTS.md` / `.cursorrules` / `.cursor/rules/` | Run project installer, then open project folder |
 | **VS Code (GitHub Copilot)** | Project-Local | `.github/copilot-instructions.md` / `AGENTS.md` | Run project installer, then open project folder |
 | **OpenCode** | Project-Local | `AGENTS.md` | Run project installer, then open project folder |
@@ -121,17 +121,15 @@ This repository is pre-configured as a **Claude Code Plugin Marketplace**. You c
 OpenAI's Codex CLI reads `AGENTS.md` as its primary instruction file. Run `codex` from inside the installed project directory — zero extra configuration.
 
 ##### Installing as a Global Plugin
-This repository is fully compatible with Codex's plugin marketplace configuration:
+This repository includes Codex-native plugin metadata in `.codex-plugin/plugin.json` and a repo marketplace catalog at `.agents/plugins/marketplace.json`. The plugin package exposes the 21 modular `ak-*` skills through `skills/`; the project installer remains the path for generating per-repo rule files, memory scaffolding, and opt-in hooks.
 
 1. **Add the Marketplace**: Tap the repository inside Codex CLI:
    ```bash
-   codex plugin marketplace add <github-username>/antarikshSkills
+   codex plugin marketplace add antarikshkarmakar/antarikshSkills
    ```
-2. **Install the Plugin**:
-   ```bash
-   codex plugin install antariksh-skills
-   ```
-   *Make sure hooks are enabled in your global configuration `~/.codex/config.toml` (under `[features]` set `codex_hooks = true`) for stop-gate automation.*
+2. **Install the Plugin**: Open the plugin browser with `/plugins`, choose the **Antariksh Skills** marketplace source, and install `antariksh-skills`.
+
+Hooks are still opt-in project scaffolding, not automatic plugin side effects. Run `install.ps1 -Hooks` or `install.sh --hooks` in a target repository when you want mechanical SessionStart/Stop enforcement.
 
 
 #### OpenClaw

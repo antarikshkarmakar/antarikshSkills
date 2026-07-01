@@ -1,5 +1,7 @@
 # Ignore generated targets in the framework repository itself
-/.agents/
+/.agents/*
+!/.agents/plugins/
+!/.agents/plugins/marketplace.json
 /.claude/
 /.codex/
 /.cursor/

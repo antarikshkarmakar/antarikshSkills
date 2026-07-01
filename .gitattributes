@@ -1,3 +1,5 @@
-# Shell scripts must always check out with LF, even on Windows with core.autocrlf=true --
-# a CRLF shebang or internal CRLF line ending breaks execution under WSL/Linux/macOS bash.
+# Global line ending normalization -- all text files checked out with LF
+* text=auto eol=lf
+
+# Explicit bash scripts LF enforcement
 *.sh text eol=lf

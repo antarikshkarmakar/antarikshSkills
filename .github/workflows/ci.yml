@@ -1,0 +1,56 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    name: Validate Code and Configurations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Check line endings (LF check)
+        run: |
+          crlf_files=$(grep -rlI $'\r' --include=\*.sh --include=\*.md --include=\*.json --include=\*.yml --include=\*.yaml --include=\*.ps1 . || true)
+          if [ -n "$crlf_files" ]; then
+            echo "Error: The following files have CRLF line endings instead of LF:"
+            echo "$crlf_files"
+            exit 1
+          fi
+          echo "Line endings check passed: All files use LF."
+
+      - name: Run ShellCheck
+        run: |
+          sh_files=$(find . -name "*.sh" -not -path "*/.git/*" -not -path "*/.agents/*")
+          if [ -n "$sh_files" ]; then
+            shellcheck $sh_files
+          else
+            echo "No shell scripts found to validate."
+          fi
+
+      - name: Verify ruleset compilation integrity
+        run: |
+          bash install.sh --force --rules-only
+          # Verify that rules are synchronized and no diff exists
+          git diff --exit-code || (echo "Error: Generated rule files are out of sync with templates/RULESET.md. Please run install.ps1/install.sh locally and commit the compiled rules." && exit 1)
+
+      - name: Run Trivy Security & CVE Scanner
+        uses: aquasecurity/trivy-action@v0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'

@@ -74,11 +74,15 @@ cd /path/to/antarikshSkills
 
 ---
 
-## Setup Per Tool
+## Tool Integration & Plugin Packaging
+
+This section covers how to configure the framework for daily development in individual IDEs/CLIs (local setup), as well as how to package and distribute it as a custom plugin/extension.
+
+### 1. Local Project Setup
 
 The installer drops the right file for every tool in one pass (see Repository Structure above) — there's no separate per-tool configuration step. Open the installed project in whichever of these you use; each one picks its rules up automatically.
 
-### IDE & Tool Installation Reference Table
+#### IDE & Tool Installation Reference Table
 
 | Tool / IDE | Setup Type | Primary Configuration File(s) | Installation Command / Method |
 | :--- | :--- | :--- | :--- |
@@ -92,10 +96,10 @@ The installer drops the right file for every tool in one pass (see Repository St
 | **OpenClaw** | Local | `AGENT.md` / `.agents/skills/` | Run project installer, then load workspace |
 
 
-### Claude Code (CLI)
+#### Claude Code (CLI)
 Reads `CLAUDE.md` from the project root automatically. Run `claude` from inside the installed project directory. Add `-Hooks`/`--hooks` at install time for mechanical Second Brain enforcement (see [Optional: Claude Code Hooks](#optional-claude-code-hooks)).
 
-#### Publishing & Installing as a Global Plugin
+##### Publishing & Installing as a Global Plugin
 This repository is pre-configured as a **Claude Code Plugin Marketplace**. You can register and install it globally so that the modular slash commands are always available on your system, even outside initialized target projects:
 
 1. **Add the Marketplace**: Tap this repository to register it in your local Claude Code configuration:
@@ -109,10 +113,10 @@ This repository is pre-configured as a **Claude Code Plugin Marketplace**. You c
    ```
    This registers the master `antariksh-unified-skill` and the 9 modular command skills globally inside your Claude Code binary.
 
-### Codex (CLI)
+#### Codex (CLI)
 OpenAI's Codex CLI reads `AGENTS.md` as its primary instruction file. Run `codex` from inside the installed project directory — zero extra configuration.
 
-#### Installing as a Global Plugin
+##### Installing as a Global Plugin
 This repository is fully compatible with Codex's plugin marketplace configuration:
 
 1. **Add the Marketplace**: Tap the repository inside Codex CLI:
@@ -126,14 +130,113 @@ This repository is fully compatible with Codex's plugin marketplace configuratio
    *Make sure hooks are enabled in your global configuration `~/.codex/config.toml` (under `[features]` set `codex_hooks = true`) for stop-gate automation.*
 
 
-### OpenClaw
+#### OpenClaw
 *   **Identity & Guidelines**: Append the philosophies to your agent's workspace configuration manual (`AGENT.md` or `SOUL.md` in `~/.openclaw/agents/<name>/`).
 *   **On-Demand Skills**: Projects created with our installer already have `.agents/skills/` copied recursively; OpenClaw will automatically discover and parse these skills on workspace load.
 
-### Everything else (also covered, not asked for above but worth knowing)
+#### Everything else (also covered, not asked for above but worth knowing)
 - **Cline / Roo-Code**: reads `.clinerules`.
 - **Gemini CLI**: reads `GEMINI.md` as its own native convention.
 - **No fixed convention** (raw Ollama, DeepSeek, Minimax, or a plain web-UI chat): falls back to the Cross-LLM Tool-Fallback Protocol below — paste file contents in, the agent works from what's pasted.
+
+---
+
+### 2. Packaging & Marketplace Distribution
+
+If you want to package and distribute this framework as a marketplace plugin, you can build wrappers around the installer:
+
+#### VS Code, Cursor, and OpenCode (VS Code Extension)
+Because Cursor and OpenCode are based on VS Code/VSCodium, a single VS Code extension will run in all three:
+1. Create a standard VS Code extension using `yo code`.
+2. Add a command contribution inside `package.json`:
+   ```json
+   "contributes": {
+     "commands": [{
+       "command": "antariksh.initialize",
+       "title": "Antariksh: Initialize/Update Framework"
+     }]
+   }
+   ```
+3. Use the terminal/process Node APIs in `src/extension.ts` to run the installer:
+   ```typescript
+   import { exec } from 'child_process';
+   import * as vscode from 'vscode';
+   
+   vscode.commands.registerCommand('antariksh.initialize', () => {
+       const workspace = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+       if (!workspace) return;
+       const cmd = process.platform === 'win32'
+           ? `powershell.exe -ExecutionPolicy Bypass -File "${installPs1Path}" -TargetDir "${workspace}" -Force`
+           : `bash "${installShPath}" "${workspace}" --force`;
+       exec(cmd, (err, stdout, stderr) => { ... });
+   });
+   ```
+
+#### Antigravity (Native Agent Plugin)
+Antigravity searches for custom plugins inside `~/.gemini/config/plugins/`. Because this repository already contains [.claude-plugin/plugin.json](file:///.claude-plugin/plugin.json) and [.claude-plugin/marketplace.json](file:///.claude-plugin/marketplace.json), you can install it globally by symlinking it:
+* **Windows (PowerShell)**:
+  ```powershell
+  New-Item -ItemType SymbolicLink -Path "C:\Users\antar\.gemini\config\plugins\antarikshSkills" -Value "C:\GitHub\antarikshSkills"
+  ```
+* **macOS/Linux (Bash)**:
+  ```bash
+  ln -s /path/to/antarikshSkills ~/.gemini/config/plugins/antarikshSkills
+  ```
+
+#### SkillKit Integration (Universal Skills Manager)
+Antariksh Unified Agent Skills are fully compatible with [SkillKit](https://github.com/rohitg00/skillkit). This repository contains a [package.json](file:///c:/GitHub/antarikshSkills/package.json) manifest mapping all custom agent skills, enabling packaging, conflict checking, and multi-agent translation.
+
+##### Installation & Package Management
+To install `antarikshSkills` globally or in your project using SkillKit:
+```bash
+skillkit add <github-username>/antarikshSkills
+```
+This registers the master `antariksh-unified-skill` and the modular commands (`/ak-align`, `/ak-tdd`, `/ak-diagnose`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-grok`, `/ak-audit-arch`, `/ak-compact`, `/ak-handoff`) in your active agent environments.
+
+##### Format Translation Adapter
+You can translate any modular skill in `skills/` to your favorite agent format using SkillKit's translation engine:
+```bash
+skillkit translate skills/diagnose --to cursor
+```
+This automatically converts the metadata frontmatter and instructions into the format expected by the target agent adapter.
+
+##### Conflict Detection
+Before initializing, run SkillKit's collision checking command to ensure that the custom slash commands do not conflict with existing global packages or tools:
+```bash
+skillkit conflicts
+```
+This analyzes the triggers (e.g., `/ak-align`, `/ak-tdd`, `/ak-diagnose`) defined in each modular `SKILL.md`'s frontmatter and reports any overlaps.
+
+#### Factory Droid Integration
+Factory Droid can pull and install custom plugins directly from your public repository.
+
+##### Add the Marketplace
+To register this repository as a plugin marketplace in Factory Droid:
+```bash
+droid plugin marketplace add https://github.com/<github-username>/antarikshSkills
+```
+
+##### Install the Plugin
+```bash
+droid plugin install antariksh-skills@antariksh-skills
+```
+
+#### VS Code, Cursor & GitHub Copilot Marketplace Registration Guidelines
+Because of the architectural differences between IDEs and agents, publishing prompt-level rule files requires specific methods:
+
+##### Cursor & VS Code Marketplace
+Cursor and VS Code do not offer a native prompt marketplace. To distribute this framework to their users globally:
+1. **VS Code Extension Wrapper**: Build a lightweight VS Code extension that places your `.cursorrules`, `.cursor/rules/*.mdc`, and `.clinerules` configurations into workspace folders programmatically.
+2. **Publish**: Package the extension and publish it on the official [Visual Studio Marketplace](https://marketplace.visualstudio.com/) or the [Open VSX Registry](https://open-vsx.org/).
+3. **Cursor Directory**: Submit your namespaced MDC rules to community directories like [cursor.directory](https://cursor.directory/) for easy copy-pasting.
+
+##### GitHub Copilot CLI & Copilot Chat
+GitHub Copilot does not support general prompt marketplaces.
+1. **Repository Scope**: Commit `.github/copilot-instructions.md` directly to your repository's root directory. Copilot Chat will read and respect these rules automatically.
+2. **Copilot Extensions**: To make this an official Copilot extension (integrated into the `@` agent dropdown):
+   * Build a custom web service (e.g., in Node.js or Python) that acts as a chat agent and responds to user inputs.
+   * Register it as a **GitHub App** and enable the **Copilot Agent** capability in settings.
+   * Publish it to the official **GitHub Marketplace**.
 
 ---
 
@@ -239,109 +342,5 @@ If you are running the agent in a web browser interface (e.g., Gemini, ChatGPT, 
 1. **Interactive Commands**: The model will parse typed slash commands in your messages (e.g. `/ak-grill`) and run the corresponding behaviors.
 2. **Dialogue Fallback**: The model will ask you to paste directory structures or file contents, output code updates with exact target file paths, and output full memory updates for you to manually paste into `MEMORY.md` and `memory/daily/` logs.
 
----
 
-## Advanced: Packaging as a Plugin / Extension
-
-If you want to package and distribute this framework as a marketplace plugin, you can build wrappers around the installer:
-
-### 1. VS Code, Cursor, and OpenCode (VS Code Extension)
-Because Cursor and OpenCode are based on VS Code/VSCodium, a single VS Code extension will run in all three:
-1. Create a standard VS Code extension using `yo code`.
-2. Add a command contribution inside `package.json`:
-   ```json
-   "contributes": {
-     "commands": [{
-       "command": "antariksh.initialize",
-       "title": "Antariksh: Initialize/Update Framework"
-     }]
-   }
-   ```
-3. Use the terminal/process Node APIs in `src/extension.ts` to run the installer:
-   ```typescript
-   import { exec } from 'child_process';
-   import * as vscode from 'vscode';
-   
-   vscode.commands.registerCommand('antariksh.initialize', () => {
-       const workspace = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
-       if (!workspace) return;
-       const cmd = process.platform === 'win32'
-           ? `powershell.exe -ExecutionPolicy Bypass -File "${installPs1Path}" -TargetDir "${workspace}" -Force`
-           : `bash "${installShPath}" "${workspace}" --force`;
-       exec(cmd, (err, stdout, stderr) => { ... });
-   });
-   ```
-
-### 2. Antigravity (Native Agent Plugin)
-Antigravity searches for custom plugins inside `~/.gemini/config/plugins/`. Because this repository already contains [.claude-plugin/plugin.json](file:///.claude-plugin/plugin.json) and [.claude-plugin/marketplace.json](file:///.claude-plugin/marketplace.json), you can install it globally by symlinking it:
-* **Windows (PowerShell)**:
-  ```powershell
-  New-Item -ItemType SymbolicLink -Path "C:\Users\antar\.gemini\config\plugins\antarikshSkills" -Value "C:\GitHub\antarikshSkills"
-  ```
-* **macOS/Linux (Bash)**:
-  ```bash
-  ln -s /path/to/antarikshSkills ~/.gemini/config/plugins/antarikshSkills
-  ```
-
-### 3. SkillKit Integration (Universal Skills Manager)
-
-Antariksh Unified Agent Skills are fully compatible with [SkillKit](https://github.com/rohitg00/skillkit). This repository contains a [package.json](file:///c:/GitHub/antarikshSkills/package.json) manifest mapping all custom agent skills, enabling packaging, conflict checking, and multi-agent translation.
-
-#### Installation & Package Management
-To install `antarikshSkills` globally or in your project using SkillKit:
-```bash
-skillkit add <github-username>/antarikshSkills
-```
-This registers the master `antariksh-unified-skill` and the modular commands (`/ak-align`, `/ak-tdd`, `/ak-diagnose`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-grok`, `/ak-audit-arch`, `/ak-compact`, `/ak-handoff`) in your active agent environments.
-
-#### Format Translation Adapter
-You can translate any modular skill in `skills/` to your favorite agent format using SkillKit's translation engine:
-```bash
-skillkit translate skills/diagnose --to cursor
-```
-This automatically converts the metadata frontmatter and instructions into the format expected by the target agent adapter.
-
-#### Conflict Detection
-Before initializing, run SkillKit's collision checking command to ensure that the custom slash commands do not conflict with existing global packages or tools:
-```bash
-skillkit conflicts
-```
-This analyzes the triggers (e.g., `/ak-align`, `/ak-tdd`, `/ak-diagnose`) defined in each modular `SKILL.md`'s frontmatter and reports any overlaps.
-
----
-
-### 4. Factory Droid Integration
-
-Factory Droid can pull and install custom plugins directly from your public repository.
-
-#### Add the Marketplace
-To register this repository as a plugin marketplace in Factory Droid:
-```bash
-droid plugin marketplace add https://github.com/<github-username>/antarikshSkills
-```
-
-#### Install the Plugin
-```bash
-droid plugin install antariksh-skills@antariksh-skills
-```
-
----
-
-### 5. VS Code, Cursor & GitHub Copilot Marketplace Registration Guidelines
-
-Because of the architectural differences between IDEs and agents, publishing prompt-level rule files requires specific methods:
-
-#### Cursor & VS Code Marketplace
-Cursor and VS Code do not offer a native prompt marketplace. To distribute this framework to their users globally:
-1. **VS Code Extension Wrapper**: Build a lightweight VS Code extension that places your `.cursorrules`, `.cursor/rules/*.mdc`, and `.clinerules` configurations into workspace folders programmatically.
-2. **Publish**: Package the extension and publish it on the official [Visual Studio Marketplace](https://marketplace.visualstudio.com/) or the [Open VSX Registry](https://open-vsx.org/).
-3. **Cursor Directory**: Submit your namespaced MDC rules to community directories like [cursor.directory](https://cursor.directory/) for easy copy-pasting.
-
-#### GitHub Copilot CLI & Copilot Chat
-GitHub Copilot does not support general prompt marketplaces.
-1. **Repository Scope**: Commit `.github/copilot-instructions.md` directly to your repository's root directory. Copilot Chat will read and respect these rules automatically.
-2. **Copilot Extensions**: To make this an official Copilot extension (integrated into the `@` agent dropdown):
-   * Build a custom web service (e.g., in Node.js or Python) that acts as a chat agent and responds to user inputs.
-   * Register it as a **GitHub App** and enable the **Copilot Agent** capability in settings.
-   * Publish it to the official **GitHub Marketplace**.
 

@@ -277,72 +277,25 @@ Requires the CLI to run with a bash-capable shell to execute the hook scripts (G
 
 Once the rules are installed in your workspace root, any agent reading them will respond to the following slash subcommands:
 
-### `/ak-grill` — Brutally Honest Mentor Interrogation
-The agent acts as a strict evaluator with 20+ years of experience. It interrogates your task scope, constraints, and traps in blocks before coding, and outputs a blunt, structured assessment and a 30-60-90 day action plan.
-
-### `/ak-align` — Pre-Coding Scope Alignment
-Use before starting any non-trivial change. Interrogates the goal, constraints, "done" criteria, and explicit non-goals; confirms scope and checks the strict implementation plan gate (banishing the "too simple" bypass) before any code is written. The deliberate, structured form of Philosophy IX (Think Before Coding). If scope changes mid-task, classifies it first — **Expansion** (new `/align` pass), **Selective Expansion** (confirm and continue), **Hold Scope** (defer as an open loop), or **Reduction** (confirm the smaller scope) — instead of silently absorbing it. Full workflow in `.agents/skills/align/SKILL.md`.
-
-### `/ak-align-docs` — Scope Alignment + Shared Language
-Everything `/ak-align` does, plus building the project's shared language: adds undefined domain terms surfaced during the interrogation to `GLOSSARY.md`, and writes an ADR (`memory/adr/<NNN>-<slug>.md`) for any hard-to-explain decision (tradeoff, rejected alternative, constraint).
-
-### `/ak-to-prd` — Product Requirements Doc with Module Quiz
-Asks which modules/files a change will touch and why before drafting, then writes the PRD to `memory/prds/<feature-slug>.md` (problem statement, goals, non-goals, modules touched, acceptance criteria).
-
-### `/ak-tdd` — Test-Driven Development Loop (Matt Pocock TDD)
-Pivots to TDD mode. If no test framework exists yet, bootstraps the minimal one for the stack first — never skips RED-GREEN-REFACTOR just because nothing was there to begin with:
-1. **RED**: Write a failing test for the requested feature. Run the test and verify it fails.
-2. **GREEN**: Write the minimal code required to pass the test.
-3. **REFACTOR**: Clean and optimize implementation without breaking tests.
-Full workflow in `.agents/skills/tdd/SKILL.md`.
-
-### `/ak-diagnose` — Structured Debugging (Matt Pocock Diagnose)
-Follows a rigorous debugging sequence:
-1. **REPRODUCE**: Smallest, simplest repro that fails consistently. **Sentry telemetry** integrates natively: if a Sentry Issue ID/URL is provided, the agent automatically queries Sentry via CLI or REST API to pull the exact stack traces, request payloads, and variables in scope. Otherwise, falls back to **log and trace** (verbose output/breakpoints).
-2. **MINIMIZE**: **Divide and conquer** — bisect the system to isolate the exact file and lines responsible.
-3. **ROOT CAUSE (5 Whys)**: Walk backward from the immediate defect/symptom 5 levels deep to uncover the true systemic cause (e.g., config error, upstream contract gap).
-4. **FIX & PREVENT**: Apply a surgical fix to resolve the root cause. Change **one variable at a time** so you know what worked, write regression tests/validation to prevent recurrence, and remove the reproduction script.
-For complex or multi-step debugging iterations, the REPRODUCE/MINIMIZE loops can be delegated to isolated subagents to preserve main session context. Full workflow in [skills/diagnose/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/diagnose/SKILL.md) (deployed to `.agents/skills/diagnose/SKILL.md`).
-
-
-### `/ak-devops` — DevOps & CI/CD Automation
-Runs end-to-end DevOps automation tasks:
-1. **SCAFFOLD / GENERATE**: Generates container files, IaC scripts, and deployment configurations (Docker, Kubernetes, Helm, Terraform, CI/CD) using security best practices (least privilege, non-root, pinned digests, lifecycle safeguards).
-2. **VALIDATE / LINT / AUDIT**: Runs linting and static security analysis (hadolint, tflint, shellcheck, checkov, trivy, actionlint).
-3. **DRY-RUN / PLAN**: Pre-validates deployment configurations via dry-runs and execution planning (terraform plan, kubectl apply --dry-run, helm template).
-4. **DEBUG / TROUBLESHOOT**: Follows structured troubleshooting loops for failing pods, containers, and runners (kubectl logs, describe, port-forwarding, container inspect).
-Full workflow in [skills/devops/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/devops/SKILL.md) (deployed to `.agents/skills/devops/SKILL.md`).
-
-
-### `/ak-code` — Surgical Implementation
-Instructs the agent to evaluate the task using the Ponytail ladder (Native first, standard library, YAGNI), inspect contract boundaries in `INTERFACES.md`, and write minimal, clean changes.
-
-### `/ak-review` — Adversarial Duel Review & Critic Widget
-Runs a proposer-attacker duel. First routes the attack — skips axes the diff can't trigger (no Security Surfaces on a pure copy change, no UI axis on backend-only work) — then the Attacker personality tests the code against the axes that apply: edge cases, race conditions, silent failures, assumption violations, security boundaries, and off-by-ones, outputting a clear critic verdict (`PASS/FAIL` and reason). Full workflow in `.agents/skills/review/SKILL.md`.
-
-### `/ak-prreview` — Gated GitHub PR Review (Draft → Approve → Post)
-Checks whether `gh` is authenticated; if not, falls back to plain `git diff`/`git log` and a manually-pasted draft. Drafts inline PR comments (with `​```suggestion​` blocks where a fix applies) and an overall verdict, shows the *exact* comments and event type (`APPROVE`/`REQUEST_CHANGES`/`COMMENT`) for explicit yes/no approval, then posts via a batched `gh api` pending review. Never posts without approval — see Philosophy VIII (Visible & Hard-to-Reverse Action Gate). Full workflow in `.agents/skills/prreview/SKILL.md`.
-
-### `/ak-worktree` — Isolated Concurrent Task Execution (Git Worktrees)
-Instructs the agent to check out task branches into clean sibling directories to prevent active file collisions and database locks during concurrent tasks. Includes setup and teardown procedures. Full workflow in [skills/worktree/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/worktree/SKILL.md) (deployed to `.agents/skills/worktree/SKILL.md`).
-
-### `/ak-doc` — Direct Documentation
-Generates clear, direct documentation using markdown, tables, alert blocks, and mermaid diagrams with zero filler or redundant introductions.
-
-### `/ak-grok` — Repository Comprehension (Context Graph)
-Checks `memory/projects/<name>.md` first — if a previous scan is recorded with a commit hash/date, diffs the repo against that point and only re-analyzes what changed, instead of rescanning from zero. Then checks whether graphify, Understand-Anything, or CodeGraph is available (see Agent Skill Detection above) and delegates to whichever is found — CodeGraph specifically also offers real call-graph/blast-radius queries beyond a structural map. If graphify is available, it runs a two-phase manifest-driven pipeline: Phase 1 (detect files, extract code AST, create job manifest for docs/images, exit); the agent then dispatches subagents for doc/image chunks and runs Phase 2 (`--resume`) to merge and finish. If no graph tool is available, falls back to a manual scan of manifest files, test framework, and entry points. Either way, persists the findings (stamped with the current commit hash/date) to `memory/projects/<name>.md` so the next run can do an incremental update. Full repository scans consume significant context tokens, so it is recommended to delegate `/ak-grok` to a background subagent when supported. Full workflow in `.agents/skills/grok/SKILL.md`.
-
-### `/ak-audit-arch` — Architecture Health Check
-Run periodically, not just when something's broken. Delegates to a codebase-mapping tool if available — `claude-mem:pathfinder` or CodeGraph (real blast-radius/dependency-tangle data via `codegraph impact`/`codegraph callers`); otherwise falls back to a manual smell-scan (god objects, shallow modules, duplicated logic, tangled dependencies). Outputs a prioritized refactor queue, not an unprompted rewrite — see Philosophy XII (Continuous Architecture Care). Audits are recommended to run in background subagents to keep the main chat session lean. Full workflow in `.agents/skills/audit-arch/SKILL.md`.
-
-### `/ak-scratch` — Scaffold New Project
-Initializes a repository from zero, creating standard files, the Second Brain system (`MEMORY.md`, `GLOSSARY.md`, `inbox.md`, `memory/`), and the module boundary tracker (`INTERFACES.md`). Per Philosophy VI, also ensures a `.gitignore` covers secrets and common build/dependency junk — created fresh if missing, or merged in if one exists without those entries.
-
-### `/ak-compact` — Memory Consolidation (Second Brain Sync)
-Consolidates current session learnings. It writes a daily log summary, updates project cards in `memory/projects/`, refines `MEMORY.md` open loops, and clears `inbox.md`. If the `caveman` plugin is installed, runs `/caveman-compress` on the updated memory files as the final step. If toolless, it outputs updated files in markdown blocks for you to paste. Full workflow in `.agents/skills/compact/SKILL.md`.
-
-### `/ak-handoff` — Agent Handoff & State Compilation
-Compiles a transition note summarizing accomplishments, active/in-progress files, open loops, blockers, and the next action for the incoming agent. It writes this to `memory/handoff.md` (or prints a markdown block for manual copy-pasting if toolless). Full workflow in `.agents/skills/handoff/SKILL.md`.
+| Command | Purpose / Action Description | Target Skill Guide |
+| :--- | :--- | :--- |
+| **`/ak-grill`** | Acts as a strict evaluator with 20+ years of experience to interrogate task scope, constraints, and pitfalls, outputting a 30-60-90 day action plan. | *Built-in (Master System)* |
+| **`/ak-align`** | Pre-coding Socratic scope alignment to confirm goals, constraints, non-goals, and establish a strict implementation plan gate. | [skills/align/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/align/SKILL.md) |
+| **`/ak-align-docs`** | Pre-coding alignment + building the project's shared language glossary and writing Architecture Decision Records (ADRs). | [skills/align/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/align/SKILL.md) |
+| **`/ak-to-prd`** | Runs a modules-touched scoping quiz and drafts a Product Requirements Document (PRD) to `memory/prds/`. | *Built-in (Master System)* |
+| **`/ak-tdd`** | MATT POCOCK Test-Driven Development (RED-GREEN-REFACTOR) cycle, bootstrapping minimal test setups if needed. | [skills/tdd/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/tdd/SKILL.md) |
+| **`/ak-diagnose`** | Structured debugging loop (REPRODUCE via Sentry/logs → MINIMIZE via bisection → 5-WHYS root cause → FIX & PREVENT). | [skills/diagnose/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/diagnose/SKILL.md) |
+| **`/ak-devops`** | End-to-end DevOps automation (scaffold container/IaC/pipeline files, run linters/scanners, validate dry-runs, debug environments). | [skills/devops/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/devops/SKILL.md) |
+| **`/ak-code`** | Surgical code implementation using the Ponytail ladder (Native first, standard library, YAGNI). | *Built-in (Master System)* |
+| **`/ak-review`** | Adversarial proposer-attacker duel verification testing against edge cases, race conditions, and security surfaces. | [skills/review/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/review/SKILL.md) |
+| **`/ak-prreview`** | Gated GitHub PR Review loop creating draft comments and reviews for explicit user approval before posting. | [skills/prreview/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/prreview/SKILL.md) |
+| **`/ak-worktree`** | Manages Git Worktrees for concurrent, isolated concurrent task execution. | [skills/worktree/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/worktree/SKILL.md) |
+| **`/ak-doc`** | Generates direct technical documentation using clean tables, callout alerts, and mermaid diagrams. | *Built-in (Master System)* |
+| **`/ak-grok`** | Incremental repository scanning using AST analysis (graphify, CodeGraph) to map codebase structure. | [skills/grok/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/grok/SKILL.md) |
+| **`/ak-audit-arch`** | Architectural health checks auditing codebase smells (god objects, tangles, duplicate logic). | [skills/audit-arch/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/audit-arch/SKILL.md) |
+| **`/ak-scratch`** | Scaffolds new projects from scratch, initializing second brain directories and `.gitignore` rules. | *Built-in (Master System)* |
+| **`/ak-compact`** | Memory consolidation compiling daily logs, updating project cards, and clearing inbox note staging. | [skills/compact/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/compact/SKILL.md) |
+| **`/ak-handoff`** | Compiles state summary into a handoff note (`memory/handoff.md`) for incoming agents. | [skills/handoff/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/handoff/SKILL.md) |
 
 ---
 

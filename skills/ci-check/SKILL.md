@@ -49,6 +49,11 @@ Ensure that all bash script modifications comply with ShellCheck rules:
 sh_files=$(find . -name "*.sh" -not -path "*/.git/*" -not -path "*/.agents/*")
 if [ -n "$sh_files" ]; then shellcheck $sh_files; fi
 ```
+*Scale Tip (Large Repositories)*: To scan only modified/staged shell scripts and avoid legacy noise, run:
+```bash
+sh_files=$(git diff --name-only --diff-filter=d | grep '\.sh$' || true)
+if [ -n "$sh_files" ]; then shellcheck $sh_files; fi
+```
 
 ---
 
@@ -77,9 +82,17 @@ Run local security audits to ensure no secrets have been leaked and configuratio
   trivy config .
   trivy fs .
   ```
+  *Scale Tip*: For large repositories with many legacy warnings, scan only modified files:
+  ```bash
+  git diff --name-only --diff-filter=d | xargs -I {} trivy fs {}
+  ```
 - **Checkov Scan**:
   ```bash
   checkov -d .
+  ```
+  *Scale Tip*: Target Checkov to specific modified files rather than the entire directory:
+  ```bash
+  git diff --name-only --diff-filter=d | grep -E '\.(yaml|yml|tf|json)$' | xargs -r checkov -f
   ```
 Fix all warnings/violations flagged as `CRITICAL` or `HIGH` before staging.
 

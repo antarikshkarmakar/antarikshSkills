@@ -8,6 +8,9 @@ trigger: /ak-audit-arch
 
 Run periodically (every few days) or when smells accumulate per Philosophy XII — not just when something is broken.
 
+## Context Prerequisite & Empty Check
+*   Before running `/ak-audit-arch`, verify that the codebase is not completely empty (0 files). If it is, halt and advise the user that there is no architecture to audit yet, recommending they run `/ak-scratch` first to scaffold the initial directories and files.
+
 ## 1. Check for Mapping Tool
 Priority:
 1. **claude-mem:pathfinder** — feature-grouped flowcharts, duplicated concerns, unified architecture

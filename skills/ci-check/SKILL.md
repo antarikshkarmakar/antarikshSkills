@@ -11,11 +11,11 @@ This skill allows you to run all validation, linting, ruleset synchronization, a
 ---
 
 ## Graceful Tool Detection & Portability
-Before running external CLI tools (`shellcheck`, `trivy`, `checkov`), check if the command exists on the local PATH:
+Before running external CLI tools (`shellcheck`, `trivy`, `checkov`, `repomix` or `npx`), check if the command exists on the local PATH:
 - **On macOS / Linux (Bash)**: `command -v <tool-name> >/dev/null 2>&1`
 - **On Windows (PowerShell)**: `Get-Command <tool-name> -ErrorAction SilentlyContinue`
 
-If a tool is missing, output a clean warning suggesting how to install it (e.g. using Scoop, Homebrew, or Apt) instead of failing with a command execution error.
+If a tool is missing, output a clean warning suggesting how to install it (e.g. using Scoop, Homebrew, Apt, or NPM) instead of failing with a command execution error.
 
 ---
 

@@ -31,11 +31,11 @@ If any available: delegate to it. If graphify is chosen, invoke `/graphify` and 
 - Identify stack from manifest files (`package.json`, `pyproject.toml`, `go.mod`, `*.csproj`)
 - Locate test framework and entry points
 - On previously-scanned repo: only re-walk files from step 1's diff
-- **Repomix Context Packager**: If executing a deep manual codebase analysis, run:
+- **Repomix Context Packager**: If executing a deep manual codebase analysis, check if `npx` or `repomix` is available on the local PATH. If yes, run:
   ```bash
   npx repomix --output repomix-output.xml
   ```
-  to bundle codebase contexts into a structured XML representation, avoiding sequential file reads. Remember to delete `repomix-output.xml` when done to avoid git tracking.
+  to bundle codebase contexts into a structured XML representation, avoiding sequential file reads. Remember to delete `repomix-output.xml` when done to avoid git tracking. If unavailable, fall back to manual directory traversing.
 
 ## 4. Persist Findings
 Write to `memory/projects/<name>.md`:

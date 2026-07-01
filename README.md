@@ -21,14 +21,14 @@ It integrates the best paradigms in agentic development, grouped by what problem
 - 🧠 **Second Brain (Philosophy IV)**: Scaffolding repository directories and config indexes via **`/ak-scratch`**, managing handoffs via **`/ak-handoff`**, and compiling log files via **`/ak-compact`**.
 - 📖 **Shared Language (Philosophy XI)**: Constructing domain terms and Architecture Decision Records (ADRs) via **`/ak-align-docs`** and generating direct technical docs via **`/ak-doc`**.
 - 🛡️ **Interface Contracts (Philosophy III)**: Multi-agent boundary maps in `INTERFACES.md` and verification checks to prevent collision.
-- 🔐 **Standards Harness (Philosophy III & VI - ECC)**: Ensuring strict validation of directory structure, repository convention files, and Git credentials safety checks via **`/ak-ci-check`**.
+- 🔐 **Standards Harness (Philosophy III & VI - ECC)**: Ensuring strict validation of directory structure, repository convention files, and Git credentials safety checks via **`/ak-ci-check`** (powered by local checks and **`repomix`** security scanning).
 
 **Safety**
 - 🚦 **Visible & Hard-to-Reverse Action Gate (Philosophy VIII)**: Gated approval loops for PR comments and code reviews via **`/ak-prreview`**.
 
 **Efficiency & Portability**
 - 🪨 **Caveman Communication (Philosophy V)**: Compression of context memory via Caveman and `/ak-compact`.
-- 📉 **Jcode Cache Optimization & Subagent Delegation (Philosophy IV)**: Delegating background scans for symbol maps (**`/ak-grok`**), Sentry bug-triggers (**`/ak-diagnose`**), and smell sweeps (**`/ak-audit-arch`**) to isolated processes.
+- 📉 **Jcode Cache Optimization & Subagent Delegation (Philosophy IV)**: Delegating background scans for symbol maps (**`/ak-grok`** using **`repomix`** context packaging), Sentry bug-triggers (**`/ak-diagnose`**), and smell sweeps (**`/ak-audit-arch`**) to isolated processes.
 - 🐝 **Swarm Orchestration (Philosophy IV - Ruflo)**: Coordinating concurrent multi-agent refactors across separate branches via **`/ak-worktree`** and the **`/ak-skillset`** authoring manager.
 - 🔍 **Adaptive Memory & RAG Routing (Philosophy IV - Ruflo)**: Treating project files as local indices to load only target modules.
 - 🌐 **Cross-LLM Portability**: Dialogue-driven fallbacks for toolless environments (Web UIs/API).

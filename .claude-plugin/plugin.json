@@ -10,15 +10,15 @@
   },
   "skills": [
     { "name": "antariksh-unified-skill", "path": "SKILL.md" },
-    { "name": "align", "path": "skills/align/SKILL.md" },
-    { "name": "tdd", "path": "skills/tdd/SKILL.md" },
-    { "name": "diagnose", "path": "skills/diagnose/SKILL.md" },
-    { "name": "review", "path": "skills/review/SKILL.md" },
-    { "name": "prreview", "path": "skills/prreview/SKILL.md" },
-    { "name": "worktree", "path": "skills/worktree/SKILL.md" },
-    { "name": "grok", "path": "skills/grok/SKILL.md" },
-    { "name": "audit-arch", "path": "skills/audit-arch/SKILL.md" },
-    { "name": "compact", "path": "skills/compact/SKILL.md" },
-    { "name": "handoff", "path": "skills/handoff/SKILL.md" }
+    { "name": "ak-align", "path": "skills/align/SKILL.md" },
+    { "name": "ak-tdd", "path": "skills/tdd/SKILL.md" },
+    { "name": "ak-diagnose", "path": "skills/diagnose/SKILL.md" },
+    { "name": "ak-review", "path": "skills/review/SKILL.md" },
+    { "name": "ak-prreview", "path": "skills/prreview/SKILL.md" },
+    { "name": "ak-worktree", "path": "skills/worktree/SKILL.md" },
+    { "name": "ak-grok", "path": "skills/grok/SKILL.md" },
+    { "name": "ak-audit-arch", "path": "skills/audit-arch/SKILL.md" },
+    { "name": "ak-compact", "path": "skills/compact/SKILL.md" },
+    { "name": "ak-handoff", "path": "skills/handoff/SKILL.md" }
   ]
 }

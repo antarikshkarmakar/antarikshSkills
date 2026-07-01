@@ -96,6 +96,7 @@ Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules wit
 | `/ak-to-prd` | Product requirements doc with module quiz |
 | `/ak-tdd` | Test-driven development loop → `.agents/skills/tdd/SKILL.md` |
 | `/ak-diagnose` | Structured debugging → `.agents/skills/diagnose/SKILL.md` |
+| `/ak-devops` | DevOps & CI/CD automation → `.agents/skills/devops/SKILL.md` |
 | `/ak-code` | Ponytail surgical implementation |
 | `/ak-review` | Adversarial duel review → `.agents/skills/review/SKILL.md` |
 | `/ak-prreview` | Gated GitHub PR review → `.agents/skills/prreview/SKILL.md` |

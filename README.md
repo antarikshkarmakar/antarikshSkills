@@ -15,7 +15,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 - ⚔️ **Adversarial Duel & Critic Pattern**: Self-criticism proposer-attacker loops and post-execution checks.
 - 🏗️ **Continuous Architecture Care**: Deep modules, simple interfaces, flagged (not silently fixed) ball-of-mud smells — `/ak-audit-arch` is its periodic, deliberate form.
 - 🧩 **Think Before Coding**: State assumptions, surface tradeoffs, push back when a simpler approach exists, and stop to ask when genuinely confused — only when ambiguity would change the outcome.
-- 🎯 **Goal-Driven Execution**: Turn imperative asks into verifiable success criteria and loop until they're actually checked, not just plausible — the default behind `/ak-tdd` and `/ak-diagnose`, applied everywhere.
+- 🎯 **Goal-Driven Execution**: Turn imperative asks into verifiable success criteria and loop until they're actually checked, not just plausible — the default behind `/ak-tdd`, `/ak-diagnose`, and `/ak-devops`, applied everywhere.
 
 **Memory & Continuity**
 - 🧠 **Second Brain (Claude-mem)**: Continuous context, index routing, and logs across session boundaries (`memory/`, `GLOSSARY.md`, `memory/adr/`, `memory/prds/`).
@@ -191,7 +191,7 @@ To install `antarikshSkills` globally or in your project using SkillKit:
 ```bash
 skillkit add <github-username>/antarikshSkills
 ```
-This registers the master `antariksh-unified-skill` and the modular commands (`/ak-align`, `/ak-tdd`, `/ak-diagnose`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-grok`, `/ak-audit-arch`, `/ak-compact`, `/ak-handoff`) in your active agent environments.
+This registers the master `antariksh-unified-skill` and the modular commands (`/ak-align`, `/ak-tdd`, `/ak-diagnose`, `/ak-devops`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-grok`, `/ak-audit-arch`, `/ak-compact`, `/ak-handoff`) in your active agent environments.
 
 ##### Format Translation Adapter
 You can translate any modular skill in `skills/` to your favorite agent format using SkillKit's translation engine:
@@ -303,6 +303,15 @@ Follows a rigorous debugging sequence:
 3. **ROOT CAUSE (5 Whys)**: Walk backward from the immediate defect/symptom 5 levels deep to uncover the true systemic cause (e.g., config error, upstream contract gap).
 4. **FIX & PREVENT**: Apply a surgical fix to resolve the root cause. Change **one variable at a time** so you know what worked, write regression tests/validation to prevent recurrence, and remove the reproduction script.
 For complex or multi-step debugging iterations, the REPRODUCE/MINIMIZE loops can be delegated to isolated subagents to preserve main session context. Full workflow in [skills/diagnose/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/diagnose/SKILL.md) (deployed to `.agents/skills/diagnose/SKILL.md`).
+
+
+### `/ak-devops` — DevOps & CI/CD Automation
+Runs end-to-end DevOps automation tasks:
+1. **SCAFFOLD / GENERATE**: Generates container files, IaC scripts, and deployment configurations (Docker, Kubernetes, Helm, Terraform, CI/CD) using security best practices (least privilege, non-root, pinned digests, lifecycle safeguards).
+2. **VALIDATE / LINT / AUDIT**: Runs linting and static security analysis (hadolint, tflint, shellcheck, checkov, trivy, actionlint).
+3. **DRY-RUN / PLAN**: Pre-validates deployment configurations via dry-runs and execution planning (terraform plan, kubectl apply --dry-run, helm template).
+4. **DEBUG / TROUBLESHOOT**: Follows structured troubleshooting loops for failing pods, containers, and runners (kubectl logs, describe, port-forwarding, container inspect).
+Full workflow in [skills/devops/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/devops/SKILL.md) (deployed to `.agents/skills/devops/SKILL.md`).
 
 
 ### `/ak-code` — Surgical Implementation

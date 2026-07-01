@@ -13,12 +13,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/antarikshSkills.git"
+    "url": "git+https://github.com/antarikshkarmakar/antarikshSkills.git"
   },
   "bugs": {
-    "url": "https://github.com/antarikshSkills/issues"
+    "url": "https://github.com/antarikshkarmakar/antarikshSkills/issues"
   },
-  "homepage": "https://github.com/antarikshSkills#readme",
+  "homepage": "https://github.com/antarikshkarmakar/antarikshSkills#readme",
   "skills": {
     "antariksh-unified-skill": "SKILL.md",
     "ak-grill": "skills/grill/SKILL.md",

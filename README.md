@@ -113,7 +113,7 @@ This repository is pre-configured as a **Claude Code Plugin Marketplace**. You c
 
 1. **Add the Marketplace**: Tap this repository to register it in your local Claude Code configuration:
    ```bash
-   /plugin marketplace add <github-username>/antarikshSkills
+   /plugin marketplace add antarikshkarmakar/antarikshSkills
    ```
    *(For local testing, run `/plugin marketplace add /path/to/local/antarikshSkills`)*
 2. **Install the Plugin**:
@@ -199,7 +199,7 @@ Antariksh Unified Agent Skills are fully compatible with [SkillKit](https://gith
 ##### Installation & Package Management
 To install `antarikshSkills` globally or in your project using SkillKit:
 ```bash
-skillkit add <github-username>/antarikshSkills
+skillkit add antarikshkarmakar/antarikshSkills
 ```
 This registers the master `antariksh-unified-skill` and the modular commands (`/ak-grill`, `/ak-align`, `/ak-align-docs`, `/ak-to-prd`, `/ak-tdd`, `/ak-diagnose`, `/ak-devops`, `/ak-ci-check`, `/ak-security`, `/ak-skillset`, `/ak-code`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-doc`, `/ak-grok`, `/ak-audit-arch`, `/ak-scratch`, `/ak-compact`, `/ak-handoff`, `/ak-headroom`) in your active agent environments.
 
@@ -223,7 +223,7 @@ Factory Droid can pull and install custom plugins directly from your public repo
 ##### Add the Marketplace
 To register this repository as a plugin marketplace in Factory Droid:
 ```bash
-droid plugin marketplace add https://github.com/<github-username>/antarikshSkills
+droid plugin marketplace add https://github.com/antarikshkarmakar/antarikshSkills
 ```
 
 ##### Install the Plugin

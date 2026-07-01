@@ -62,6 +62,14 @@ def main():
     with open(readme_path, "r", encoding="utf-8") as f:
         readme_content = f.read()
 
+    public_repo_url = "https://github.com/antarikshkarmakar/antarikshSkills"
+    stale_public_strings = (
+        "github.com/antarikshSkills",
+        "<github-username>/antarikshSkills",
+        "github.com/<github-username>/antarikshSkills",
+    )
+    public_files_to_check = []
+
     # Load templates/RULESET.md
     ruleset_path = os.path.join(root, "templates", "RULESET.md")
     with open(ruleset_path, "r", encoding="utf-8") as f:
@@ -163,6 +171,30 @@ def main():
 
     # Verify Codex-native plugin metadata
     expected_codex_name = package_data.get("name")
+    if package_data.get("repository", {}).get("url") != f"git+{public_repo_url}.git":
+        errors.append("package.json repository.url must point to the public repository")
+    if package_data.get("bugs", {}).get("url") != f"{public_repo_url}/issues":
+        errors.append("package.json bugs.url must point to the public repository issues")
+    if package_data.get("homepage") != f"{public_repo_url}#readme":
+        errors.append("package.json homepage must point to the public README")
+
+    if claude_plugin_data.get("homepage") != f"{public_repo_url}#readme":
+        errors.append(".claude-plugin/plugin.json homepage must point to the public README")
+    claude_repository = claude_plugin_data.get("repository", {})
+    if claude_repository.get("url") != f"git+{public_repo_url}.git":
+        errors.append(".claude-plugin/plugin.json repository.url must point to the public repository")
+
+    public_files_to_check.extend((
+        ("README.md", readme_content),
+        ("package.json", json.dumps(package_data)),
+        (".claude-plugin/plugin.json", json.dumps(claude_plugin_data)),
+        (".codex-plugin/plugin.json", json.dumps(codex_plugin_data)),
+    ))
+    for label, content in public_files_to_check:
+        for stale_text in stale_public_strings:
+            if stale_text in content:
+                errors.append(f"{label} contains stale public repository placeholder '{stale_text}'")
+
     if codex_plugin_data.get("name") != expected_codex_name:
         errors.append(f".codex-plugin/plugin.json name must match package.json name '{expected_codex_name}'")
     if codex_plugin_data.get("version") != package_data.get("version"):

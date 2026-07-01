@@ -77,6 +77,24 @@ Run `git diff --exit-code` to confirm that compiled files do not show unstaged d
 
 ## 4. Local Security & CVE Scanning
 Run local security audits to ensure no secrets have been leaked and configurations are safe:
+- **Git Secrets Check** (Lightweight & Offline):
+  Check for tracked `.env` files and scan staged changes for potential hardcoded keys/secrets:
+  ```bash
+  # Verify no .env files are tracked by Git
+  tracked_envs=$(git ls-files | grep -E '\.env$' || true)
+  if [ -n "$tracked_envs" ]; then
+    echo "ERROR: Tracked .env files found in Git index:"
+    echo "$tracked_envs"
+    exit 1
+  fi
+
+  # Scan staged diff for credentials assignments (e.g. key = "value")
+  secrets_found=$(git diff --staged | grep -E -i 'password|secret|token|api_key|private_key' | grep -E '\s*=\s*["'\''].+["'\']' || true)
+  if [ -n "$secrets_found" ]; then
+    echo "WARNING: Potential hardcoded secret or API token detected in staged diff:"
+    echo "$secrets_found"
+  fi
+  ```
 - **Trivy File Scan**:
   ```bash
   trivy config .

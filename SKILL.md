@@ -15,7 +15,7 @@ This is a master-skill for developer agents. When running in a toolless or web-U
   4. Read `AGENTS.md` + `GLOSSARY.md`.
   5. **Context Validation Check**: Check if `memory/projects/<name>.md` exists. If not, alert the user and advise running `/ak-grok` first to grok the repo before executing any coding, debugging, or documentation tasks.
   6. **Episodic Review**: Read the last 5 daily logs (`memory/daily/*.md`) to gain historic execution context.
-  7. **Session Boot**: Set up today's daily log and ask the user \"Is there anything new or changed before we begin?\"
+  7. **Session Boot**: Set up today's daily log and ask the user "Is there anything new or changed before we begin?"
 - **Session End**: Run `/ak-compact` to summarize logs, update project lists, update MEMORY.md, and record learned corrections.
 
 ## 2. Slash Commands Index & Workflows

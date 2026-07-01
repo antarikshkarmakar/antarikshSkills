@@ -9,28 +9,28 @@ Most agent setups force a choice between two failure modes: a pile of slash comm
 It integrates the best paradigms in agentic development, grouped by what problem each one solves:
 
 **Code Quality & Process**
-- 🌲 **The Ponytail Lazy Developer Ladder**: Native platform features, standard library first, minimal viable code, and YAGNI.
-- ⚡ **Karpathy Simplicity & Surgical Changes**: Touch only what is requested, clean up your own orphans, avoid overengineering, and enforce a strict design-and-plan gate (banish the "too simple to need a design" bypass).
-- 🔬 **Matt Pocock TDD & Debug Loops**: Strict Red-Green-Refactor and Reproduce-Minimize-Hypothesize-Fix protocols.
-- ⚔️ **Adversarial Duel & Critic Pattern**: Self-criticism proposer-attacker loops and post-execution checks.
-- 🏗️ **Continuous Architecture Care**: Deep modules, simple interfaces, flagged (not silently fixed) ball-of-mud smells — `/ak-audit-arch` is its periodic, deliberate form.
-- 🧩 **Think Before Coding**: State assumptions, surface tradeoffs, push back when a simpler approach exists, and stop to ask when genuinely confused — only when ambiguity would change the outcome.
-- 🎯 **Goal-Driven Execution**: Turn imperative asks into verifiable success criteria and loop until they're actually checked, not just plausible — the default behind `/ak-tdd`, `/ak-diagnose`, and `/ak-devops`, applied everywhere.
+- 🌲 **The Ponytail Lazy Developer Ladder (Philosophy I)**: Standard library and native feature reuse over new dependencies, using **`/ak-code`** for surgical Ponytail implementations.
+- ⚡ **Karpathy Simplicity & Surgical Changes (Philosophy II)**: Touch only the requested scope, clean up orphans, and enforce plan gates via **`/ak-align`** before execution.
+- 🔬 **Matt Pocock TDD & Debug Loops (Philosophy X)**: Systematic loops: RED-GREEN-REFACTOR via **`/ak-tdd`**, and Reproduce-Minimize-Fix via **`/ak-diagnose`**.
+- ⚔️ **Adversarial Duel & Critic Pattern (Philosophy III & X)**: Proposer-attacker reviews via **`/ak-review`** to verify edge cases and validate contract compliance.
+- 🏗️ **Continuous Architecture Care (Philosophy XII)**: Deliberate periodic scans for code smells, circular dependencies, and technical debt via **`/ak-audit-arch`**.
+- 🧩 **Think Before Coding & Interrogation (Philosophy IX)**: Socratic evaluation and scoping via the **`/ak-grill`** mentor query and **`/ak-to-prd`** requirements drafting.
+- 🎯 **Goal-Driven Execution (Philosophy X)**: Goal-driven verification loops applying to **`/ak-tdd`**, **`/ak-diagnose`**, and **`/ak-devops`** deployments.
 
 **Memory & Continuity**
-- 🧠 **Second Brain (Claude-mem)**: Continuous context, index routing, and logs across session boundaries (`memory/`, `GLOSSARY.md`, `memory/adr/`, `memory/prds/`).
-- 📖 **Shared Language (Ubiquitous Language)**: A `GLOSSARY.md` of domain terms, built by `/ak-align-docs`, used consistently in naming and communication to cut vocabulary-gap verbosity.
-- 🛡️ **Interface Contracts**: Boundary validation mapping via `INTERFACES.md` to prevent multi-agent logical collisions.
-- 🔐 **Standards Harness (ECC Inspiration)**: Mandatory pre-edit checks reloading repository conventions index files and interface contracts to prevent design drift.
+- 🧠 **Second Brain (Philosophy IV)**: Scaffolding repository directories and config indexes via **`/ak-scratch`**, managing handoffs via **`/ak-handoff`**, and compiling log files via **`/ak-compact`**.
+- 📖 **Shared Language (Philosophy XI)**: Constructing domain terms and Architecture Decision Records (ADRs) via **`/ak-align-docs`** and generating direct technical docs via **`/ak-doc`**.
+- 🛡️ **Interface Contracts (Philosophy III)**: Multi-agent boundary maps in `INTERFACES.md` and verification checks to prevent collision.
+- 🔐 **Standards Harness (Philosophy III & VI - ECC)**: Ensuring strict validation of directory structure, repository convention files, and Git credentials safety checks via **`/ak-ci-check`**.
 
 **Safety**
-- 🚦 **Visible & Hard-to-Reverse Action Gate**: Explicit yes/no approval before posting PR reviews, pushing, force-ops, or any other action that's visible to others or hard to undo. Production-sensitive work additionally gets an explicit edit-scope freeze — stated in-bounds files only, anything outside needs its own approval.
+- 🚦 **Visible & Hard-to-Reverse Action Gate (Philosophy VIII)**: Gated approval loops for PR comments and code reviews via **`/ak-prreview`**.
 
 **Efficiency & Portability**
-- 🪨 **Caveman Communication**: Terse, direct, pleasantry-free responses that cut token consumption by 65%+. Delegates to the [caveman](https://github.com/JuliusBrussee/caveman) plugin's real multi-level compression (`/caveman`, `/caveman-compress`) when it's installed.
-- 📉 **Jcode Cache Optimization & Subagent Delegation**: Lean rulesets and batched reads to prevent expensive cold-cache misses. Compress before content enters context, and delegate heavy, token-intensive tasks (like `/ak-grok` scans, `/ak-diagnose` loops, or `/ak-audit-arch` sweeps) to background subagents when supported by the runner tool to keep the main session's token cache lean.
-- 🐝 **Swarm Orchestration (Ruflo Inspiration)**: Partitioning complex migrations or large refactors into concurrent subtasks mapped to background subagents running in isolated Git worktrees.
-- 🔍 **Adaptive Memory & RAG Routing (Ruflo Inspiration)**: Treating mapped project files as a local RAG index to route symbol queries dynamically, reading only target code modules instead of full directories.
+- 🪨 **Caveman Communication (Philosophy V)**: Compression of context memory via Caveman and `/ak-compact`.
+- 📉 **Jcode Cache Optimization & Subagent Delegation (Philosophy IV)**: Delegating background scans for symbol maps (**`/ak-grok`**), Sentry bug-triggers (**`/ak-diagnose`**), and smell sweeps (**`/ak-audit-arch`**) to isolated processes.
+- 🐝 **Swarm Orchestration (Philosophy IV - Ruflo)**: Coordinating concurrent multi-agent refactors across separate branches via **`/ak-worktree`** and the **`/ak-skillset`** authoring manager.
+- 🔍 **Adaptive Memory & RAG Routing (Philosophy IV - Ruflo)**: Treating project files as local indices to load only target modules.
 - 🌐 **Cross-LLM Portability**: Dialogue-driven fallbacks for toolless environments (Web UIs/API).
 
 ---

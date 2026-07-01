@@ -9,6 +9,7 @@ trigger: /ak-grok
 ## 1. Check Codebase Scale & Empty State
 *   **Empty Repository Check**: Check if the codebase has 0 source files or is in an un-initialized Git state. If empty, stop execution, notify the user, and advise them to run `/ak-scratch` first to bootstrap folder directories, `.gitignore`, and second brain configs.
 *   **Large Repository Scaling**: If the repository is large (over 200 source files or 50 directories), do not perform a full upfront AST parse. Instead, map the high-level folder structure first (up to depth 3) to build a structural layout, then scan specific subfolders/modules on-demand (lazy grokking) as they are visited by active tasks.
+*   **Adaptive Memory & RAG Routing (Ruflo Inspiration)**: Use `memory/projects/<name>.md` as a localized RAG index. Dynamically query and read only the subset of files, module boundaries, and API interfaces that map directly to the user's task instead of loading the entire directory list into the session context.
 
 ## 2. Check Memory First
 Read `memory/projects/<name>.md` if it exists. If a previous `/ak-grok` run recorded the stack, conventions, and module boundaries (with commit hash or date), don't rescan from zero — diff the repo against that point:

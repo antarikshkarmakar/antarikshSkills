@@ -45,12 +45,14 @@ Before writing code, stop at first rung that works:
 - Before modifying shared API/utility → check `INTERFACES.md`
 - Changing a contract → stop, flag for human review
 - Micro-agent delegation → define boundaries first, isolate by directory/branch
+- **Standards Harness (ECC Inspiration)**: Before making any code changes, read the repository convention index (`memory/projects/<name>.md`) and interface bounds (`INTERFACES.md`) to prevent contract drift.
 
 ### IV. Cache Optimization
 - Keep `AGENTS.md`, `MEMORY.md` under 300 lines
 - Avoid constant tiny turns that waste context cache
 - Compress before it enters context — quote excerpts, not raw files
 - **Subagent Delegation**: Delegate heavy operations (like `/ak-grok` repository scans, `/ak-diagnose` loops, or `/ak-audit-arch` sweeps) to background subagents when supported by the runner tool. This keeps the main session's context cache clean, bringing back only the final verified results/patches.
+- **Swarm Orchestration (Ruflo Inspiration)**: For complex multi-file refactors or migrations, partition the work into independent modules, spawn background subagents to work concurrently on separate directories or Git worktrees, and synthesize their results into a unified pull request.
 
 ### V. Terse Communication (Caveman Style)
 - Strip filler, be direct

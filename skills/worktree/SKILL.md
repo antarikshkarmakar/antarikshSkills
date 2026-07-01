@@ -25,6 +25,7 @@ Perform the task entirely in the worktree directory:
 *   Make surgical code edits.
 *   Run tests and verify.
 *   Commit modifications locally in the worktree branch.
+*   **Swarm Isolation & Parallel Reviews (Ruflo Inspiration)**: If performing a large-scale refactor or multi-agent migration, partition modules and assign them to separate subagents. Instruct each subagent to spin up its own isolated Git worktree, execute its task concurrently, and push the branch for validation. Combine branches back into the main line via git merges/rebases once reviews are green.
 
 ## 4. Clean Up and Remove
 Once the branch is pushed or merged:

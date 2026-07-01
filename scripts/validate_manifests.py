@@ -49,6 +49,10 @@ def main():
     for name in sorted({name for name in claude_plugin_skill_names if claude_plugin_skill_names.count(name) > 1}):
         errors.append(f".claude-plugin/plugin.json declares duplicate skill name '{name}'")
 
+    # Load .claude-plugin/marketplace.json
+    claude_marketplace_json_path = os.path.join(root, ".claude-plugin", "marketplace.json")
+    claude_marketplace_data = load_json_no_duplicates(claude_marketplace_json_path, errors, root)
+
     # Load .codex-plugin/plugin.json
     codex_plugin_json_path = os.path.join(root, ".codex-plugin", "plugin.json")
     codex_plugin_data = load_json_no_duplicates(codex_plugin_json_path, errors, root)
@@ -184,10 +188,34 @@ def main():
     if claude_repository.get("url") != f"git+{public_repo_url}.git":
         errors.append(".claude-plugin/plugin.json repository.url must point to the public repository")
 
+    # Verify LICENSE file exists and has correct copyright details
+    license_path = os.path.join(root, "LICENSE")
+    if not os.path.isfile(license_path):
+        errors.append("Missing LICENSE file in repository root")
+    else:
+        with open(license_path, "r", encoding="utf-8") as f:
+            license_content = f.read()
+        if "Copyright (c) 2026 Antariksh Karmakar <antariksh.karmakar@gmail.com>" not in license_content:
+            errors.append("LICENSE file is missing copyright attribution for Antariksh Karmakar")
+        if "MIT License" not in license_content:
+            errors.append("LICENSE is not an MIT License")
+
+    # Verify Claude plugin license
+    if claude_plugin_data.get("license") != "MIT":
+        errors.append(".claude-plugin/plugin.json is missing 'license': 'MIT'")
+
+    # Verify Claude marketplace metadata
+    owner_info = claude_marketplace_data.get("owner", {})
+    if owner_info.get("name") != "Antariksh Karmakar":
+        errors.append(".claude-plugin/marketplace.json owner name must be 'Antariksh Karmakar'")
+    if owner_info.get("email") != "antariksh.karmakar@gmail.com":
+        errors.append(".claude-plugin/marketplace.json owner email must be 'antariksh.karmakar@gmail.com'")
+
     public_files_to_check.extend((
         ("README.md", readme_content),
         ("package.json", json.dumps(package_data)),
         (".claude-plugin/plugin.json", json.dumps(claude_plugin_data)),
+        (".claude-plugin/marketplace.json", json.dumps(claude_marketplace_data)),
         (".codex-plugin/plugin.json", json.dumps(codex_plugin_data)),
     ))
     for label, content in public_files_to_check:

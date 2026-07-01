@@ -44,6 +44,8 @@ It integrates the best paradigms in agentic development, grouped by what problem
 - `SKILL.md`: **Generated** master skill definition for this framework (used by Claude Code's Skill system, Antigravity, OpenClaw, etc.). It compiles into a self-contained command index and session loop guide to support toolless/web-UI environments.
 - `install.ps1`: Windows PowerShell deployer script.
 - `install.sh`: macOS/Linux/WSL Bash deployer script.
+- `scripts/`: Development, validation, and CI scripts (manifest parity check, credentials scanner, and installer/secrets verification test suites).
+- [DEPENDENCIES.md](file:///c:/GitHub/antarikshSkills/DEPENDENCIES.md): Matrix of external dependencies and software checked or used by this framework.
 - `templates/`: Base structures for initialization:
   - `MEMORY.md`: Root-level Second Brain index of status, projects, focus, open loops, and detected agent skills.
   - `GLOSSARY.md`: Domain term/definition table — built by `/ak-align-docs` (Philosophy XI).

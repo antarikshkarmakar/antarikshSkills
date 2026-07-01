@@ -121,5 +121,20 @@ Fix all warnings/violations flagged as `CRITICAL` or `HIGH` before staging.
 
 ---
 
+## 5. Indentation & Whitespace Check
+Ensure that code formatting is clean, consistent, and free of trailing spaces or mixed indentation:
+- **Git-Aware Whitespace Scan**:
+  Scan both active working changes and staged files for spacing errors:
+  ```bash
+  # Check active working tree changes for formatting anomalies
+  git diff --check
+
+  # Check staged changes for mixed indentation or trailing space
+  git diff --staged --check
+  ```
+  If any whitespace or mixed tabs/spaces issues are flagged, correct them before committing.
+
+---
+
 ## Evidence Over Claims
 Before declaring a branch ready to be pushed or PR created, run `/ak-ci-check` and verify all outcomes are green.

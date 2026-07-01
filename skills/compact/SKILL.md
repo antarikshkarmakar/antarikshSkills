@@ -34,6 +34,7 @@ Before overwriting or updating `MEMORY.md` or other memory files, check for unst
 ## 7. Memory Archiving & Size Audits
 *   If `AGENTS.md` or `MEMORY.md` exceeds 300 lines → alert the user to compress or archive.
 *   **Log Archiving**: If the aggregate size of files in `memory/` exceeds 100KB or 10,000 lines, recommend moving daily log files older than 14 days to `memory/daily/archive/` to conserve prompt tokens.
+*   **Memory Consolidation & Tiering (Awesome-Agent-Memory Inspiration)**: Ensure Semantic Memory files (`MEMORY.md`, `GLOSSARY.md`, `INTERFACES.md`, `memory/projects/*.md`) remain active in the workspace context. Compact and archive Episodic Memory (move logs older than 14 days, summarize ADRs/PRDs into high-level features maps) to maintain cache limits.
 
 ## 8. Caveman Plugin (if installed)
 If `caveman` plugin is installed (check `MEMORY.md` under "Context Agent Needs"), run `/caveman-compress` on updated memory files as the final step.

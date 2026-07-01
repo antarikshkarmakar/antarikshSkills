@@ -114,18 +114,26 @@ Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules wit
 
 ---
 
-## 4. Second Brain Protocol
+## 4. Second Brain Protocol (Cognitive Memory Architecture)
 
-### Files to maintain in `memory/`:
-- **`MEMORY.md`** — root index (focus, projects, clients, decisions, open loops)
-- **`AGENTS.md`** — behavioral constraints and learned corrections
-- **`GLOSSARY.md`** — shared language terms
-- **`inbox.md`** — raw session notes staging area
-- **`memory/daily/YYYY-MM-DD.md`** — timestamped logs
-- **`memory/projects/<name>.md`** — project facts
-- **`memory/adr/<NNN>-<slug>.md`** — architecture decision records
-- **`memory/prds/<feature-slug>.md`** — product requirements docs
-- **`memory/handoff.md`** — active handoff instructions
+Maintain second brain files categorized under the systematic Cognitive Memory framework (inspired by Awesome-Agent-Memory):
+1. **Sensory Memory** (Environment state):
+   - `memory/local_env.md` — localized skills, platform OS, and tool configurations
+2. **Working Memory** (Session checklists):
+   - `task.md` — active task steps list (temporary session checklist)
+3. **Procedural Memory** (Action sequences):
+   - `.agents/skills/` — slash command workflows
+4. **Semantic Memory** (Domain knowledge):
+   - `MEMORY.md` — root second brain status, projects, and active loops
+   - `GLOSSARY.md` — shared terms
+   - `INTERFACES.md` — api/contract boundaries
+   - `memory/projects/<name>.md` — project facts
+5. **Episodic Memory** (Execution history):
+   - `inbox.md` — raw session notes staging area
+   - `memory/daily/YYYY-MM-DD.md` — timestamped session logs
+   - `memory/adr/<NNN>-<slug>.md` — Architecture Decision Records (ADRs)
+   - `memory/prds/<feature-slug>.md` — Product Requirements Documents (PRDs)
+   - `memory/handoff.md` — active handoff instructions
 
 ### Start-of-Session Loop:
 1. Read `memory/handoff.md` if exists → then delete/clear it

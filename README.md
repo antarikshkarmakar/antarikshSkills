@@ -18,7 +18,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 - 🎯 **Goal-Driven Execution (Philosophy X)**: Goal-driven verification loops applying to **`/ak-tdd`**, **`/ak-diagnose`**, and **`/ak-devops`** deployments.
 
 **Memory & Continuity**
-- 🧠 **Second Brain (Philosophy IV)**: Scaffolding repository directories and config indexes via **`/ak-scratch`**, managing handoffs via **`/ak-handoff`**, and compiling log files via **`/ak-compact`**.
+- 🧠 **Second Brain (Philosophy IV)**: Scaffolding repository directories and config indexes via **`/ak-scratch`**, managing handoffs via **`/ak-handoff`**, and compiling log files via **`/ak-compact`** (grounded in **Cognitive Memory Architecture** organizing Sensory, Working, Procedural, Semantic, and Episodic memory layers).
 - 📖 **Shared Language (Philosophy XI)**: Constructing domain terms and Architecture Decision Records (ADRs) via **`/ak-align-docs`** and generating direct technical docs via **`/ak-doc`**.
 - 🛡️ **Interface Contracts (Philosophy III)**: Multi-agent boundary maps in `INTERFACES.md` and verification checks to prevent collision.
 - 🔐 **Standards Harness (Philosophy III & VI - ECC)**: Ensuring strict validation of directory structure, repository convention files, and Git credentials safety checks via **`/ak-ci-check`** (powered by local checks and **`repomix`** security scanning).

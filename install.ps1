@@ -316,44 +316,37 @@ if ($Hooks) {
 
     $settingsDest = Join-Path $targetPath ".claude/settings.json"
     $hookConfigs = @{
-        "SessionStart" = "powershell.exe -ExecutionPolicy Bypass -File `${CLAUDE_PROJECT_DIR}/.claude/hooks/session-start.ps1"
-        "Stop"         = "powershell.exe -ExecutionPolicy Bypass -File `${CLAUDE_PROJECT_DIR}/.claude/hooks/stop-check.ps1"
+        "SessionStart" = 'powershell.exe -ExecutionPolicy Bypass -File ${CLAUDE_PROJECT_DIR}/.claude/hooks/session-start.ps1'
+        "Stop"         = 'powershell.exe -ExecutionPolicy Bypass -File ${CLAUDE_PROJECT_DIR}/.claude/hooks/stop-check.ps1'
     }
 
     if (!(Test-Path $settingsDest)) {
-        $settingsObject = [PSCustomObject]@{
-            hooks = [PSCustomObject]@{
-                SessionStart = @(
-                    [PSCustomObject]@{
-                        hooks = @(
-                            [PSCustomObject]@{
-                                type = "command"
-                                command = $hookConfigs["SessionStart"]
-                                timeout = 30
-                            }
-                        )
-                    }
-                )
-                Stop = @(
-                    [PSCustomObject]@{
-                        hooks = @(
-                            [PSCustomObject]@{
-                                type = "command"
-                                command = $hookConfigs["Stop"]
-                                timeout = 10
-                            }
-                        )
-                    }
-                )
+        $settingsObject = @{
+            hooks = @{
+                "SessionStart" = @()
+                "Stop"         = @()
             }
         }
+        $startHook = @{
+            type    = "command"
+            command = $hookConfigs["SessionStart"]
+            timeout = 30
+        }
+        $settingsObject.hooks["SessionStart"] += @{ hooks = @($startHook) }
+
+        $stopHook = @{
+            type    = "command"
+            command = $hookConfigs["Stop"]
+            timeout = 10
+        }
+        $settingsObject.hooks["Stop"] += @{ hooks = @($stopHook) }
         $settingsObject | ConvertTo-Json -Depth 10 | Set-Content -Path $settingsDest -Force
         Write-Host "Created file: .claude/settings.json" -ForegroundColor Green
     } else {
         $existing = Get-Content -Path $settingsDest -Raw | ConvertFrom-Json
 
         if (-not ($existing.PSObject.Properties.Name -contains "hooks")) {
-            $existing | Add-Member -MemberType NoteProperty -Name "hooks" -Value ([PSCustomObject]@{}) -Force
+            $existing | Add-Member -MemberType NoteProperty -Name "hooks" -Value (@{}) -Force
         }
 
         foreach ($eventName in @("SessionStart", "Stop")) {
@@ -371,12 +364,17 @@ if ($Hooks) {
             }
 
             if (-not $alreadyPresent) {
-                $newEntry = [PSCustomObject]@{
+                if ($eventName -eq "SessionStart") {
+                    $timeoutVal = 30
+                } else {
+                    $timeoutVal = 10
+                }
+                $newEntry = @{
                     hooks = @(
-                        [PSCustomObject]@{
+                        @{
                             type = "command"
                             command = $cmdPath
-                            timeout = if ($eventName -eq "SessionStart") { 30 } else { 10 }
+                            timeout = $timeoutVal
                         }
                     )
                 }
@@ -407,44 +405,37 @@ if ($Hooks) {
 
     $codexSettingsDest = Join-Path $targetPath ".codex/hooks.json"
     $codexHookConfigs = @{
-        "SessionStart" = "powershell.exe -ExecutionPolicy Bypass -File `${CODEX_PROJECT_DIR}/.codex/hooks/session-start.ps1"
-        "Stop"         = "powershell.exe -ExecutionPolicy Bypass -File `${CODEX_PROJECT_DIR}/.codex/hooks/stop-check.ps1"
+        "SessionStart" = 'powershell.exe -ExecutionPolicy Bypass -File ${CODEX_PROJECT_DIR}/.codex/hooks/session-start.ps1'
+        "Stop"         = 'powershell.exe -ExecutionPolicy Bypass -File ${CODEX_PROJECT_DIR}/.codex/hooks/stop-check.ps1'
     }
 
     if (!(Test-Path $codexSettingsDest)) {
-        $codexSettingsObject = [PSCustomObject]@{
-            hooks = [PSCustomObject]@{
-                SessionStart = @(
-                    [PSCustomObject]@{
-                        hooks = @(
-                            [PSCustomObject]@{
-                                type = "command"
-                                command = $codexHookConfigs["SessionStart"]
-                                timeout = 30
-                            }
-                        )
-                    }
-                )
-                Stop = @(
-                    [PSCustomObject]@{
-                        hooks = @(
-                            [PSCustomObject]@{
-                                type = "command"
-                                command = $codexHookConfigs["Stop"]
-                                timeout = 10
-                            }
-                        )
-                    }
-                )
+        $codexSettingsObject = @{
+            hooks = @{
+                "SessionStart" = @()
+                "Stop"         = @()
             }
         }
+        $codexStartHook = @{
+            type    = "command"
+            command = $codexHookConfigs["SessionStart"]
+            timeout = 30
+        }
+        $codexSettingsObject.hooks["SessionStart"] += @{ hooks = @($codexStartHook) }
+
+        $codexStopHook = @{
+            type    = "command"
+            command = $codexHookConfigs["Stop"]
+            timeout = 10
+        }
+        $codexSettingsObject.hooks["Stop"] += @{ hooks = @($codexStopHook) }
         $codexSettingsObject | ConvertTo-Json -Depth 10 | Set-Content -Path $codexSettingsDest -Force
         Write-Host "Created file: .codex/hooks.json" -ForegroundColor Green
     } else {
         $existingCodex = Get-Content -Path $codexSettingsDest -Raw | ConvertFrom-Json
 
         if (-not ($existingCodex.PSObject.Properties.Name -contains "hooks")) {
-            $existingCodex | Add-Member -MemberType NoteProperty -Name "hooks" -Value ([PSCustomObject]@{}) -Force
+            $existingCodex | Add-Member -MemberType NoteProperty -Name "hooks" -Value (@{}) -Force
         }
 
         foreach ($eventName in @("SessionStart", "Stop")) {
@@ -462,12 +453,17 @@ if ($Hooks) {
             }
 
             if (-not $alreadyPresent) {
-                $newEntry = [PSCustomObject]@{
+                if ($eventName -eq "SessionStart") {
+                    $timeoutVal = 30
+                } else {
+                    $timeoutVal = 10
+                }
+                $newEntry = @{
                     hooks = @(
-                        [PSCustomObject]@{
+                        @{
                             type = "command"
                             command = $cmdPath
-                            timeout = if ($eventName -eq "SessionStart") { 30 } else { 10 }
+                            timeout = $timeoutVal
                         }
                     )
                 }

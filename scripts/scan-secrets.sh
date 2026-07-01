@@ -14,13 +14,15 @@ fi
 
 # 2. Scan staged added lines for credentials assignments (e.g. key = "value")
 key_assignment_pattern='(password|secret|token|api[_-]?key|private[_-]?key)[A-Za-z0-9_-]*[[:space:]]*[:=][[:space:]]*("[^"]+"|[^[:space:]#]{12,})'
-ignore_pattern='status|placeholder|example|pattern|regex|FILL_ME|_STATUS'
+placeholder_value_pattern='[=:][[:space:]]*['"'"'"]?(FILL_ME(_IF_USING_[A-Z0-9_]+)?|CHANGE_?ME|CHANGEME|YOUR_?[A-Z0-9_-]*|XXX+|<[^>]+>)['"'"'"]?([[:space:]#]|$)'
+dynamic_value_pattern='[=:][[:space:]]*['"'"'"]?(\$[A-Z_][A-Z0-9_]*|\$\{[A-Z_][A-Z0-9_]*\}|\$[eE][nN][vV]:[A-Z_][A-Z0-9_]*|\$\([^)]*\))['"'"'"]?([[:space:]#]|$)'
 secrets_found=$(
     git diff --staged |
         grep -E '^\+' |
         grep -Ev '^\+\+\+' |
         grep -E -i "$key_assignment_pattern" |
-        grep -Ev -i "$ignore_pattern" ||
+        grep -Ev -i "$placeholder_value_pattern" |
+        grep -Ev "$dynamic_value_pattern" ||
         true
 )
 if [ -n "$secrets_found" ]; then

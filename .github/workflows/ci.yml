@@ -58,10 +58,9 @@ jobs:
         run: |
           bash scripts/test_installer.sh
 
-      - name: Run installer integration tests (PowerShell)
-        shell: pwsh
+      - name: Run secrets scanner regression tests (Bash)
         run: |
-          ./scripts/test_installer.ps1
+          bash scripts/test_secret_scanner.sh
 
       - name: Run Trivy Security & CVE Scanner
         uses: aquasecurity/trivy-action@v0.36.0
@@ -72,3 +71,18 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
+
+  test-windows:
+    name: Test Installer (Windows)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run installer integration tests (Windows PowerShell)
+        run: |
+          powershell -ExecutionPolicy Bypass -File scripts/test_installer.ps1
+
+      - name: Run secrets scanner regression tests (Windows PowerShell)
+        run: |
+          powershell -ExecutionPolicy Bypass -File scripts/test_secret_scanner.ps1

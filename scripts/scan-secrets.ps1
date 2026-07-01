@@ -15,9 +15,10 @@ if ($trackedEnvs) {
 $stagedDiff = git diff --staged
 if ($stagedDiff) {
     $keyAssignmentPattern = "(?i)(password|secret|token|api[_-]?key|private[_-]?key)[A-Za-z0-9_-]*\s*[=:]\s*('[^']+'|`"[^`"]+`"|[A-Za-z0-9_./+=-]{12,})"
-    $ignorePattern = "(?i)(status|placeholder|example|pattern|regex|FILL_ME|_STATUS)"
+    $placeholderValuePattern = '(?i)[=:]\s*([''"]?)(FILL_ME(_IF_USING_[A-Z0-9_]+)?|CHANGE_?ME|CHANGEME|YOUR_?[A-Z0-9_-]*|XXX+|<[^>]+>)\1(\s|#|$)'
+    $dynamicValuePattern = '[=:]\s*([''"]?)(\$[A-Z_][A-Z0-9_]*|\$\{[A-Z_][A-Z0-9_]*\}|\$[eE][nN][vV]:[A-Z_][A-Z0-9_]*|\$\([^)]*\))\1(\s|#|$)'
     $addedLines = $stagedDiff -split "`r?`n" | Where-Object { $_ -match "^\+" -and $_ -notmatch "^\+\+\+" }
-    $secretsFound = $addedLines | Where-Object { $_ -match $keyAssignmentPattern -and $_ -notmatch $ignorePattern }
+    $secretsFound = $addedLines | Where-Object { $_ -match $keyAssignmentPattern -and $_ -notmatch $placeholderValuePattern -and $_ -cnotmatch $dynamicValuePattern }
     if ($secretsFound) {
         Write-Host "WARNING: Potential hardcoded secret or API token detected in staged changes:" -ForegroundColor Yellow
         $secretsFound | ForEach-Object { Write-Host $_ -ForegroundColor Yellow }

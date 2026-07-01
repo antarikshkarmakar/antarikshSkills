@@ -7,33 +7,65 @@ FORCE=false
 RULES_ONLY=false
 WITH_HOOKS=false
 
-# Simple argument parsing
-for arg in "$@"; do
-    if [ "$arg" == "--force" ] || [ "$arg" == "-f" ]; then
-        FORCE=true
-    elif [ "$arg" == "--rules-only" ] || [ "$arg" == "-r" ]; then
-        RULES_ONLY=true
-    elif [ "$arg" == "--hooks" ] || [ "$arg" == "-k" ]; then
-        WITH_HOOKS=true
-    else
-        TARGET_DIR="$arg"
-    fi
+# Escape helper for sed replacements
+escape_sed() {
+    # Escape backslash first, then ampersand, then delimiter (#)
+    printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/&/\\&/g' -e 's/#/\\#/g'
+}
+
+# Robust argument parsing
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --force|-f)
+            FORCE=true
+            shift
+            ;;
+        --rules-only|-r)
+            RULES_ONLY=true
+            shift
+            ;;
+        --hooks|-k)
+            WITH_HOOKS=true
+            shift
+            ;;
+        --target|-t)
+            if [ -n "$2" ] && [ "${2#-}" = "$2" ]; then
+                TARGET_DIR="$2"
+                shift 2
+            else
+                echo -e "\033[31mError: --target requires a directory path argument.\033[0m"
+                exit 1
+            fi
+            ;;
+        -*)
+            echo -e "\033[31mError: Unknown option $1\033[0m"
+            echo "Usage: ./install.sh [target_directory] [--target <directory>] [--force] [--rules-only] [--hooks]"
+            exit 1
+            ;;
+        *)
+            TARGET_DIR="$1"
+            shift
+            ;;
+    esac
 done
 
-# Resolve absolute path of Target Dir
-TARGET_PATH=$(cd "$TARGET_DIR" 2>/dev/null && pwd)
-if [ -z "$TARGET_PATH" ]; then
-    TARGET_PATH=$(realpath "$TARGET_DIR")
+# Create target directory if it doesn't exist to ensure it can be resolved
+if [ ! -d "$TARGET_DIR" ]; then
+    if ! mkdir -p "$TARGET_DIR"; then
+        echo -e "\033[31mError: failed to create target directory: $TARGET_DIR\033[0m"
+        exit 1
+    fi
+    echo -e "\033[32mCreated target directory: $TARGET_DIR\033[0m"
+fi
+
+# Resolve absolute path of Target Dir using standard cd && pwd
+if ! TARGET_PATH=$(cd "$TARGET_DIR" && pwd); then
+    echo -e "\033[31mError: failed to resolve target directory: $TARGET_DIR\033[0m"
+    exit 1
 fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 echo -e "\033[36mTarget: $TARGET_PATH\033[0m"
-
-# Create target directory if it doesn't exist
-if [ ! -d "$TARGET_PATH" ]; then
-    mkdir -p "$TARGET_PATH"
-    echo -e "\033[32mCreated target directory: $TARGET_PATH\033[0m"
-fi
 
 # Detect installed agent skills (read-only -- never copies or installs anything)
 SKILLS_DIR="$HOME/.claude/skills"
@@ -329,14 +361,23 @@ if [ ! -f "$LOCAL_ENV_DEST" ] || [ "$FORCE" = true ]; then
     if [ -n "$SENTRY_AUTH_TOKEN" ]; then
         SENTRY_TOKEN_STATUS="Configured (from env)"
     fi
-    sed -e "s#\[GRAPHIFY_STATUS\]#$GRAPHIFY_STATUS#" \
-        -e "s#\[CODEGRAPH_STATUS\]#$CODEGRAPH_STATUS#" \
-        -e "s#\[CAVEMAN_STATUS\]#$CAVEMAN_STATUS#" \
-        -e "s#\[SENTRY_STATUS\]#$SENTRY_STATUS#" \
-        -e "s#\[HEADROOM_STATUS\]#$HEADROOM_STATUS#" \
-        -e "s#\[SENTRY_ORG_SLUG_STATUS\]#$SENTRY_ORG_STATUS#" \
-        -e "s#\[SENTRY_AUTH_TOKEN_STATUS\]#$SENTRY_TOKEN_STATUS#" \
-        -e "s#\[DETECTED_SKILLS\]#$SKILLS_LINE#" \
+    esc_graphify=$(escape_sed "$GRAPHIFY_STATUS")
+    esc_codegraph=$(escape_sed "$CODEGRAPH_STATUS")
+    esc_caveman=$(escape_sed "$CAVEMAN_STATUS")
+    esc_sentry=$(escape_sed "$SENTRY_STATUS")
+    esc_headroom=$(escape_sed "$HEADROOM_STATUS")
+    esc_sentry_org=$(escape_sed "$SENTRY_ORG_STATUS")
+    esc_sentry_token=$(escape_sed "$SENTRY_TOKEN_STATUS")
+    esc_skills=$(escape_sed "$SKILLS_LINE")
+
+    sed -e "s#\[GRAPHIFY_STATUS\]#$esc_graphify#" \
+        -e "s#\[CODEGRAPH_STATUS\]#$esc_codegraph#" \
+        -e "s#\[CAVEMAN_STATUS\]#$esc_caveman#" \
+        -e "s#\[SENTRY_STATUS\]#$esc_sentry#" \
+        -e "s#\[HEADROOM_STATUS\]#$esc_headroom#" \
+        -e "s#\[SENTRY_ORG_SLUG_STATUS\]#$esc_sentry_org#" \
+        -e "s#\[SENTRY_AUTH_TOKEN_STATUS\]#$esc_sentry_token#" \
+        -e "s#\[DETECTED_SKILLS\]#$esc_skills#" \
         "$SCRIPT_DIR/templates/memory/local_env.md" | sed "/<!-- TEMPLATE_DO_NOT_USE -->/d" > "$LOCAL_ENV_DEST"
     echo -e "\033[32mCreated file: memory/local_env.md\033[0m"
 else
@@ -387,7 +428,8 @@ PROJECT_NAME=$(basename "$TARGET_PATH")
 PROJECT_FILE_DEST="$TARGET_PATH/memory/projects/${PROJECT_NAME}.md"
 if [ ! -f "$PROJECT_FILE_DEST" ] || [ "$FORCE" = true ]; then
     SRC_TEMPLATE="$SCRIPT_DIR/templates/memory/projects/template.md"
-    sed "s/\[Project Name\]/${PROJECT_NAME}/g" "$SRC_TEMPLATE" | sed "/<!-- TEMPLATE_DO_NOT_USE -->/d" > "$PROJECT_FILE_DEST"
+    esc_project_name=$(escape_sed "$PROJECT_NAME")
+    sed "s#\[Project Name\]#$esc_project_name#g" "$SRC_TEMPLATE" | sed "/<!-- TEMPLATE_DO_NOT_USE -->/d" > "$PROJECT_FILE_DEST"
     echo -e "\033[32mCreated project memory file: memory/projects/${PROJECT_NAME}.md\033[0m"
 fi
 

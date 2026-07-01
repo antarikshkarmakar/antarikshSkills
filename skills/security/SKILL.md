@@ -31,7 +31,7 @@ Proactively check that no credentials or private tokens are committed or staged:
 - **Repomix security scanner** (Graceful Check: Verify `repomix` or `npx` exists on PATH):
   ```bash
   # Check if npx is available, then execute repomix scanning
-  npx repomix --security-check
+  command -v npx >/dev/null 2>&1 && npx repomix --security-check
   ```
 
 ## 3. Dependency Audit (CVE Scan)

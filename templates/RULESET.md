@@ -82,6 +82,10 @@ Use terms from `GLOSSARY.md` consistently. Propose names for new domain concepts
 ### XII. Continuous Architecture Care
 Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules with simple interfaces.
 
+### XIII. Modular Capability Alignment & Skill Advisory
+- **Trigger Routing**: If the user asks "how do I do X", "is there a skill for X", or "can you do X" where X maps to an existing command (such as scoping, testing, debugging, CI/CD, or refactoring), do not write ad-hoc recipes. Route the query to the correct slash command (`/ak-align`, `/ak-tdd`, `/ak-diagnose`, `/ak-devops`, `/ak-ci-check`, `/ak-grok`, etc.).
+- **Capability Extension**: If the user expresses interest in extending agent capabilities, searches for templates/workflows, or requests domain help, run or recommend `/ak-skillset` to triage, design, and compile a new modular skill.
+
 ---
 
 ## 3. Slash Commands → Point to `.agents/skills/`

@@ -22,6 +22,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 - 📖 **Shared Language (Philosophy XI)**: Constructing domain terms and Architecture Decision Records (ADRs) via **`/ak-align-docs`** and generating direct technical docs via **`/ak-doc`**.
 - 🛡️ **Interface Contracts (Philosophy III)**: Multi-agent boundary maps in `INTERFACES.md` and verification checks to prevent collision.
 - 🔐 **Standards Harness (Philosophy III & VI - ECC)**: Ensuring strict validation of directory structure, repository convention files, and Git credentials safety checks via **`/ak-ci-check`** (powered by local checks and **`repomix`** security scanning).
+- 🎛️ **Modular Capability Alignment & Skill Advisory (Philosophy XIII)**: Preemptively routing capability queries (scoping, testing, debugging, or CI/CD) and capability extensions/searches to modular skills or **`/ak-skillset`** rather than writing ad-hoc patterns.
 
 **Safety**
 - 🚦 **Visible & Hard-to-Reverse Action Gate (Philosophy VIII)**: Gated approval loops for PR comments and code reviews via **`/ak-prreview`**.

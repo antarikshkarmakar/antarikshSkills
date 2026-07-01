@@ -19,8 +19,9 @@ It integrates the best paradigms in agentic development, grouped by what problem
 
 **Memory & Continuity**
 - 🧠 **Second Brain (Claude-mem)**: Continuous context, index routing, and logs across session boundaries (`memory/`, `GLOSSARY.md`, `memory/adr/`, `memory/prds/`).
-- 📖 **Shared Language (Ubiquitous Language)**: A `GLOSSARY.md` of domain terms, built by `/align-docs`, used consistently in naming and communication to cut vocabulary-gap verbosity.
+- 📖 **Shared Language (Ubiquitous Language)**: A `GLOSSARY.md` of domain terms, built by `/ak-align-docs`, used consistently in naming and communication to cut vocabulary-gap verbosity.
 - 🛡️ **Interface Contracts**: Boundary validation mapping via `INTERFACES.md` to prevent multi-agent logical collisions.
+- 🔐 **Standards Harness (ECC Inspiration)**: Mandatory pre-edit checks reloading repository conventions index files and interface contracts to prevent design drift.
 
 **Safety**
 - 🚦 **Visible & Hard-to-Reverse Action Gate**: Explicit yes/no approval before posting PR reviews, pushing, force-ops, or any other action that's visible to others or hard to undo. Production-sensitive work additionally gets an explicit edit-scope freeze — stated in-bounds files only, anything outside needs its own approval.
@@ -28,6 +29,8 @@ It integrates the best paradigms in agentic development, grouped by what problem
 **Efficiency & Portability**
 - 🪨 **Caveman Communication**: Terse, direct, pleasantry-free responses that cut token consumption by 65%+. Delegates to the [caveman](https://github.com/JuliusBrussee/caveman) plugin's real multi-level compression (`/caveman`, `/caveman-compress`) when it's installed.
 - 📉 **Jcode Cache Optimization & Subagent Delegation**: Lean rulesets and batched reads to prevent expensive cold-cache misses. Compress before content enters context, and delegate heavy, token-intensive tasks (like `/ak-grok` scans, `/ak-diagnose` loops, or `/ak-audit-arch` sweeps) to background subagents when supported by the runner tool to keep the main session's token cache lean.
+- 🐝 **Swarm Orchestration (Ruflo Inspiration)**: Partitioning complex migrations or large refactors into concurrent subtasks mapped to background subagents running in isolated Git worktrees.
+- 🔍 **Adaptive Memory & RAG Routing (Ruflo Inspiration)**: Treating mapped project files as a local RAG index to route symbol queries dynamically, reading only target code modules instead of full directories.
 - 🌐 **Cross-LLM Portability**: Dialogue-driven fallbacks for toolless environments (Web UIs/API).
 
 ---

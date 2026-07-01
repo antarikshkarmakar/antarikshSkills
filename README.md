@@ -48,6 +48,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
   - `MEMORY.md`: Root-level Second Brain index of status, projects, focus, open loops, and detected agent skills.
   - `GLOSSARY.md`: Domain term/definition table — built by `/ak-align-docs` (Philosophy XI).
   - `inbox.md`: Staging note inbox.
+  - `memory/skill-observations.md`: Reusable skill/process improvement backlog captured during `/ak-compact` and consumed by `/ak-skillset`.
   - `memory/daily/template.md`: Daily append-only logs.
   - `memory/projects/template.md`: Project-specific facts and context cards.
   - `memory/adr/template.md`: Architecture Decision Record format (Context/Decision/Consequences) — written by `/ak-align-docs`.
@@ -60,7 +61,11 @@ It integrates the best paradigms in agentic development, grouped by what problem
 
 ## How to Install in a Project
 
-Running the installer detects locally installed agent skills (see below), generates the 6 rule files from `templates/RULESET.md`, copies the root-level `skills/` recursively to `.agents/skills/` of the target directory (so slash commands have their full workflow files), creates the `memory/` structure (including `adr/` and `prds/`), scaffolds Second Brain templates (including `GLOSSARY.md`), creates today's daily log (`memory/daily/YYYY-MM-DD.md`), ensures a `.gitignore` covers secrets/junk (creating one if missing, or appending only the missing baseline entries if one already exists — never overwrites your own rules), and writes everything to the root of the target directory.
+Running the installer detects locally installed agent skills (see below), generates the 6 rule files from `templates/RULESET.md`, copies the root-level `skills/` recursively to `.agents/skills/` of the target directory (so slash commands have their full workflow files), creates the `memory/` structure (including `adr/` and `prds/`), scaffolds Second Brain templates (including `GLOSSARY.md` and `memory/skill-observations.md`), creates today's daily log (`memory/daily/YYYY-MM-DD.md`), ensures a `.gitignore` covers secrets/junk (creating one if missing, or appending only the missing baseline entries if one already exists — never overwrites your own rules), and writes everything to the root of the target directory.
+
+### Skill Evolution Loop
+
+`/ak-compact` can append reusable process misses, dependency gaps, portability issues, and over-engineering signals to `memory/skill-observations.md`. `/ak-skillset` reads those `OPEN` observations before creating or updating skills, then classifies each as action-now, defer, or decline. Mark an observation `public-safe` only after removing client names, project names, proprietary URLs, internal terms, credentials, personal data, and traceable examples; otherwise mark it `internal`. To keep context lean, `/ak-compact` archives old `ACTIONED`/`DECLINED` entries to `memory/skill-observations.archive.md`; `/ak-skillset` reads that archive only when older history is requested.
 
 ### On Windows (PowerShell)
 ```powershell
@@ -294,7 +299,7 @@ Once the rules are installed in your workspace root, any agent reading them will
 | **`/ak-devops`** | End-to-end DevOps automation (scaffold container/IaC/pipeline files, run linters/scanners, validate dry-runs, debug environments). | [skills/devops/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/devops/SKILL.md) |
 | **`/ak-ci-check`** | Runs local validation checks (line endings, ShellCheck lint, ruleset sync, Trivy, and git secrets check) to verify PR compliance locally. | [skills/ci-check/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/ci-check/SKILL.md) |
 | **`/ak-security`** | Runs static threat modeling checks, local secrets scanning, SAST checks, and dependency CVE scans. | [skills/security/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/security/SKILL.md) |
-| **`/ak-skillset`** | Skill authoring, triage (triage classes), 11 thinking lenses analysis, XML specs, and multi-agent synthesis loop. | [skills/skillset/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/skillset/SKILL.md) |
+| **`/ak-skillset`** | Skill authoring with observation intake, triage classes, 11 thinking lenses analysis, XML specs, public/internal safety sweep, and multi-agent synthesis loop. | [skills/skillset/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/skillset/SKILL.md) |
 | **`/ak-code`** | Surgical code implementation using the Ponytail ladder (Native first, standard library, YAGNI). | [skills/code/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/code/SKILL.md) |
 | **`/ak-review`** | Adversarial proposer-attacker duel verification testing against edge cases, race conditions, and security surfaces. | [skills/review/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/review/SKILL.md) |
 | **`/ak-prreview`** | Gated GitHub PR Review loop creating draft comments and reviews for explicit user approval before posting. | [skills/prreview/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/prreview/SKILL.md) |
@@ -303,7 +308,7 @@ Once the rules are installed in your workspace root, any agent reading them will
 | **`/ak-grok`** | Incremental repository scanning using AST analysis (graphify, CodeGraph) to map codebase structure. | [skills/grok/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/grok/SKILL.md) |
 | **`/ak-audit-arch`** | Architectural health checks auditing codebase smells (god objects, tangles, duplicate logic). | [skills/audit-arch/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/audit-arch/SKILL.md) |
 | **`/ak-scratch`** | Scaffolds new projects from scratch, initializing second brain directories and `.gitignore` rules. | [skills/scratch/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/scratch/SKILL.md) |
-| **`/ak-compact`** | Memory consolidation compiling daily logs, updating project cards, and clearing inbox note staging. | [skills/compact/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/compact/SKILL.md) |
+| **`/ak-compact`** | Memory consolidation compiling daily logs, updating project cards, capturing reusable skill observations, and clearing inbox note staging. | [skills/compact/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/compact/SKILL.md) |
 | **`/ak-handoff`** | Compiles state summary into a handoff note (`memory/handoff.md`) for incoming agents. | [skills/handoff/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/handoff/SKILL.md) |
 | **`/ak-headroom`** | Guides and checks configuration of Headroom for reversible token compression (MCP/proxy). | [skills/headroom/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/headroom/SKILL.md) |
 

@@ -1,6 +1,6 @@
 ---
 name: antariksh-unified-skill
-description: Master developer skill combining planning, simplicity, TDD, diagnosis, devops, QA, and security
+description: Master developer skill combining planning, simplicity, TDD, diagnosis, devops, QA, security, and skill evolution
 ---
 
 # Antariksh Unified Agent Skill (Master Developer Framework)
@@ -16,7 +16,7 @@ This is a master-skill for developer agents. When running in a toolless or web-U
   5. **Context Validation Check**: Check if `memory/projects/<name>.md` exists. If not, alert the user and advise running `/ak-grok` first to build the project context card and knowledge graph.
   6. **Episodic Review**: Read the last 5 daily logs (`memory/daily/*.md`) to gain historic execution context.
   7. **Session Boot**: Set up today's daily log and ask the user "Is there anything new or changed before we begin?"
-- **Session End**: Run `/ak-compact` to summarize logs, update project lists, update MEMORY.md, and record learned corrections.
+- **Session End**: Run `/ak-compact` to summarize logs, update project lists, update MEMORY.md, record learned corrections, and append reusable skill observations to `memory/skill-observations.md`.
 
 ## 2. Slash Commands Index & Workflows
 - **`/ak-grill`**: Interrogate scope, check edge cases, and output action plan → `.agents/skills/grill/SKILL.md`.
@@ -28,7 +28,7 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 - **`/ak-devops`**: Scaffold container/IaC files, run linters, validate dry-run setups.
 - **`/ak-ci-check`**: Run local line ending, shellcheck, Trivy scan, secrets scan, and indentation diff checks.
 - **`/ak-security`**: OWASP threat audit, local credentials scan, dependency CVE audit, and security report.
-- **`/ak-skillset`**: Skill triage (USE_EXISTING, etc.) -> 11 lenses analysis -> XML spec -> critique duel.
+- **`/ak-skillset`**: Observation intake -> skill triage (USE_EXISTING, etc.) -> 11 lenses analysis -> XML spec -> public/internal safety sweep -> critique duel.
 - **`/ak-code`**: Surgical minimal implementation (contracts check -> lazy ladder -> tests -> diff check).
 - **`/ak-review`**: Adversarial attacker duel verification against edge cases and interface drift.
 - **`/ak-prreview`**: Gated PR review creating draft reviews for explicit user approval.
@@ -37,5 +37,5 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 - **`/ak-grok`**: Incremental repository scans (RAG index building/AST parsing) to map structure.
 - **`/ak-audit-arch`**: Sweep codebase for architectural smells (god files, duplicate logic, tangles).
 - **`/ak-scratch`**: Scaffold new projects with standard folder layouts and template configs → `.agents/skills/scratch/SKILL.md`.
-- **`/ak-compact`**: Log consolidation, project facts compilation, inbox clearing, and corrections capture.
+- **`/ak-compact`**: Log consolidation, project facts compilation, skill-observation capture, inbox clearing, and corrections capture.
 - **`/ak-handoff`**: Compile handoff notes to `memory/handoff.md` for incoming agents.

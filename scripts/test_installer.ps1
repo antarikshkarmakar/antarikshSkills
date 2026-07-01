@@ -137,6 +137,16 @@ try {
         throw "Scenario 2 FAIL: task.md contains TEMPLATE_DO_NOT_USE marker"
     }
 
+    # Verify skill observation backlog exists with the public/internal safety fields
+    $skillObservations = Join-Path $tmpNested "memory/skill-observations.md"
+    if (!(Test-Path $skillObservations)) {
+        throw "Scenario 2 FAIL: memory/skill-observations.md was not created"
+    }
+    $skillObservationContent = Get-Content -Path $skillObservations -Raw
+    if ($skillObservationContent -notmatch "Suggested improvement" -or $skillObservationContent -notmatch "public-safe" -or $skillObservationContent -notmatch "internal" -or $skillObservationContent -notmatch "memory/skill-observations.archive.md") {
+        throw "Scenario 2 FAIL: skill-observations.md is missing observation safety/archive fields"
+    }
+
     # Verify Sentry Org/Token statuses are Configured/Not Configured in memory/local_env.md
     $localEnv = Join-Path $tmpNested "memory/local_env.md"
     if (!(Test-Path $localEnv)) {

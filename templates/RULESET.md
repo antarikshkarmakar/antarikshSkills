@@ -108,7 +108,7 @@ Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules wit
 | `/ak-devops` | DevOps & CI/CD automation → `.agents/skills/devops/SKILL.md` |
 | `/ak-ci-check` | Local CI validation pre-check → `.agents/skills/ci-check/SKILL.md` |
 | `/ak-security` | Security audit (threat modeling, secrets, SAST, CVEs) → `.agents/skills/security/SKILL.md` |
-| `/ak-skillset` | Skill authoring, triage, synthesis, and advisory loop → `.agents/skills/skillset/SKILL.md` |
+| `/ak-skillset` | Skill authoring, observation intake, triage, synthesis, public/internal safety, and advisory loop → `.agents/skills/skillset/SKILL.md` |
 | `/ak-code` | Ponytail surgical implementation → `.agents/skills/code/SKILL.md` |
 | `/ak-review` | Adversarial duel review → `.agents/skills/review/SKILL.md` |
 | `/ak-prreview` | Gated GitHub PR review → `.agents/skills/prreview/SKILL.md` |
@@ -117,7 +117,7 @@ Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules wit
 | `/ak-grok` | Repository comprehension → `.agents/skills/grok/SKILL.md` |
 | `/ak-audit-arch` | Architecture health check → `.agents/skills/audit-arch/SKILL.md` |
 | `/ak-scratch` | Scaffold new project + memory/ folders → `.agents/skills/scratch/SKILL.md` |
-| `/ak-compact` | Memory consolidation → `.agents/skills/compact/SKILL.md` |
+| `/ak-compact` | Memory consolidation and skill-observation capture → `.agents/skills/compact/SKILL.md` |
 | `/ak-handoff` | Agent handoff → `.agents/skills/handoff/SKILL.md` |
 | `/ak-headroom` | Headroom Integration → `.agents/skills/headroom/SKILL.md` |
 
@@ -137,6 +137,8 @@ Maintain second brain files categorized under the systematic Cognitive Memory fr
    - `GLOSSARY.md` — shared terms
    - `INTERFACES.md` — api/contract boundaries
    - `memory/projects/<name>.md` — project facts. (Note: `<name>` resolves to the basename of the repository root directory. In monorepos, separate files may be created for each package as `memory/projects/<package-name>.md`).
+   - `memory/skill-observations.md` -- active reusable skill/process improvement backlog captured during `/ak-compact`
+   - `memory/skill-observations.archive.md` -- archived `ACTIONED`/`DECLINED` skill observations, read only when older history is requested
 5. **Episodic Memory** (Execution history):
    - `inbox.md` — raw session notes staging area
    - `memory/daily/YYYY-MM-DD.md` — timestamped session logs
@@ -159,7 +161,8 @@ Maintain second brain files categorized under the systematic Cognitive Memory fr
 2. Update project files with verified decisions/facts
 3. Update `MEMORY.md`
 4. Add corrections to `AGENTS.md` Learned section
-5. Clear `inbox.md`
+5. Append reusable skill/process observations to `memory/skill-observations.md`
+6. Clear `inbox.md`
 
 ### Memory Trust & Hygiene Rules
 1. **Ignore Templates**: Never parse or copy template files under `templates/` or `.agents/skills/` (like `template.md` files) as real execution history.
@@ -167,3 +170,5 @@ Maintain second brain files categorized under the systematic Cognitive Memory fr
 3. **Stale Log Archiving**: Archive daily logs older than 30 days to a `.stale` sub-folder if they clutter directory listings, keeping only recent active history.
 4. **Redact Secrets**: Never record plain-text tokens, API keys, Sentry tokens, or database passwords in any memory files. Always verify that `.gitignore` covers local environment configurations.
 5. **Hook Enforcement Parity**: Automated startup and termination hooks (SessionStart/Stop-Check) are enforced mechanically in Claude Code and Codex CLI. For other clients (Cursor, Gemini CLI, VS Code Copilot, Web UI, etc.), this session protocol is self-enforced by the model parsing this ruleset.
+6. **Public Skill Safety**: `memory/skill-observations.md` entries marked `public-safe` must not include client names, project names, proprietary URLs, internal terms, credentials, personal data, or traceable examples. If unsure, mark the observation `internal`.
+7. **Skill Observation Archiving**: Keep all `OPEN` observations in `memory/skill-observations.md`. During `/ak-compact`, archive `ACTIONED`/`DECLINED` entries older than 30 days to `memory/skill-observations.archive.md` when the active file exceeds 150 lines or contains more than 20 closed entries.

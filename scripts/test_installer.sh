@@ -122,6 +122,17 @@ if grep -q "TEMPLATE_DO_NOT_USE" "$TASK_FILE"; then
     exit 1
 fi
 
+# Verify skill observation backlog exists with the public/internal safety fields
+SKILL_OBSERVATIONS="$TMP_NESTED/memory/skill-observations.md"
+if [ ! -f "$SKILL_OBSERVATIONS" ]; then
+    echo "Scenario 2 FAIL: memory/skill-observations.md was not created"
+    exit 1
+fi
+if ! grep -q "Suggested improvement" "$SKILL_OBSERVATIONS" || ! grep -q "public-safe" "$SKILL_OBSERVATIONS" || ! grep -q "internal" "$SKILL_OBSERVATIONS" || ! grep -q "memory/skill-observations.archive.md" "$SKILL_OBSERVATIONS"; then
+    echo "Scenario 2 FAIL: skill-observations.md is missing observation safety/archive fields"
+    exit 1
+fi
+
 # Verify Sentry Org/Token statuses are Configured/Not Configured rather than FILL_ME in memory/local_env.md
 LOCAL_ENV="$TMP_NESTED/memory/local_env.md"
 if [ ! -f "$LOCAL_ENV" ]; then

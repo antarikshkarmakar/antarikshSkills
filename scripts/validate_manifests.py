@@ -67,6 +67,37 @@ def main():
     with open(ruleset_path, "r", encoding="utf-8") as f:
         ruleset_content = f.read()
 
+    skill_observations_template = os.path.join(root, "templates", "skill-observations.md")
+    if not os.path.isfile(skill_observations_template):
+        errors.append("templates/skill-observations.md is missing")
+    else:
+        with open(skill_observations_template, "r", encoding="utf-8") as f:
+            skill_observations_content = f.read()
+        for required_text in ("Suggested improvement", "Principle", "public-safe", "internal", "memory/skill-observations.archive.md"):
+            if required_text not in skill_observations_content:
+                errors.append(f"templates/skill-observations.md is missing '{required_text}'")
+
+    compact_skill_path = os.path.join(skills_dir, "compact", "SKILL.md")
+    with open(compact_skill_path, "r", encoding="utf-8") as f:
+        compact_skill_content = f.read()
+
+    skillset_skill_path = os.path.join(skills_dir, "skillset", "SKILL.md")
+    with open(skillset_skill_path, "r", encoding="utf-8") as f:
+        skillset_skill_content = f.read()
+
+    for label, content in (("README.md", readme_content), ("templates/RULESET.md", ruleset_content)):
+        if "memory/skill-observations.md" not in content:
+            errors.append(f"{label} is missing reference to 'memory/skill-observations.md'")
+
+    for label, content in (
+        ("README.md", readme_content),
+        ("templates/RULESET.md", ruleset_content),
+        ("skills/compact/SKILL.md", compact_skill_content),
+        ("skills/skillset/SKILL.md", skillset_skill_content),
+    ):
+        if "memory/skill-observations.archive.md" not in content:
+            errors.append(f"{label} is missing reference to 'memory/skill-observations.archive.md'")
+
     # Check all modular skills
     for folder in skill_folders:
         skill_name = f"ak-{folder}"

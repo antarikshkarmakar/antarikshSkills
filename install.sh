@@ -319,6 +319,16 @@ if [ ! -f "$DAILY_LOG_DEST" ]; then
     echo -e "\033[32mCreated today's daily log: memory/daily/$TODAY.md\033[0m"
 fi
 
+# Create repository-specific project context file if it doesn't exist
+PROJECT_NAME=$(basename "$TARGET_PATH")
+PROJECT_FILE_DEST="$TARGET_PATH/memory/projects/${PROJECT_NAME}.md"
+if [ ! -f "$PROJECT_FILE_DEST" ] || [ "$FORCE" = true ]; then
+    SRC_TEMPLATE="$SCRIPT_DIR/templates/memory/projects/template.md"
+    cp "$SRC_TEMPLATE" "$PROJECT_FILE_DEST"
+    sed -i.bak "s/\[Project Name\]/${PROJECT_NAME}/g" "$PROJECT_FILE_DEST" && rm -f "${PROJECT_FILE_DEST}.bak"
+    echo -e "\033[32mCreated project memory file: memory/projects/${PROJECT_NAME}.md\033[0m"
+fi
+
 # Ensure .gitignore covers secrets/junk (Philosophy VI) -- never overwrites, only
 # creates if missing or appends the baseline block if an existing file lacks it.
 GITIGNORE_TEMPLATE="$SCRIPT_DIR/templates/.gitignore"

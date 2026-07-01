@@ -215,6 +215,18 @@ if (!(Test-Path $dailyLogDest)) {
     Write-Host "Created today's daily log: memory/daily/$today.md" -ForegroundColor Green
 }
 
+# Create repository-specific project context file if it doesn't exist
+$projectName = Split-Path -Leaf $targetPath
+$projectFileDest = Join-Path $targetPath "memory/projects/$projectName.md"
+if (!(Test-Path $projectFileDest) -or $Force) {
+    $srcTemplate = Join-Path $scriptDir "templates/memory/projects/template.md"
+    Copy-Item -Path $srcTemplate -Destination $projectFileDest -Force
+    $content = Get-Content -Path $projectFileDest -Raw
+    $content = $content -replace "\[Project Name\]", $projectName
+    Set-Content -Path $projectFileDest -Value $content -Force
+    Write-Host "Created project memory file: memory/projects/$projectName.md" -ForegroundColor Green
+}
+
 # Ensure .gitignore covers secrets/junk (Philosophy VI) -- never overwrites, only
 # creates if missing or appends the baseline block if an existing file lacks it.
 $gitignoreTemplate = Join-Path $scriptDir "templates/.gitignore"

@@ -27,3 +27,7 @@ Look for:
 List findings as discrete, surgical refactor candidates. The user acts on them later.
 
 Do NOT refactor unprompted (Philosophy II — Surgical Changes).
+
+> [!TIP]
+> **Subagent Delegation**: Running codebase audits consumes large amounts of file context. If supported, run the `/audit-arch` sweep in an isolated subagent and paste only the final prioritized refactor queue into the main chat session.
+

@@ -35,3 +35,6 @@ Write to `memory/projects/<name>.md`:
 - Stamp with current commit hash and date
 
 So next `/grok` run is incremental, not full scan.
+
+> [!TIP]
+> **Subagent Cache Hygiene**: Full repository scans consume significant context tokens. If supported by your runner (e.g. Antigravity subagents or CLI parallel runs), delegate `/grok` to a background subagent, persisting findings to `memory/projects/<name>.md` outside the main session to keep the token cache lean.

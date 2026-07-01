@@ -26,8 +26,9 @@ Challenge the design. Ask:
 ## Step 3 — Present Interpretations
 If the request is ambiguous, list the plausible interpretations and ask which one is right. Do NOT silently pick.
 
-## Step 4 — Confirm Scope
-Summarize the agreed scope in 1-2 sentences. Get explicit confirmation before starting.
+## Step 4 — Confirm Scope & Plan Gate
+- **Confirm Scope**: Summarize the agreed scope in 1-2 sentences. Get explicit confirmation before starting.
+- **Strict Plan Gate**: Define and confirm a step-by-step implementation plan (even if brief) before execution begins. Banish the "too simple to need a design" bypass: every change requires a structured roadmap.
 
 ## Step 5 — Mid-Task Scope Changes
 If new requirements surface after work started, classify before continuing:

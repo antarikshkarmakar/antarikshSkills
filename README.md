@@ -10,7 +10,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 
 **Code Quality & Process**
 - 🌲 **The Ponytail Lazy Developer Ladder**: Native platform features, standard library first, minimal viable code, and YAGNI.
-- ⚡ **Karpathy Simplicity & Surgical Changes**: Touch only what is requested, clean up your own orphans, and avoid overengineering.
+- ⚡ **Karpathy Simplicity & Surgical Changes**: Touch only what is requested, clean up your own orphans, avoid overengineering, and enforce a strict design-and-plan gate (banish the "too simple to need a design" bypass).
 - 🔬 **Matt Pocock TDD & Debug Loops**: Strict Red-Green-Refactor and Reproduce-Minimize-Hypothesize-Fix protocols.
 - ⚔️ **Adversarial Duel & Critic Pattern**: Self-criticism proposer-attacker loops and post-execution checks.
 - 🏗️ **Continuous Architecture Care**: Deep modules, simple interfaces, flagged (not silently fixed) ball-of-mud smells — `/audit-arch` is its periodic, deliberate form.
@@ -27,7 +27,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 
 **Efficiency & Portability**
 - 🪨 **Caveman Communication**: Terse, direct, pleasantry-free responses that cut token consumption by 65%+. Delegates to the [caveman](https://github.com/JuliusBrussee/caveman) plugin's real multi-level compression (`/caveman`, `/caveman-compress`) when it's installed.
-- 📉 **Jcode Cache Optimization**: Lean rulesets and batched reads to prevent expensive cold-cache misses. Compress before content enters context, not just what leaves it — read excerpts/summaries instead of pasting raw tool output/logs (the lightweight, no-infra version of what [Headroom](https://github.com/headroomlabs-ai/headroom) does as a proxy).
+- 📉 **Jcode Cache Optimization & Subagent Delegation**: Lean rulesets and batched reads to prevent expensive cold-cache misses. Compress before content enters context, and delegate heavy, token-intensive tasks (like `/grok` scans, `/diagnose` loops, or `/audit-arch` sweeps) to background subagents when supported by the runner tool to keep the main session's token cache lean.
 - 🌐 **Cross-LLM Portability**: Dialogue-driven fallbacks for toolless environments (Web UIs/API).
 
 ---
@@ -178,7 +178,7 @@ Once the rules are installed in your workspace root, any agent reading them will
 The agent acts as a strict evaluator with 20+ years of experience. It interrogates your task scope, constraints, and traps in blocks before coding, and outputs a blunt, structured assessment and a 30-60-90 day action plan.
 
 ### `/align` — Pre-Coding Scope Alignment
-Use before starting any non-trivial change. Interrogates the goal, constraints, "done" criteria, and explicit non-goals; if the request is ambiguous, lists the plausible interpretations instead of silently picking one; confirms scope back before any code is written. The deliberate, structured form of Philosophy IX (Think Before Coding). If scope changes mid-task, classifies it first — **Expansion** (new `/align` pass), **Selective Expansion** (confirm and continue), **Hold Scope** (defer as an open loop), or **Reduction** (confirm the smaller scope) — instead of silently absorbing it. Full workflow in `.agents/skills/align/SKILL.md`.
+Use before starting any non-trivial change. Interrogates the goal, constraints, "done" criteria, and explicit non-goals; confirms scope and checks the strict implementation plan gate (banishing the "too simple" bypass) before any code is written. The deliberate, structured form of Philosophy IX (Think Before Coding). If scope changes mid-task, classifies it first — **Expansion** (new `/align` pass), **Selective Expansion** (confirm and continue), **Hold Scope** (defer as an open loop), or **Reduction** (confirm the smaller scope) — instead of silently absorbing it. Full workflow in `.agents/skills/align/SKILL.md`.
 
 ### `/align-docs` — Scope Alignment + Shared Language
 Everything `/align` does, plus building the project's shared language: adds undefined domain terms surfaced during the interrogation to `GLOSSARY.md`, and writes an ADR (`memory/adr/<NNN>-<slug>.md`) for any hard-to-explain decision (tradeoff, rejected alternative, constraint).
@@ -199,7 +199,7 @@ Follows a rigorous debugging sequence:
 2. **MINIMIZE**: **Divide and conquer** — bisect the system to isolate the exact file and lines responsible.
 3. **ROOT CAUSE (5 Whys)**: Walk backward from the immediate defect/symptom 5 levels deep to uncover the true systemic cause (e.g., config error, upstream contract gap).
 4. **FIX & PREVENT**: Apply a surgical fix to resolve the root cause. Change **one variable at a time** so you know what worked, write regression tests/validation to prevent recurrence, and remove the reproduction script.
-Full workflow in [skills/diagnose/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/diagnose/SKILL.md) (deployed to `.agents/skills/diagnose/SKILL.md`).
+For complex or multi-step debugging iterations, the REPRODUCE/MINIMIZE loops can be delegated to isolated subagents to preserve main session context. Full workflow in [skills/diagnose/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/diagnose/SKILL.md) (deployed to `.agents/skills/diagnose/SKILL.md`).
 
 
 ### `/code` — Surgical Implementation
@@ -218,10 +218,10 @@ Instructs the agent to check out task branches into clean sibling directories to
 Generates clear, direct documentation using markdown, tables, alert blocks, and mermaid diagrams with zero filler or redundant introductions.
 
 ### `/grok` — Repository Comprehension (Context Graph)
-Checks `memory/projects/<name>.md` first — if a previous scan is recorded with a commit hash/date, diffs the repo against that point and only re-analyzes what changed, instead of rescanning from zero. Then checks whether graphify, Understand-Anything, or CodeGraph is available (see Agent Skill Detection above) and delegates to whichever is found — CodeGraph specifically also offers real call-graph/blast-radius queries beyond a structural map. If graphify is available, it runs a two-phase manifest-driven pipeline: Phase 1 (detect files, extract code AST, create job manifest for docs/images, exit); the agent then dispatches subagents for doc/image chunks and runs Phase 2 (`--resume`) to merge and finish. If no graph tool is available, falls back to a manual scan of manifest files, test framework, and entry points. Either way, persists the findings (stamped with the current commit hash/date) to `memory/projects/<name>.md` so the next run can do an incremental update. Full workflow in `.agents/skills/grok/SKILL.md`.
+Checks `memory/projects/<name>.md` first — if a previous scan is recorded with a commit hash/date, diffs the repo against that point and only re-analyzes what changed, instead of rescanning from zero. Then checks whether graphify, Understand-Anything, or CodeGraph is available (see Agent Skill Detection above) and delegates to whichever is found — CodeGraph specifically also offers real call-graph/blast-radius queries beyond a structural map. If graphify is available, it runs a two-phase manifest-driven pipeline: Phase 1 (detect files, extract code AST, create job manifest for docs/images, exit); the agent then dispatches subagents for doc/image chunks and runs Phase 2 (`--resume`) to merge and finish. If no graph tool is available, falls back to a manual scan of manifest files, test framework, and entry points. Either way, persists the findings (stamped with the current commit hash/date) to `memory/projects/<name>.md` so the next run can do an incremental update. Full repository scans consume significant context tokens, so it is recommended to delegate `/grok` to a background subagent when supported. Full workflow in `.agents/skills/grok/SKILL.md`.
 
 ### `/audit-arch` — Architecture Health Check
-Run periodically, not just when something's broken. Delegates to a codebase-mapping tool if available — `claude-mem:pathfinder` or CodeGraph (real blast-radius/dependency-tangle data via `codegraph impact`/`codegraph callers`); otherwise falls back to a manual smell-scan (god objects, shallow modules, duplicated logic, tangled dependencies). Outputs a prioritized refactor queue, not an unprompted rewrite — see Philosophy XII (Continuous Architecture Care). Full workflow in `.agents/skills/audit-arch/SKILL.md`.
+Run periodically, not just when something's broken. Delegates to a codebase-mapping tool if available — `claude-mem:pathfinder` or CodeGraph (real blast-radius/dependency-tangle data via `codegraph impact`/`codegraph callers`); otherwise falls back to a manual smell-scan (god objects, shallow modules, duplicated logic, tangled dependencies). Outputs a prioritized refactor queue, not an unprompted rewrite — see Philosophy XII (Continuous Architecture Care). Audits are recommended to run in background subagents to keep the main chat session lean. Full workflow in `.agents/skills/audit-arch/SKILL.md`.
 
 ### `/scratch` — Scaffold New Project
 Initializes a repository from zero, creating standard files, the Second Brain system (`MEMORY.md`, `GLOSSARY.md`, `inbox.md`, `memory/`), and the module boundary tracker (`INTERFACES.md`). Per Philosophy VI, also ensures a `.gitignore` covers secrets and common build/dependency junk — created fresh if missing, or merged in if one exists without those entries.

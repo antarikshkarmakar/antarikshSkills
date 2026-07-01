@@ -38,3 +38,6 @@ Apply a surgical fix to resolve the root cause. If testing candidate fixes, **ch
 ## Evidence Over Claims
 Never claim the bug is fixed based on code inspection. Run the repro. Show it passing as proof.
 
+> [!TIP]
+> **Subagent Debugging Delegation**: For complex, multi-step debugging sessions (e.g. running multiple test iterations), delegate the REPRODUCE/MINIMIZE loops to an isolated subagent. The subagent should return only a verified diagnostic report and a surgical fix, keeping the main session's context clean.
+

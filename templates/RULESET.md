@@ -33,6 +33,7 @@ Before writing code, stop at first rung that works:
 - No speculative features
 - Don't touch adjacent code/formatting/comments
 - Remove unused code your changes introduced; don't touch pre-existing dead code
+- **Strict Plan Gate**: Every change requires a goal, success criteria, and a step-by-step plan confirmed via `/align` or a quick design step before execution. Banish the "too simple to need a design" bypass.
 
 ### III. Interface Contracts (Swarm Safety)
 - Before modifying shared API/utility → check `INTERFACES.md`
@@ -43,7 +44,7 @@ Before writing code, stop at first rung that works:
 - Keep `AGENTS.md`, `MEMORY.md` under 300 lines
 - Avoid constant tiny turns that waste context cache
 - Compress before it enters context — quote excerpts, not raw files
-- Complex debugging → delegate to isolated sub-agent, return verified fix only
+- **Subagent Delegation**: Delegate heavy operations (like `/grok` repository scans, `/diagnose` loops, or `/audit-arch` sweeps) to background subagents when supported by the runner tool. This keeps the main session's context cache clean, bringing back only the final verified results/patches.
 
 ### V. Terse Communication (Caveman Style)
 - Strip filler, be direct

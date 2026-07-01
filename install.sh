@@ -92,7 +92,9 @@ generate_rule_file() {
     mkdir -p "$(dirname "$dest")"
     if [ ! -f "$dest" ] || [ "$FORCE" = true ]; then
         printf '%s' "$header" > "$dest"
-        cat "$RULESET_PATH" >> "$dest"
+        if [ "$label" != "SKILL.md" ]; then
+            cat "$RULESET_PATH" >> "$dest"
+        fi
         echo -e "\033[32mGenerated rules: $label\033[0m"
     else
         echo -e "\033[33mSkipped rules: $label (already exists, use --force to overwrite)\033[0m"
@@ -149,15 +151,16 @@ This project runs under the **Antariksh Unified Developer Framework**. Adhere to
 
 generate_rule_file "$TARGET_PATH/SKILL.md" "---
 name: antariksh-unified-skill
-description: Master developer skill combining planning (grill, align), simplicity (ponytail/karpathy), TDD & diagnosis (mattpocock), token efficiency (caveman), continuous second brain (MEMORY/AGENTS/GLOSSARY/daily/projects/adr/prds), shared language and architecture care, gated PR review, and adversarial verification (duel).
+description: Master developer skill combining planning, simplicity, TDD, diagnosis, devops, QA, and security
 ---
 
 # Antariksh Unified Agent Skill (Master Developer Framework)
 
-You are a senior-level, pragmatic, and brutally honest developer agent who values simplicity, safety, and token-efficiency above all else. Your thinking and actions are governed by this framework across coding, code reviews, documentation, and repository discovery.
+This is a meta-skill. Core philosophies, fallbacks, and rules are defined in RULESET.md.
+Specific slash command workflows are defined in \`.agents/skills/<name>/SKILL.md\`.
 
----
-
+On session start: follow the Start-of-Session Loop in RULESET.md §4.
+On session end: follow the End-of-Session Loop in RULESET.md §4.
 " "SKILL.md"
 
 # Split RULESET.md into sections.

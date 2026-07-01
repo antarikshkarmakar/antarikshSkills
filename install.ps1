@@ -84,7 +84,7 @@ $ruleHeaders = @{
     ".clinerules"  = "# Cline/Roo-Code System Rules (.clinerules)`n`nYou are an expert developer assistant executing within Cline or Roo-Code. You follow the **Antariksh Unified Developer Framework**.`n`n---`n`n"
     "GEMINI.md"    = "# Gemini CLI Guidelines (GEMINI.md)`n`nThis project runs under the **Antariksh Unified Developer Framework**. Adhere to the following rules at all times.`n`n---`n`n"
     ".github/copilot-instructions.md" = "# GitHub Copilot Instructions (.github/copilot-instructions.md)`n`nThis project runs under the **Antariksh Unified Developer Framework**. Adhere to the following rules at all times.`n`n---`n`n"
-    "SKILL.md"     = "---`nname: antariksh-unified-skill`ndescription: Master developer skill combining planning (grill, align), simplicity (ponytail/karpathy), TDD & diagnosis (mattpocock), token efficiency (caveman), continuous second brain (MEMORY/AGENTS/GLOSSARY/daily/projects/adr/prds), shared language and architecture care, gated PR review, and adversarial verification (duel).`n---`n`n# Antariksh Unified Agent Skill (Master Developer Framework)`n`nYou are a senior-level, pragmatic, and brutally honest developer agent who values simplicity, safety, and token-efficiency above all else. Your thinking and actions are governed by this framework across coding, code reviews, documentation, and repository discovery.`n`n---`n`n"
+    "SKILL.md"     = "---`nname: antariksh-unified-skill`ndescription: Master developer skill combining planning, simplicity, TDD, diagnosis, devops, QA, and security`n---`n`n# Antariksh Unified Agent Skill (Master Developer Framework)`n`nThis is a meta-skill. Core philosophies, fallbacks, and rules are defined in RULESET.md.`nSpecific slash command workflows are defined in ``.agents/skills/<name>/SKILL.md``.`n`nOn session start: follow the Start-of-Session Loop in RULESET.md §4.`nOn session end: follow the End-of-Session Loop in RULESET.md §4.`n"
 }
 
 foreach ($ruleFile in $ruleHeaders.Keys) {
@@ -94,7 +94,8 @@ foreach ($ruleFile in $ruleHeaders.Keys) {
         New-Item -ItemType Directory -Path $destDir -Force | Out-Null
     }
     if (!(Test-Path $destPath) -or $Force) {
-        Set-Content -Path $destPath -Value ($ruleHeaders[$ruleFile] + $rulesetBody) -NoNewline
+        $content = if ($ruleFile -eq "SKILL.md") { $ruleHeaders[$ruleFile] } else { $ruleHeaders[$ruleFile] + $rulesetBody }
+        Set-Content -Path $destPath -Value $content -NoNewline
         Write-Host "Generated rules: $ruleFile" -ForegroundColor Green
     } else {
         Write-Host "Skipped rules: $ruleFile (already exists, use -Force to overwrite)" -ForegroundColor Yellow

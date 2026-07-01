@@ -21,7 +21,10 @@ for arg in "$@"; do
 done
 
 # Resolve absolute path of Target Dir
-TARGET_PATH=$(cd "$TARGET_DIR" 2>/dev/null && pwd || realpath "$TARGET_DIR")
+TARGET_PATH=$(cd "$TARGET_DIR" 2>/dev/null && pwd)
+if [ -z "$TARGET_PATH" ]; then
+    TARGET_PATH=$(realpath "$TARGET_DIR")
+fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 echo -e "\033[36mTarget: $TARGET_PATH\033[0m"
@@ -37,6 +40,7 @@ SKILLS_DIR="$HOME/.claude/skills"
 GRAPHIFY_STATUS="Graphify: not found under $SKILLS_DIR -- /grok will fall back to a manual directory/stack scan."
 DETECTED_SKILLS=""
 if [ -d "$SKILLS_DIR" ]; then
+    # shellcheck disable=SC2012
     DETECTED_SKILLS=$(ls "$SKILLS_DIR" 2>/dev/null | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
     if [ -f "$SKILLS_DIR/graphify/SKILL.md" ]; then
         VERSION="unknown version"

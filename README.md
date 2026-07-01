@@ -35,7 +35,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 ## Repository Structure
 
 - `templates/RULESET.md`: **The single canonical source** for the shared rules body (philosophies, command protocol, Second Brain protocol). Slash commands are a lean lookup table pointing to `.agents/skills/` — detailed instructions live in modular skill files, not in RULESET.md itself. Edit this file, not the 6 generated rule files below — they drift out of sync if hand-edited directly.
-- `skills/`: **Modular on-demand skill files.** Each slash command is a thin pointer in RULESET.md; the full workflow lives in its own `.agents/skills/<name>/SKILL.md`. This keeps RULESET.md lean (~150 lines) and context-cache-friendly. Currently includes: `align/`, `tdd/`, `diagnose/`, `devops/`, `ci-check/`, `review/`, `prreview/`, `worktree/`, `grok/`, `audit-arch/`, `compact/`, `handoff/`.
+- `skills/`: **Modular on-demand skill files.** Each slash command is a thin pointer in RULESET.md; the full workflow lives in its own `.agents/skills/<name>/SKILL.md`. This keeps RULESET.md lean (~150 lines) and context-cache-friendly. Currently includes: `align/`, `tdd/`, `diagnose/`, `devops/`, `ci-check/`, `skillset/`, `review/`, `prreview/`, `worktree/`, `grok/`, `audit-arch/`, `compact/`, `handoff/`.
 - `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md`: **Generated** from `templates/RULESET.md` plus a tool-specific header, at install time. Also copies the root-level `skills/` recursively to the target directory as `.agents/skills/`. Used by Codex/OpenCode/CLI assistants, Claude Code, Cursor, Cline/Roo-Code, Gemini CLI, and GitHub Copilot Chat respectively. (`.cursorrules` is Cursor's legacy format — still read, but Cursor's current standard is `.cursor/rules/*.mdc`; Cursor users are covered either way since Cursor also reads `AGENTS.md` natively. Copilot's autonomous coding agent already reads `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` directly — `.github/copilot-instructions.md` is what closes the gap for everyday Copilot Chat.)
 - `SKILL.md`: Hand-maintained master skill definition for this framework itself (used by Claude Code's Skill system, Antigravity, OpenClaw, etc.). Richer/more detailed than the 6 generated files and **not** regenerated from `RULESET.md` — only its `/ak-grok` section and Second Brain references are kept in sync by hand.
 - `install.ps1`: Windows PowerShell deployer script.
@@ -111,7 +111,7 @@ This repository is pre-configured as a **Claude Code Plugin Marketplace**. You c
    ```bash
    /plugin install antariksh-skills
    ```
-   This registers the master `antariksh-unified-skill` and the 12 modular command skills globally inside your Claude Code binary.
+   This registers the master `antariksh-unified-skill` and the 13 modular command skills globally inside your Claude Code binary.
 
 #### Codex (CLI)
 OpenAI's Codex CLI reads `AGENTS.md` as its primary instruction file. Run `codex` from inside the installed project directory — zero extra configuration.
@@ -191,7 +191,7 @@ To install `antarikshSkills` globally or in your project using SkillKit:
 ```bash
 skillkit add <github-username>/antarikshSkills
 ```
-This registers the master `antariksh-unified-skill` and the modular commands (`/ak-align`, `/ak-tdd`, `/ak-diagnose`, `/ak-devops`, `/ak-ci-check`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-grok`, `/ak-audit-arch`, `/ak-compact`, `/ak-handoff`) in your active agent environments.
+This registers the master `antariksh-unified-skill` and the modular commands (`/ak-align`, `/ak-tdd`, `/ak-diagnose`, `/ak-devops`, `/ak-ci-check`, `/ak-skillset`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-grok`, `/ak-audit-arch`, `/ak-compact`, `/ak-handoff`) in your active agent environments.
 
 ##### Format Translation Adapter
 You can translate any modular skill in `skills/` to your favorite agent format using SkillKit's translation engine:
@@ -287,6 +287,7 @@ Once the rules are installed in your workspace root, any agent reading them will
 | **`/ak-diagnose`** | Structured debugging loop (REPRODUCE via Sentry/logs → MINIMIZE via bisection → 5-WHYS root cause → FIX & PREVENT). | [skills/diagnose/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/diagnose/SKILL.md) |
 | **`/ak-devops`** | End-to-end DevOps automation (scaffold container/IaC/pipeline files, run linters/scanners, validate dry-runs, debug environments). | [skills/devops/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/devops/SKILL.md) |
 | **`/ak-ci-check`** | Runs local validation checks (line endings, ShellCheck lint, ruleset sync, Trivy, and git secrets check) to verify PR compliance locally. | [skills/ci-check/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/ci-check/SKILL.md) |
+| **`/ak-skillset`** | Skill authoring, triage (triage classes), 11 thinking lenses analysis, XML specs, and multi-agent synthesis loop. | [skills/skillset/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/skillset/SKILL.md) |
 | **`/ak-code`** | Surgical code implementation using the Ponytail ladder (Native first, standard library, YAGNI). | *Built-in (Master System)* |
 | **`/ak-review`** | Adversarial proposer-attacker duel verification testing against edge cases, race conditions, and security surfaces. | [skills/review/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/review/SKILL.md) |
 | **`/ak-prreview`** | Gated GitHub PR Review loop creating draft comments and reviews for explicit user approval before posting. | [skills/prreview/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/prreview/SKILL.md) |

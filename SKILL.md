@@ -103,6 +103,7 @@ Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules wit
 | `/ak-diagnose` | Structured debugging → `.agents/skills/diagnose/SKILL.md` |
 | `/ak-devops` | DevOps & CI/CD automation → `.agents/skills/devops/SKILL.md` |
 | `/ak-ci-check` | Local CI validation pre-check → `.agents/skills/ci-check/SKILL.md` |
+| `/ak-skillset` | Skill authoring, triage, synthesis, and advisory loop → `.agents/skills/skillset/SKILL.md` |
 | `/ak-code` | Ponytail surgical implementation |
 | `/ak-review` | Adversarial duel review → `.agents/skills/review/SKILL.md` |
 | `/ak-prreview` | Gated GitHub PR review → `.agents/skills/prreview/SKILL.md` |

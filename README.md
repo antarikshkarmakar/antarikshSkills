@@ -111,7 +111,7 @@ The installer drops the right file for every tool in one pass (see Repository St
 Reads `CLAUDE.md` from the project root automatically. Run `claude` from inside the installed project directory. Add `-Hooks`/`--hooks` at install time for mechanical Second Brain enforcement (see [Optional: Claude Code Hooks](#optional-claude-code-hooks)).
 
 ##### Publishing & Installing as a Global Plugin
-This repository is pre-configured as a **Claude Code Plugin Marketplace**. You can register and install it globally so that the modular slash commands are always available on your system, even outside initialized target projects:
+This repository is pre-configured as a **Claude Code Plugin Marketplace**. You can register and install it globally so that the modular skills are available on your system, even outside initialized target projects:
 
 1. **Add the Marketplace**: Tap this repository to register it in your local Claude Code configuration:
    ```bash
@@ -122,7 +122,9 @@ This repository is pre-configured as a **Claude Code Plugin Marketplace**. You c
    ```bash
    /plugin install antariksh-skills
    ```
-   This registers the master `antariksh-unified-skill` and the 21 modular command skills globally inside your Claude Code binary.
+   This registers the 21 modular skill guides globally inside Claude Code.
+
+**Native Claude Code invocation names:** Claude Code namespaces plugin skills as `/<plugin-name>:<skill-folder>`. After marketplace install, use `/antariksh-skills:align`, `/antariksh-skills:tdd`, `/antariksh-skills:diagnose`, etc. The `/ak-*` names are this framework's installer/ruleset shorthand and remain available when you run `install.ps1` or `install.sh` in a target project. Native Claude Code plugin installs do not expose `/ak-align` aliases. The root `CLAUDE.md` and `SKILL.md` files are portable installer/toolless assets; native plugin runtime context comes from the packaged skills under `skills/`.
 
 #### Codex (CLI)
 OpenAI's Codex CLI reads `AGENTS.md` as its primary instruction file. Run `codex` from inside the installed project directory — zero extra configuration.
@@ -134,7 +136,12 @@ This repository includes Codex-native plugin metadata in `.codex-plugin/plugin.j
    ```bash
    codex plugin marketplace add antarikshkarmakar/antarikshSkills
    ```
-2. **Install the Plugin**: Open the plugin browser with `/plugins`, choose the **Antariksh Skills** marketplace source, and install `antariksh-skills`.
+   If this prints `unexpected argument 'marketplace'`, update the same Codex CLI environment with `codex update` and retry. On Windows with WSL, make sure you run the WSL `codex` binary if that is where Codex is installed.
+2. **Install the Plugin**:
+   ```bash
+   codex plugin add antariksh-skills@antariksh-skills
+   ```
+   You can also open the plugin browser with `/plugins`, choose the **Antariksh Skills** marketplace source, and install `antariksh-skills`.
 
 Hooks are still opt-in project scaffolding, not automatic plugin side effects. Run `install.ps1 -Hooks` or `install.sh --hooks` in a target repository when you want mechanical SessionStart/Stop enforcement.
 
@@ -289,6 +296,8 @@ Requires the CLI to run with a bash-capable shell to execute the hook scripts (G
 ## How to Use the Unified Agent
 
 Once the rules are installed in your workspace root, any agent reading them will respond to the following slash subcommands:
+
+The `/ak-*` names below are the portable framework commands used by generated rule files, SkillKit-style adapters, and toolless interfaces. Native marketplace plugins may display a platform namespace: Claude Code uses folder names such as `/antariksh-skills:align`, while Codex may display installed plugin skill names such as `antariksh-skills:ak-align`.
 
 | Command | Purpose / Action Description | Target Skill Guide |
 | :--- | :--- | :--- |

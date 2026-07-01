@@ -3,34 +3,11 @@
   "version": "1.2.0",
   "description": "Master developer skill framework combining planning, simplified TDD/diagnosis loops, adversarial reviews, and context compression rules.",
   "license": "MIT",
-  "author": "Antariksh",
-  "homepage": "https://github.com/antarikshkarmakar/antarikshSkills#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/antarikshkarmakar/antarikshSkills.git"
+  "author": {
+    "name": "Antariksh Karmakar",
+    "email": "antariksh.karmakar@gmail.com",
+    "url": "https://github.com/antarikshkarmakar"
   },
-  "skills": [
-    { "name": "antariksh-unified-skill", "path": "SKILL.md" },
-    { "name": "ak-grill", "path": "skills/grill/SKILL.md" },
-    { "name": "ak-align", "path": "skills/align/SKILL.md" },
-    { "name": "ak-align-docs", "path": "skills/align-docs/SKILL.md" },
-    { "name": "ak-to-prd", "path": "skills/to-prd/SKILL.md" },
-    { "name": "ak-tdd", "path": "skills/tdd/SKILL.md" },
-    { "name": "ak-diagnose", "path": "skills/diagnose/SKILL.md" },
-    { "name": "ak-devops", "path": "skills/devops/SKILL.md" },
-    { "name": "ak-ci-check", "path": "skills/ci-check/SKILL.md" },
-    { "name": "ak-security", "path": "skills/security/SKILL.md" },
-    { "name": "ak-skillset", "path": "skills/skillset/SKILL.md" },
-    { "name": "ak-code", "path": "skills/code/SKILL.md" },
-    { "name": "ak-review", "path": "skills/review/SKILL.md" },
-    { "name": "ak-prreview", "path": "skills/prreview/SKILL.md" },
-    { "name": "ak-worktree", "path": "skills/worktree/SKILL.md" },
-    { "name": "ak-doc", "path": "skills/doc/SKILL.md" },
-    { "name": "ak-grok", "path": "skills/grok/SKILL.md" },
-    { "name": "ak-audit-arch", "path": "skills/audit-arch/SKILL.md" },
-    { "name": "ak-scratch", "path": "skills/scratch/SKILL.md" },
-    { "name": "ak-compact", "path": "skills/compact/SKILL.md" },
-    { "name": "ak-handoff", "path": "skills/handoff/SKILL.md" },
-    { "name": "ak-headroom", "path": "skills/headroom/SKILL.md" }
-  ]
+  "homepage": "https://github.com/antarikshkarmakar/antarikshSkills#readme",
+  "repository": "https://github.com/antarikshkarmakar/antarikshSkills"
 }

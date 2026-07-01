@@ -42,12 +42,20 @@ def main():
     package_skills = package_data.get("skills", {})
 
     # Load .claude-plugin/plugin.json
+    # Claude Code auto-discovers this repo's default skills/ directory by folder
+    # name. Claude does support an optional "skills" path field for custom skill
+    # directories, but the old npm-style array of {"name", "path"} objects is
+    # invalid and must not be reintroduced here.
     claude_plugin_json_path = os.path.join(root, ".claude-plugin", "plugin.json")
     claude_plugin_data = load_json_no_duplicates(claude_plugin_json_path, errors, root)
-    claude_plugin_skills = claude_plugin_data.get("skills", [])
-    claude_plugin_skill_names = [item.get("name") for item in claude_plugin_skills if item.get("name")]
-    for name in sorted({name for name in claude_plugin_skill_names if claude_plugin_skill_names.count(name) > 1}):
-        errors.append(f".claude-plugin/plugin.json declares duplicate skill name '{name}'")
+    claude_author = claude_plugin_data.get("author")
+    claude_repository = claude_plugin_data.get("repository")
+    if not isinstance(claude_author, dict) or not claude_author.get("name"):
+        errors.append(".claude-plugin/plugin.json 'author' must be an object with at least a 'name' field")
+    if not isinstance(claude_repository, str):
+        errors.append(".claude-plugin/plugin.json 'repository' must be a plain string URL")
+    if "skills" in claude_plugin_data:
+        errors.append(".claude-plugin/plugin.json should omit 'skills' for this default-layout plugin; Claude Code auto-discovers skills/<name>/SKILL.md, and per-skill object arrays are invalid")
 
     # Load .claude-plugin/marketplace.json
     claude_marketplace_json_path = os.path.join(root, ".claude-plugin", "marketplace.json")
@@ -101,6 +109,21 @@ def main():
         if "memory/skill-observations.md" not in content:
             errors.append(f"{label} is missing reference to 'memory/skill-observations.md'")
 
+    expected_claude_native_name = f"/{claude_plugin_data.get('name')}:align"
+    required_readme_notes = (
+        expected_claude_native_name,
+        "Native Claude Code plugin installs do not expose `/ak-align` aliases",
+        "native plugin runtime context comes from the packaged skills under `skills/`",
+        "codex plugin add antariksh-skills@antariksh-skills",
+        "unexpected argument 'marketplace'",
+    )
+    for required_text in required_readme_notes:
+        if required_text not in readme_content:
+            errors.append(f"README.md is missing plugin install/namespace note '{required_text}'")
+    stale_claude_master_claim = "This registers the master `antariksh-unified-skill` and the 21 modular command skills globally inside your Claude Code"
+    if stale_claude_master_claim in readme_content:
+        errors.append("README.md must not claim the native Claude plugin registers the root master SKILL.md")
+
     for label, content in (
         ("README.md", readme_content),
         ("templates/RULESET.md", ruleset_content),
@@ -120,13 +143,6 @@ def main():
             errors.append(f"package.json is missing skill '{skill_name}'")
         elif package_skills[skill_name] != expected_path:
             errors.append(f"package.json has incorrect path for '{skill_name}': expected '{expected_path}', got '{package_skills[skill_name]}'")
-
-        # B. check Claude plugin.json
-        plugin_match = next((s for s in claude_plugin_skills if s.get("name") == skill_name), None)
-        if not plugin_match:
-            errors.append(f".claude-plugin/plugin.json is missing skill '{skill_name}'")
-        elif plugin_match.get("path") != expected_path:
-            errors.append(f".claude-plugin/plugin.json has incorrect path for '{skill_name}': expected '{expected_path}', got '{plugin_match.get('path')}'")
 
         # C. check SKILL.md frontmatter name
         skill_file_path = os.path.join(skills_dir, folder, "SKILL.md")
@@ -162,19 +178,12 @@ def main():
         if folder_name not in skill_folders:
             errors.append(f"package.json declares skill '{key}', but folder 'skills/{folder_name}' does not exist")
 
-    for item in claude_plugin_skills:
-        name = item.get("name")
-        path = item.get("path")
-        if name == "antariksh-unified-skill":
-            if path != "SKILL.md":
-                errors.append(f".claude-plugin/plugin.json 'antariksh-unified-skill' has incorrect path: {path}")
-            continue
-        folder_name = name[3:] if name.startswith("ak-") else name
-        if folder_name not in skill_folders:
-            errors.append(f".claude-plugin/plugin.json declares skill '{name}', but folder 'skills/{folder_name}' does not exist")
-
     # Verify Codex-native plugin metadata
     expected_codex_name = package_data.get("name")
+    if claude_plugin_data.get("name") != expected_codex_name:
+        errors.append(f".claude-plugin/plugin.json name must match package.json name '{expected_codex_name}'")
+    if claude_plugin_data.get("version") != package_data.get("version"):
+        errors.append(".claude-plugin/plugin.json version must match package.json version")
     if package_data.get("repository", {}).get("url") != f"git+{public_repo_url}.git":
         errors.append("package.json repository.url must point to the public repository")
     if package_data.get("bugs", {}).get("url") != f"{public_repo_url}/issues":
@@ -184,9 +193,8 @@ def main():
 
     if claude_plugin_data.get("homepage") != f"{public_repo_url}#readme":
         errors.append(".claude-plugin/plugin.json homepage must point to the public README")
-    claude_repository = claude_plugin_data.get("repository", {})
-    if claude_repository.get("url") != f"git+{public_repo_url}.git":
-        errors.append(".claude-plugin/plugin.json repository.url must point to the public repository")
+    if claude_plugin_data.get("repository") != public_repo_url:
+        errors.append(".claude-plugin/plugin.json repository must be the plain string URL of the public repository")
 
     # Verify LICENSE file exists and has correct copyright details
     license_path = os.path.join(root, "LICENSE")

@@ -53,6 +53,7 @@ Before writing code, stop at first rung that works:
 - Compress before it enters context — quote excerpts, not raw files
 - **Subagent Delegation**: Delegate heavy operations (like `/ak-grok` repository scans, `/ak-diagnose` loops, or `/ak-audit-arch` sweeps) to background subagents when supported by the runner tool. This keeps the main session's context cache clean, bringing back only the final verified results/patches.
 - **Swarm Orchestration (Ruflo Inspiration)**: For complex multi-file refactors or migrations, partition the work into independent modules, spawn background subagents to work concurrently on separate directories or Git worktrees, and synthesize their results into a unified pull request.
+- **Repomix Packaging**: Use `npx repomix` to bundle codebase contents into a single structured, token-efficient XML file that respects `.gitignore` rules.
 
 ### V. Terse Communication (Caveman Style)
 - Strip filler, be direct
@@ -61,6 +62,7 @@ Before writing code, stop at first rung that works:
 ### VI. Security & Credential Protection
 - Never output/log/commit API keys, tokens, passwords
 - `.env` must be in `.gitignore`
+- **Repomix Security Scan**: Proactively run `npx repomix --security-check` (or local git pattern validation) to scan the project files and staged diffs for active credentials or secrets.
 
 ### VII. Clean Git
 - Format: `[verb]: [short explanation]` — e.g., `feat: add handoff command`

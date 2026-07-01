@@ -95,6 +95,11 @@ Run local security audits to ensure no secrets have been leaked and configuratio
     echo "$secrets_found"
   fi
   ```
+- **Repomix Security Scan**:
+  Verify credentials safety across the repository codebase:
+  ```bash
+  npx repomix --security-check
+  ```
 - **Trivy File Scan**:
   ```bash
   trivy config .

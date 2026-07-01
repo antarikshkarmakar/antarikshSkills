@@ -16,6 +16,7 @@ Before executing `/ak-diagnose`, verify that `memory/projects/<name>.md` exists 
     *   *Sentry API*: `curl -s -H "Authorization: Bearer <auth-token>" "https://sentry.io/api/0/organizations/<org-slug>/issues/<issue-id>/events/?full=true"`
     Use the returned stack trace, request payloads, local variables, and breadcrumbs to directly pinpoint the error and construct the reproduction test.
 *   **Fallback Log & Trace**: If a deterministic repro isn't feasible and Sentry isn't configured, add verbose output or breakpoints to watch data flow in real time.
+*   **PII & Secrets Scrubbing**: Before printing, saving, or writing stack traces, logs, or error telemetry to disk (daily logs, scratch files, or chat), strip all authentication headers, bearer tokens, API keys, passwords, and sensitive PII (e.g. emails, phone numbers) to prevent leakages.
 
 ## 2. MINIMIZE
 Isolate the code surface area using divide and conquer:

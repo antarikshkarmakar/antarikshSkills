@@ -28,8 +28,12 @@ If user corrected you during session, add correction as new rule in **Learned** 
 ## 5. Clear Inbox
 Route notes from `inbox.md` to daily/projects files. Reset `inbox.md` to blank.
 
-## 6. Check Size
-If `AGENTS.md` or `MEMORY.md` exceeds 300 lines → alert user to compress or archive.
+## 6. Concurrency & Conflict Protection
+Before overwriting or updating `MEMORY.md` or other memory files, check for unstaged local edits (via `git status memory/`). If unstaged changes from concurrent sessions exist, merge or stash them before updating to prevent state loss.
 
-## 7. Caveman Plugin (if installed)
+## 7. Memory Archiving & Size Audits
+*   If `AGENTS.md` or `MEMORY.md` exceeds 300 lines → alert the user to compress or archive.
+*   **Log Archiving**: If the aggregate size of files in `memory/` exceeds 100KB or 10,000 lines, recommend moving daily log files older than 14 days to `memory/daily/archive/` to conserve prompt tokens.
+
+## 8. Caveman Plugin (if installed)
 If `caveman` plugin is installed (check `MEMORY.md` under "Context Agent Needs"), run `/caveman-compress` on updated memory files as the final step.

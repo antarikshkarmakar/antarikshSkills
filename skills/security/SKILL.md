@@ -6,40 +6,50 @@ trigger: /ak-security
 
 # /ak-security — Security Audit
 
+## Prerequisites
+**Context Validation Check**: Verify if the project convention file `memory/projects/<name>.md` is present. If it does not exist, alert the user and advise running `/ak-grok` first to build the project knowledge graph and understand the framework stack before conducting a security audit.
+
 ## 1. Threat Modeling (OWASP Top 10)
-Inspect the codebase or active PR diffs targeting key threat categories:
-- **Injection**: Ensure SQL, OS commands, or LDAP inputs are parameterized.
-- **Authentication & Authorization**: Verify authentication tokens/cookies and role checks are enforced on endpoints.
-- **Sensitive Data Exposure**: Check that passwords, hashes, keys, or PII are encrypted in transit and at rest.
-- **Security Misconfigurations**: Review server headers, default users/passwords, or debug features left enabled.
+Evaluate target files and PR diffs against all 10 core threat categories:
+- **A01:2021-Broken Access Control**: Ensure endpoints check user roles and ownership bounds.
+- **A02:2021-Cryptographic Failures**: Check that keys/salts are secure, HTTPS is enforced, and cryptography algorithms are modern.
+- **A03:2021-Injection**: Verify all database queries, OS exec inputs, and LDAP fetches are parameterized.
+- **A04:2021-Insecure Design**: Audit workflow logic for potential bypasses or lack of threat profiling.
+- **A05:2021-Security Misconfiguration**: Inspect configurations for default ports, open CORS, and enabled debug features.
+- **A06:2021-Vulnerable and Outdated Components**: Audit package dependencies for active CVE warnings.
+- **A07:2021-Identification and Authentication Failures**: Validate secure session creation, token timeouts, and MFA/login limits.
+- **A08:2021-Software and Data Integrity Failures**: Guard against untrusted CDN endpoints and raw script runs.
+- **A09:2021-Security Logging and Monitoring Failures**: Confirm critical login/auth failures are logged without storing PII/credentials.
+- **A10:2021-Server-Side Request Forgery (SSRF)**: Validate user-supplied fetch URLs against strict domain white-lists.
 
 ## 2. Secrets Scan
-Proactively check that no credentials or tokens are committed or staged:
-- Check staged differences for credential patterns:
+Proactively check that no credentials or private tokens are committed or staged:
+- **Git staged secrets search**:
   ```bash
-  git diff --staged --check
+  git diff --staged | grep -E -i 'password|secret|token|api_key|private_key' | grep -E '\s*=\s*["'\''].+["'\']'
   ```
-- If `repomix` is installed, run packaging with security checks:
+- **Repomix security scanner** (Graceful Check: Verify `repomix` or `npx` exists on PATH):
   ```bash
+  # Check if npx is available, then execute repomix scanning
   npx repomix --security-check
   ```
 
 ## 3. Dependency Audit (CVE Scan)
-Scan external packages and packages locks for known CVE vulnerabilities:
-- For Node.js: `npm audit` / `yarn audit`
-- For Python: `pip-audit`
-- For general filesystems:
+Audit package managers and filesystems for known CVE exposures (Graceful Check: verify CLI tools exist before running):
+- **Node.js**: Check if `npm` or `yarn` is available → `npm audit` / `yarn audit`
+- **Python**: Check if `pip-audit` is available → `pip-audit`
+- **System Sweep**: Check if `trivy` is on PATH (`command -v trivy` or `Get-Command trivy`):
   ```bash
   trivy fs .
   ```
 
 ## 4. IaC Security (If Applicable)
-If the project uses Kubernetes, Terraform, or Docker configurations:
-- Run Checkov to inspect configurations:
+If container configs or infrastructure files (Terraform/Kubernetes) are detected:
+- **Checkov**: Verify if `checkov` is on PATH (`command -v checkov` or `Get-Command checkov`):
   ```bash
   checkov -d .
   ```
-- Or run Trivy config scans:
+- **Trivy Config**: Verify `trivy` is on PATH:
   ```bash
   trivy config .
   ```
@@ -50,3 +60,8 @@ Output a brief Markdown summary of the audit findings:
 2. **Secrets Found**: (None or list of paths).
 3. **CVEs Flagged**: List packages and CVSS severity.
 4. **Remediation Plan**: Actionable steps to fix highlighted security gaps.
+
+---
+
+## Evidence Over Claims
+Do not declare an audit complete based on raw assumptions. List every tool run, provide command outputs/reports, and explain the exact threat modeling vectors tested.

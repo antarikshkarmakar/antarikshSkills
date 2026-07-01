@@ -1,3 +1,4 @@
+<!-- TEMPLATE_DO_NOT_USE -->
 # Daily Log -- [YYYY-MM-DD]
 
 ## Start of Day

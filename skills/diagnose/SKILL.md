@@ -7,13 +7,13 @@ trigger: /ak-diagnose
 # /ak-diagnose — Structured Debugging
 
 ## Context Prerequisite
-Before executing `/ak-diagnose`, verify that `memory/projects/<name>.md` exists (the repository context file). If it does not exist, alert the user and advise running `/ak-grok` first to build the codebase context.
+**Context Validation**: Refer to RULESET.md for project context validation before executing.
 
 ## 1. REPRODUCE
 *   **Minimal Repro**: Write a minimal script or test case that reliably reproduces the bug. Smallest, simplest version that fails consistently.
-*   **Sentry Error Telemetry**: If the user provides a Sentry Issue ID, Event ID, or Trace URL, check `memory/local_env.md` for Sentry configuration (Org slug, auth token). Run:
-    *   *Sentry CLI*: `sentry issue events <issue-id>` or `sentry issue view <issue-id>`
-    *   *Sentry API*: `curl -s -H "Authorization: Bearer <auth-token>" "https://sentry.io/api/0/organizations/<org-slug>/issues/<issue-id>/events/?full=true"`
+*   **Sentry Error Telemetry**: If the user provides a Sentry Issue ID, Event ID, or Trace URL, verify Sentry configuration in environment variables (`SENTRY_ORG_SLUG`, `SENTRY_AUTH_TOKEN`) or fall back to `memory/local_env.md` status. Run:
+    *   *Sentry CLI*: `sentry-cli --org "$SENTRY_ORG_SLUG" --auth-token "$SENTRY_AUTH_TOKEN" ...` (or standard `sentry` commands which read these variables automatically).
+    *   *Sentry API*: `curl -s -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" "https://sentry.io/api/0/organizations/$SENTRY_ORG_SLUG/issues/<issue-id>/events/?full=true"`
     Use the returned stack trace, request payloads, local variables, and breadcrumbs to directly pinpoint the error and construct the reproduction test.
 *   **Fallback Log & Trace**: If a deterministic repro isn't feasible and Sentry isn't configured, add verbose output or breakpoints to watch data flow in real time.
 *   **PII & Secrets Scrubbing**: Before printing, saving, or writing stack traces, logs, or error telemetry to disk (daily logs, scratch files, or chat), strip all authentication headers, bearer tokens, API keys, passwords, and sensitive PII (e.g. emails, phone numbers) to prevent leakages.

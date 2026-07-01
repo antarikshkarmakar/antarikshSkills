@@ -7,7 +7,7 @@ trigger: /ak-security
 # /ak-security — Security Audit
 
 ## Prerequisites
-**Context Validation Check**: Verify if the project convention file `memory/projects/<name>.md` is present. If it does not exist, alert the user and advise running `/ak-grok` first to build the project knowledge graph and understand the framework stack before conducting a security audit.
+**Context Validation**: Refer to RULESET.md for project context validation before executing.
 
 ## 1. Threat Modeling (OWASP Top 10)
 Evaluate target files and PR diffs against all 10 core threat categories:
@@ -24,10 +24,15 @@ Evaluate target files and PR diffs against all 10 core threat categories:
 
 ## 2. Secrets Scan
 Proactively check that no credentials or private tokens are committed or staged:
-- **Git staged secrets search**:
-  ```bash
-  git diff --staged | grep -E -i 'password|secret|token|api_key|private_key' | grep -E '\s*=\s*["'\''].+["'\']'
-  ```
+- **Git staged secrets search** (runs the shared secrets scan script):
+  - **On Windows (PowerShell)**:
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File .agents/scripts/scan-secrets.ps1
+    ```
+  - **On macOS / Linux (Bash)**:
+    ```bash
+    bash .agents/scripts/scan-secrets.sh
+    ```
 - **Repomix security scanner** (Graceful Check: Verify `repomix` or `npx` exists on PATH):
   ```bash
   # Check if npx is available, then execute repomix scanning

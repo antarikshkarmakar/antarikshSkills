@@ -21,7 +21,10 @@
   "homepage": "https://github.com/antarikshSkills#readme",
   "skills": {
     "antariksh-unified-skill": "SKILL.md",
+    "ak-grill": "skills/grill/SKILL.md",
     "ak-align": "skills/align/SKILL.md",
+    "ak-align-docs": "skills/align-docs/SKILL.md",
+    "ak-to-prd": "skills/to-prd/SKILL.md",
     "ak-tdd": "skills/tdd/SKILL.md",
     "ak-diagnose": "skills/diagnose/SKILL.md",
     "ak-devops": "skills/devops/SKILL.md",
@@ -32,9 +35,12 @@
     "ak-review": "skills/review/SKILL.md",
     "ak-prreview": "skills/prreview/SKILL.md",
     "ak-worktree": "skills/worktree/SKILL.md",
+    "ak-doc": "skills/doc/SKILL.md",
     "ak-grok": "skills/grok/SKILL.md",
     "ak-audit-arch": "skills/audit-arch/SKILL.md",
+    "ak-scratch": "skills/scratch/SKILL.md",
     "ak-compact": "skills/compact/SKILL.md",
-    "ak-handoff": "skills/handoff/SKILL.md"
+    "ak-handoff": "skills/handoff/SKILL.md",
+    "ak-headroom": "skills/headroom/SKILL.md"
   }
 }

@@ -7,7 +7,7 @@ trigger: /ak-code
 # /ak-code — Ponytail Surgical Coding
 
 ## Prerequisites
-**Context Validation Check**: Verify if the project convention file `memory/projects/<name>.md` is present. If it does not exist, alert the user and advise running `/ak-grok` first to comprehend the codebase architecture and compile conventions before modifying any code.
+**Context Validation**: Refer to RULESET.md for project context validation before executing.
 
 ## 1. Check Interface Contracts
 Before writing a single line of code, locate and inspect:

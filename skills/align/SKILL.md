@@ -9,7 +9,7 @@ trigger: /ak-align
 Use before starting any non-trivial change, code or non-code. Closes the requirements gap before anything is written.
 
 ## Context Prerequisite
-*   Before executing `/ak-align`, verify that `memory/projects/<name>.md` exists (the repository context file). If it does not exist, alert the user and advise running `/ak-grok` first to build the codebase context.
+*   **Context Validation**: Refer to RULESET.md for project context validation before executing.
 *   **Interface Contract Check**: Verify if the proposed changes affect any public APIs, schemas, or files specified in `INTERFACES.md`. If they do, verify and align with the interface contract boundaries during scoping.
 
 ## Step 1 — Interrogate

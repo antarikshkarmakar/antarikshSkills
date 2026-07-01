@@ -45,6 +45,24 @@ jobs:
           # Verify that rules are synchronized and no diff exists
           git diff --exit-code || (echo "Error: Generated rule files are out of sync with templates/RULESET.md. Please run install.ps1/install.sh locally and commit the compiled rules." && exit 1)
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run manifest parity check
+        run: |
+          python scripts/validate_manifests.py
+
+      - name: Run installer integration tests (Bash)
+        run: |
+          bash scripts/test_installer.sh
+
+      - name: Run installer integration tests (PowerShell)
+        shell: pwsh
+        run: |
+          ./scripts/test_installer.ps1
+
       - name: Run Trivy Security & CVE Scanner
         uses: aquasecurity/trivy-action@v0.36.0
         with:

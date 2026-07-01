@@ -1,3 +1,4 @@
+<!-- TEMPLATE_DO_NOT_USE -->
 # Session Handoff -- [YYYY-MM-DD]
 
 ## 1. What was accomplished

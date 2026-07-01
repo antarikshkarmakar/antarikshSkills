@@ -1,6 +1,6 @@
 # stop-check.ps1 -- Blocks ending the turn if source files were edited but daily log wasn't updated
 # (RULESET.md section 4, End-of-Session Loop).
-$projectDir = $env:CLAUDE_PROJECT_DIR
+$projectDir = if ($env:CLAUDE_PROJECT_DIR) { $env:CLAUDE_PROJECT_DIR } else { $env:CODEX_PROJECT_DIR }
 if ($null -eq $projectDir) { $projectDir = "." }
 
 # Verify if it is a git repo

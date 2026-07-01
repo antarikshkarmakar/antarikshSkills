@@ -79,6 +79,13 @@ if command -v sentry >/dev/null 2>&1 || command -v sentry-cli >/dev/null 2>&1; t
 fi
 echo -e "\033[36m$SENTRY_STATUS\033[0m"
 
+# Detect Headroom CLI (read-only -- checks PATH only, never installs anything).
+HEADROOM_STATUS="Headroom: not found on PATH -- /ak-headroom and Cache Optimization fall back to uncompressed context."
+if command -v headroom >/dev/null 2>&1; then
+    HEADROOM_STATUS="Headroom: detected on PATH -- /ak-headroom and Cache Optimization can delegate to it for reversible compression."
+fi
+echo -e "\033[36m$HEADROOM_STATUS\033[0m"
+
 # Generate the portable rule files from the single canonical templates/RULESET.md.
 # Each tool gets its own header; the body is shared so it can never drift.
 # This includes generating SKILL.md for the agent skill system.
@@ -164,16 +171,16 @@ This is a master-skill for developer agents. When running in a toolless or web-U
   2. Read \`MEMORY.md\`.
   3. Read \`memory/local_env.md\` if exists (local skills/tools).
   4. Read \`AGENTS.md\` + \`GLOSSARY.md\`.
-  5. **Context Validation Check**: Check if \`memory/projects/<name>.md\` exists. If not, alert the user and advise running \`/ak-grok\` first to grok the repo before executing any coding, debugging, or documentation tasks.
+  5. **Context Validation Check**: Check if \`memory/projects/<name>.md\` exists. If not, alert the user and advise running \`/ak-grok\` first to build the project context card and knowledge graph.
   6. **Episodic Review**: Read the last 5 daily logs (\`memory/daily/*.md\`) to gain historic execution context.
   7. **Session Boot**: Set up today's daily log and ask the user \"Is there anything new or changed before we begin?\"
 - **Session End**: Run \`/ak-compact\` to summarize logs, update project lists, update MEMORY.md, and record learned corrections.
 
 ## 2. Slash Commands Index & Workflows
-- **\`/ak-grill\`**: Interrogate scope, check edge cases and push back, output action plan.
+- **\`/ak-grill\`**: Interrogate scope, check edge cases, and output action plan → \`.agents/skills/grill/SKILL.md\`.
 - **\`/ak-align\`**: Pre-coding Socratic scope alignment to agree on plans and success criteria.
-- **\`/ak-align-docs\`**: Scope alignment + Shared Language glossary update + ADR generation.
-- **\`/ak-to-prd\`**: Scopes features with module quizzes and drafts PRD to \`memory/prds/\`.
+- **\`/ak-align-docs\`**: Scope alignment + Shared Language glossary update + ADR generation → \`.agents/skills/align-docs/SKILL.md\`.
+- **\`/ak-to-prd\`**: Scopes features with module quizzes and drafts PRD to \`memory/prds/\` → \`.agents/skills/to-prd/SKILL.md\`.
 - **\`/ak-tdd\`**: Test-driven development (write tests -> run fail -> implement -> run pass).
 - **\`/ak-diagnose\`**: Reproduce bug -> bisect scope -> find root cause -> surgical fix -> prevent.
 - **\`/ak-devops\`**: Scaffold container/IaC files, run linters, validate dry-run setups.
@@ -184,10 +191,10 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 - **\`/ak-review\`**: Adversarial attacker duel verification against edge cases and interface drift.
 - **\`/ak-prreview\`**: Gated PR review creating draft reviews for explicit user approval.
 - **\`/ak-worktree\`**: Worktree-isolated parallel subagent sweep orchestration.
-- **\`/ak-doc\`**: Direct module and interface documentation via tables and diagrams.
+- **\`/ak-doc\`**: Direct module and interface documentation via tables and diagrams → \`.agents/skills/doc/SKILL.md\`.
 - **\`/ak-grok\`**: Incremental repository scans (RAG index building/AST parsing) to map structure.
 - **\`/ak-audit-arch\`**: Sweep codebase for architectural smells (god files, duplicate logic, tangles).
-- **\`/ak-scratch\`**: Scaffold new projects with standard folder layouts and template configs.
+- **\`/ak-scratch\`**: Scaffold new projects with standard folder layouts and template configs → \`.agents/skills/scratch/SKILL.md\`.
 - **\`/ak-compact\`**: Log consolidation, project facts compilation, inbox clearing, and corrections capture.
 - **\`/ak-handoff\`**: Compile handoff notes to \`memory/handoff.md\` for incoming agents.
 " "SKILL.md"
@@ -198,6 +205,7 @@ section_1=""
 section_2=""
 section_3=""
 section_4=""
+section_5=""
 current_section=1
 
 while IFS= read -r line || [ -n "$line" ]; do
@@ -211,6 +219,7 @@ while IFS= read -r line || [ -n "$line" ]; do
         2) section_2="${section_2}${line}"$'\n' ;;
         3) section_3="${section_3}${line}"$'\n' ;;
         4) section_4="${section_4}${line}"$'\n' ;;
+        5) section_5="${section_5}${line}"$'\n' ;;
     esac
 done < "$RULESET_PATH"
 
@@ -218,7 +227,7 @@ done < "$RULESET_PATH"
 CURSOR_RULES_DIR="$TARGET_PATH/.cursor/rules"
 mkdir -p "$CURSOR_RULES_DIR"
 
-if [ "$current_section" -ge 4 ]; then
+if [ "$current_section" -ge 5 ]; then
     CORE_MDC_PATH="$CURSOR_RULES_DIR/core.mdc"
     CORE_MDC_HEADER="---
 description: Core developer philosophies, fallback protocols, and Second Brain standards
@@ -228,7 +237,7 @@ globs: *
 "
     if [ ! -f "$CORE_MDC_PATH" ] || [ "$FORCE" = true ]; then
         printf '%s' "$CORE_MDC_HEADER" > "$CORE_MDC_PATH"
-        printf '%s\n\n---\n\n%s\n\n---\n\n%s' "$section_1" "$section_2" "$section_4" >> "$CORE_MDC_PATH"
+        printf '%s\n\n---\n\n%s\n\n---\n\n%s\n\n---\n\n%s' "$section_1" "$section_2" "$section_3" "$section_5" >> "$CORE_MDC_PATH"
         echo -e "\033[32mGenerated Cursor MDC: core.mdc\033[0m"
     else
         echo -e "\033[33mSkipped Cursor MDC: core.mdc (already exists, use --force to overwrite)\033[0m"
@@ -243,7 +252,7 @@ globs: *
 "
     if [ ! -f "$COMMANDS_MDC_PATH" ] || [ "$FORCE" = true ]; then
         printf '%s' "$COMMANDS_MDC_HEADER" > "$COMMANDS_MDC_PATH"
-        printf '%s' "$section_3" >> "$COMMANDS_MDC_PATH"
+        printf '%s' "$section_4" >> "$COMMANDS_MDC_PATH"
         echo -e "\033[32mGenerated Cursor MDC: commands.mdc\033[0m"
     else
         echo -e "\033[33mSkipped Cursor MDC: commands.mdc (already exists, use --force to overwrite)\033[0m"
@@ -263,6 +272,24 @@ if [ -d "$SCRIPT_DIR/skills" ]; then
         echo -e "\033[32mCreated folder: .agents/skills/ (modular agent skills)\033[0m"
     else
         echo -e "\033[33mSkipped folder: .agents/skills/ (already exists, use --force to overwrite)\033[0m"
+    fi
+fi
+
+# Copy shared framework scripts needed by installed skills.
+if [ -d "$SCRIPT_DIR/scripts" ]; then
+    if [ ! -d "$TARGET_PATH/.agents/scripts" ] || [ "$FORCE" = true ]; then
+        mkdir -p "$TARGET_PATH/.agents/scripts"
+        for script_file in scan-secrets.sh scan-secrets.ps1; do
+            if [ -f "$SCRIPT_DIR/scripts/$script_file" ]; then
+                cp "$SCRIPT_DIR/scripts/$script_file" "$TARGET_PATH/.agents/scripts/$script_file"
+            fi
+        done
+        if [ -f "$TARGET_PATH/.agents/scripts/scan-secrets.sh" ]; then
+            chmod +x "$TARGET_PATH/.agents/scripts/scan-secrets.sh"
+        fi
+        echo -e "\033[32mCreated folder: .agents/scripts/ (shared framework scripts)\033[0m"
+    else
+        echo -e "\033[33mSkipped folder: .agents/scripts/ (already exists, use --force to overwrite)\033[0m"
     fi
 fi
 
@@ -294,8 +321,23 @@ if [ ! -f "$LOCAL_ENV_DEST" ] || [ "$FORCE" = true ]; then
     if [ -n "$DETECTED_SKILLS" ]; then
         SKILLS_LINE="Detected agent skills on this machine: $DETECTED_SKILLS."
     fi
-    sed -e "s#\[GRAPHIFY_STATUS\]#$GRAPHIFY_STATUS#" -e "s#\[CODEGRAPH_STATUS\]#$CODEGRAPH_STATUS#" -e "s#\[CAVEMAN_STATUS\]#$CAVEMAN_STATUS#" -e "s#\[SENTRY_STATUS\]#$SENTRY_STATUS#" -e "s#\[SENTRY_ORG_SLUG\]#FILL_ME_IF_USING_SENTRY#" -e "s#\[SENTRY_AUTH_TOKEN\]#FILL_ME_IF_USING_SENTRY#" -e "s#\[DETECTED_SKILLS\]#$SKILLS_LINE#" \
-        "$SCRIPT_DIR/templates/memory/local_env.md" > "$LOCAL_ENV_DEST"
+    SENTRY_ORG_STATUS="Not configured"
+    if [ -n "$SENTRY_ORG_SLUG" ]; then
+        SENTRY_ORG_STATUS="Configured (from env)"
+    fi
+    SENTRY_TOKEN_STATUS="Not configured"
+    if [ -n "$SENTRY_AUTH_TOKEN" ]; then
+        SENTRY_TOKEN_STATUS="Configured (from env)"
+    fi
+    sed -e "s#\[GRAPHIFY_STATUS\]#$GRAPHIFY_STATUS#" \
+        -e "s#\[CODEGRAPH_STATUS\]#$CODEGRAPH_STATUS#" \
+        -e "s#\[CAVEMAN_STATUS\]#$CAVEMAN_STATUS#" \
+        -e "s#\[SENTRY_STATUS\]#$SENTRY_STATUS#" \
+        -e "s#\[HEADROOM_STATUS\]#$HEADROOM_STATUS#" \
+        -e "s#\[SENTRY_ORG_SLUG_STATUS\]#$SENTRY_ORG_STATUS#" \
+        -e "s#\[SENTRY_AUTH_TOKEN_STATUS\]#$SENTRY_TOKEN_STATUS#" \
+        -e "s#\[DETECTED_SKILLS\]#$SKILLS_LINE#" \
+        "$SCRIPT_DIR/templates/memory/local_env.md" | sed "/<!-- TEMPLATE_DO_NOT_USE -->/d" > "$LOCAL_ENV_DEST"
     echo -e "\033[32mCreated file: memory/local_env.md\033[0m"
 else
     echo -e "\033[33mSkipped file: memory/local_env.md (already exists, use --force to overwrite)\033[0m"
@@ -304,18 +346,39 @@ fi
 copy_template "$SCRIPT_DIR/templates/MEMORY.md" "$TARGET_PATH/MEMORY.md" "MEMORY.md"
 copy_template "$SCRIPT_DIR/templates/GLOSSARY.md" "$TARGET_PATH/GLOSSARY.md" "GLOSSARY.md"
 copy_template "$SCRIPT_DIR/templates/inbox.md" "$TARGET_PATH/inbox.md" "inbox.md"
+
+TASK_DEST="$TARGET_PATH/task.md"
+if [ ! -f "$TASK_DEST" ] || [ "$FORCE" = true ]; then
+    sed "/<!-- TEMPLATE_DO_NOT_USE -->/d" "$SCRIPT_DIR/templates/task.md" > "$TASK_DEST"
+    echo -e "\033[32mCreated file: task.md\033[0m"
+else
+    echo -e "\033[33mSkipped file: task.md (already exists, use --force to overwrite)\033[0m"
+fi
 copy_template "$SCRIPT_DIR/templates/memory/daily/template.md" "$TARGET_PATH/memory/daily/template.md" "memory/daily/template.md"
 copy_template "$SCRIPT_DIR/templates/memory/projects/template.md" "$TARGET_PATH/memory/projects/template.md" "memory/projects/template.md"
 copy_template "$SCRIPT_DIR/templates/memory/adr/template.md" "$TARGET_PATH/memory/adr/template.md" "memory/adr/template.md"
 copy_template "$SCRIPT_DIR/templates/memory/prds/template.md" "$TARGET_PATH/memory/prds/template.md" "memory/prds/template.md"
-copy_template "$SCRIPT_DIR/templates/memory/handoff.md" "$TARGET_PATH/memory/handoff.md" "memory/handoff.md"
 copy_template "$SCRIPT_DIR/templates/INTERFACES.md" "$TARGET_PATH/INTERFACES.md" "INTERFACES.md"
 
 # Create Today's Daily Log if it doesn't exist
 TODAY=$(date +%Y-%m-%d)
 DAILY_LOG_DEST="$TARGET_PATH/memory/daily/$TODAY.md"
 if [ ! -f "$DAILY_LOG_DEST" ]; then
-    sed "s/\[YYYY-MM-DD\]/$TODAY/g" "$SCRIPT_DIR/templates/memory/daily/template.md" > "$DAILY_LOG_DEST"
+    cat <<EOF > "$DAILY_LOG_DEST"
+# Daily Log -- $TODAY
+
+## Start of Day
+- [ ]
+
+## Log Entries
+-
+
+## End of Day Summary
+- **Accomplishments**:
+- **Key Decisions**:
+- **Open Loops**:
+- **Tomorrow's First Task**:
+EOF
     echo -e "\033[32mCreated today's daily log: memory/daily/$TODAY.md\033[0m"
 fi
 
@@ -324,8 +387,7 @@ PROJECT_NAME=$(basename "$TARGET_PATH")
 PROJECT_FILE_DEST="$TARGET_PATH/memory/projects/${PROJECT_NAME}.md"
 if [ ! -f "$PROJECT_FILE_DEST" ] || [ "$FORCE" = true ]; then
     SRC_TEMPLATE="$SCRIPT_DIR/templates/memory/projects/template.md"
-    cp "$SRC_TEMPLATE" "$PROJECT_FILE_DEST"
-    sed -i.bak "s/\[Project Name\]/${PROJECT_NAME}/g" "$PROJECT_FILE_DEST" && rm -f "${PROJECT_FILE_DEST}.bak"
+    sed "s/\[Project Name\]/${PROJECT_NAME}/g" "$SRC_TEMPLATE" | sed "/<!-- TEMPLATE_DO_NOT_USE -->/d" > "$PROJECT_FILE_DEST"
     echo -e "\033[32mCreated project memory file: memory/projects/${PROJECT_NAME}.md\033[0m"
 fi
 

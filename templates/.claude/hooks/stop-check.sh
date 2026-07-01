@@ -4,7 +4,8 @@
 # End-of-Session Loop). Never blocks read-only/Q&A sessions with no real edits,
 # and never blocks outside a git repo (no reliable way to detect edits there).
 
-cd "${CLAUDE_PROJECT_DIR:-.}" || exit 0
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-${CODEX_PROJECT_DIR:-.}}"
+cd "$PROJECT_DIR" || exit 0
 
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
 

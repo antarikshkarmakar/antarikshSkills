@@ -7,6 +7,7 @@
 /INTERFACES.md
 /MEMORY.md
 /inbox.md
+/task.md
 /memory/
 
 # Ignore standard build and environment files
@@ -40,4 +41,5 @@ dist/
 build/
 # Antariksh Unified Framework -- local env & secrets (do not commit)
 memory/local_env.md
+task.md
 

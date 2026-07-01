@@ -9,7 +9,7 @@ trigger: /ak-devops
 This skill covers the end-to-end DevOps lifecycle from development/generation, linting, testing, and dry-run validation, to cluster and pipeline debugging.
 
 ## Context Prerequisite
-Before executing `/ak-devops`, verify that `memory/projects/<name>.md` exists (the repository context file). If it does not exist, alert the user and advise running `/ak-grok` first to build the codebase context.
+**Context Validation**: Refer to RULESET.md for project context validation before executing.
 
 ---
 

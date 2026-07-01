@@ -1,3 +1,4 @@
+<!-- TEMPLATE_DO_NOT_USE -->
 # ADR-[NNN]: [Decision Title]
 
 - **Date**: [YYYY-MM-DD]

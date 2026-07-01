@@ -7,7 +7,7 @@ trigger: /ak-tdd
 # /ak-tdd — Test-Driven Development Loop
 
 ## Context Prerequisite
-Before executing `/ak-tdd`, verify that `memory/projects/<name>.md` exists (the repository context file). If it does not exist, alert the user and advise running `/ak-grok` first to build the codebase context.
+**Context Validation**: Refer to RULESET.md for project context validation before executing.
 
 ## Bootstrap (if no test framework exists)
 Run the Ponytail ladder: stdlib or already-installed dependency first. Do NOT add new dependencies just for testing.

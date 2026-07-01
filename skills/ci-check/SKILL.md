@@ -78,23 +78,15 @@ Run `git diff --exit-code` to confirm that compiled files do not show unstaged d
 ## 4. Local Security & CVE Scanning
 Run local security audits to ensure no secrets have been leaked and configurations are safe:
 - **Git Secrets Check** (Lightweight & Offline):
-  Check for tracked `.env` files and scan staged changes for potential hardcoded keys/secrets:
-  ```bash
-  # Verify no .env files are tracked by Git
-  tracked_envs=$(git ls-files | grep -E '\.env$' || true)
-  if [ -n "$tracked_envs" ]; then
-    echo "ERROR: Tracked .env files found in Git index:"
-    echo "$tracked_envs"
-    exit 1
-  fi
-
-  # Scan staged diff for credentials assignments (e.g. key = "value")
-  secrets_found=$(git diff --staged | grep -E -i 'password|secret|token|api_key|private_key' | grep -E '\s*=\s*["'\''].+["'\']' || true)
-  if [ -n "$secrets_found" ]; then
-    echo "WARNING: Potential hardcoded secret or API token detected in staged diff:"
-    echo "$secrets_found"
-  fi
-  ```
+  Verify no `.env` files are tracked by Git, and scan staged changes for credentials (runs the shared secrets scan script):
+  - **On Windows (PowerShell)**:
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File .agents/scripts/scan-secrets.ps1
+    ```
+  - **On macOS / Linux (Bash)**:
+    ```bash
+    bash .agents/scripts/scan-secrets.sh
+    ```
 - **Repomix Security Scan**:
   Verify credentials safety across the repository codebase:
   ```bash

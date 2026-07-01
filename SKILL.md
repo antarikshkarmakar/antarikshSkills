@@ -13,16 +13,16 @@ This is a master-skill for developer agents. When running in a toolless or web-U
   2. Read `MEMORY.md`.
   3. Read `memory/local_env.md` if exists (local skills/tools).
   4. Read `AGENTS.md` + `GLOSSARY.md`.
-  5. **Context Validation Check**: Check if `memory/projects/<name>.md` exists. If not, alert the user and advise running `/ak-grok` first to grok the repo before executing any coding, debugging, or documentation tasks.
+  5. **Context Validation Check**: Check if `memory/projects/<name>.md` exists. If not, alert the user and advise running `/ak-grok` first to build the project context card and knowledge graph.
   6. **Episodic Review**: Read the last 5 daily logs (`memory/daily/*.md`) to gain historic execution context.
   7. **Session Boot**: Set up today's daily log and ask the user "Is there anything new or changed before we begin?"
 - **Session End**: Run `/ak-compact` to summarize logs, update project lists, update MEMORY.md, and record learned corrections.
 
 ## 2. Slash Commands Index & Workflows
-- **`/ak-grill`**: Interrogate scope, check edge cases and push back, output action plan.
+- **`/ak-grill`**: Interrogate scope, check edge cases, and output action plan → `.agents/skills/grill/SKILL.md`.
 - **`/ak-align`**: Pre-coding Socratic scope alignment to agree on plans and success criteria.
-- **`/ak-align-docs`**: Scope alignment + Shared Language glossary update + ADR generation.
-- **`/ak-to-prd`**: Scopes features with module quizzes and drafts PRD to `memory/prds/`.
+- **`/ak-align-docs`**: Scope alignment + Shared Language glossary update + ADR generation → `.agents/skills/align-docs/SKILL.md`.
+- **`/ak-to-prd`**: Scopes features with module quizzes and drafts PRD to `memory/prds/` → `.agents/skills/to-prd/SKILL.md`.
 - **`/ak-tdd`**: Test-driven development (write tests -> run fail -> implement -> run pass).
 - **`/ak-diagnose`**: Reproduce bug -> bisect scope -> find root cause -> surgical fix -> prevent.
 - **`/ak-devops`**: Scaffold container/IaC files, run linters, validate dry-run setups.
@@ -33,9 +33,9 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 - **`/ak-review`**: Adversarial attacker duel verification against edge cases and interface drift.
 - **`/ak-prreview`**: Gated PR review creating draft reviews for explicit user approval.
 - **`/ak-worktree`**: Worktree-isolated parallel subagent sweep orchestration.
-- **`/ak-doc`**: Direct module and interface documentation via tables and diagrams.
+- **`/ak-doc`**: Direct module and interface documentation via tables and diagrams → `.agents/skills/doc/SKILL.md`.
 - **`/ak-grok`**: Incremental repository scans (RAG index building/AST parsing) to map structure.
 - **`/ak-audit-arch`**: Sweep codebase for architectural smells (god files, duplicate logic, tangles).
-- **`/ak-scratch`**: Scaffold new projects with standard folder layouts and template configs.
+- **`/ak-scratch`**: Scaffold new projects with standard folder layouts and template configs → `.agents/skills/scratch/SKILL.md`.
 - **`/ak-compact`**: Log consolidation, project facts compilation, inbox clearing, and corrections capture.
 - **`/ak-handoff`**: Compile handoff notes to `memory/handoff.md` for incoming agents.

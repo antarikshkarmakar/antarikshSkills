@@ -35,7 +35,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 ## Repository Structure
 
 - `templates/RULESET.md`: **The single canonical source** for the shared rules body (philosophies, command protocol, Second Brain protocol). Slash commands are a lean lookup table pointing to `.agents/skills/` — detailed instructions live in modular skill files, not in RULESET.md itself. Edit this file, not the 6 generated rule files below — they drift out of sync if hand-edited directly.
-- `skills/`: **Modular on-demand skill files.** Each slash command is a thin pointer in RULESET.md; the full workflow lives in its own `.agents/skills/<name>/SKILL.md`. This keeps RULESET.md lean (~150 lines) and context-cache-friendly. Currently includes: `align/`, `tdd/`, `diagnose/`, `review/`, `prreview/`, `worktree/`, `grok/`, `audit-arch/`, `compact/`, `handoff/`.
+- `skills/`: **Modular on-demand skill files.** Each slash command is a thin pointer in RULESET.md; the full workflow lives in its own `.agents/skills/<name>/SKILL.md`. This keeps RULESET.md lean (~150 lines) and context-cache-friendly. Currently includes: `align/`, `tdd/`, `diagnose/`, `devops/`, `ci-check/`, `review/`, `prreview/`, `worktree/`, `grok/`, `audit-arch/`, `compact/`, `handoff/`.
 - `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md`: **Generated** from `templates/RULESET.md` plus a tool-specific header, at install time. Also copies the root-level `skills/` recursively to the target directory as `.agents/skills/`. Used by Codex/OpenCode/CLI assistants, Claude Code, Cursor, Cline/Roo-Code, Gemini CLI, and GitHub Copilot Chat respectively. (`.cursorrules` is Cursor's legacy format — still read, but Cursor's current standard is `.cursor/rules/*.mdc`; Cursor users are covered either way since Cursor also reads `AGENTS.md` natively. Copilot's autonomous coding agent already reads `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` directly — `.github/copilot-instructions.md` is what closes the gap for everyday Copilot Chat.)
 - `SKILL.md`: Hand-maintained master skill definition for this framework itself (used by Claude Code's Skill system, Antigravity, OpenClaw, etc.). Richer/more detailed than the 6 generated files and **not** regenerated from `RULESET.md` — only its `/ak-grok` section and Second Brain references are kept in sync by hand.
 - `install.ps1`: Windows PowerShell deployer script.
@@ -111,7 +111,7 @@ This repository is pre-configured as a **Claude Code Plugin Marketplace**. You c
    ```bash
    /plugin install antariksh-skills
    ```
-   This registers the master `antariksh-unified-skill` and the 9 modular command skills globally inside your Claude Code binary.
+   This registers the master `antariksh-unified-skill` and the 12 modular command skills globally inside your Claude Code binary.
 
 #### Codex (CLI)
 OpenAI's Codex CLI reads `AGENTS.md` as its primary instruction file. Run `codex` from inside the installed project directory — zero extra configuration.

@@ -90,7 +90,8 @@ Run local security audits to ensure no secrets have been leaked and configuratio
 - **Repomix Security Scan**:
   Verify credentials safety across the repository codebase:
   ```bash
-  npx repomix --security-check
+  repomix --security-check
+  npx --yes repomix@1.16.0 --security-check
   ```
 - **Trivy File Scan**:
   ```bash

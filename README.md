@@ -268,7 +268,8 @@ Specifically, it checks `~/.claude/skills/` (`%USERPROFILE%\.claude\skills\` on 
 - Any other skill folders present, listed for visibility (e.g. `deep-research`, `claude-mem`, etc.).
 
 It also checks `~/.claude/plugins/installed_plugins.json` (a different mechanism — [caveman](https://github.com/JuliusBrussee/caveman) is a Claude Code *plugin*, not a skills-folder entry) for:
-- **caveman**: if installed, Philosophy V and `/ak-compact` delegate to its `/caveman` (output compression) and `/caveman-compress` (memory-file compression) commands. If not installed, the installer prints the one-line install command for the user to run themselves — **it never executes a third-party installer automatically**, consistent with Philosophy VIII.
+- **caveman**: if installed, Philosophy V and `/ak-compact` delegate to its `/caveman` (output compression) and `/caveman-compress` (memory-file compression) commands. If not installed, the installer only points users to the repository for manual review — **it never prints, downloads, or executes a third-party installer automatically**, consistent with Philosophy VIII.
+- For supply-chain safety, this framework does not print or execute raw third-party installer URLs. Review optional plugin repositories manually before installing them.
 
 And it checks for the [CodeGraph](https://github.com/colbymchenry/codegraph) CLI on PATH (a third option for `/grok`'s knowledge-graph step, alongside graphify and Understand-Anything):
 - **CodeGraph**: if found, `/ak-grok` and `/ak-audit-arch` can delegate to it — beyond a structural map, it exposes real call-graph and blast-radius queries (`codegraph_explore`, `codegraph_impact`, `codegraph_callers`), useful for "what calls this" / "what breaks if I change this." If not found, both fall back the same way they already did (Understand-Anything → manual scan for `/ak-grok`; pathfinder → manual smell-scan for `/ak-audit-arch`).
@@ -290,6 +291,8 @@ Everything above is pure prompt text — it works, but it relies on the agent re
 If the settings file (`.claude/settings.json` or `.codex/hooks.json`) doesn't exist yet, it's created from scratch. If it already exists, the installer merges the two hooks in without touching any of your existing hooks or settings (PowerShell does this natively via JSON parsing; the bash installer uses `jq` if available, or prints the snippet to add by hand if not). Re-running is idempotent — it won't duplicate the hook entries.
 
 Requires the CLI to run with a bash-capable shell to execute the hook scripts (Git Bash or WSL on Windows — consistent with everything else in this repo). Note that Codex CLI requires hooks to be enabled globally in your `~/.codex/config.toml` under `[features]` with `codex_hooks = true`.
+
+Hook trust boundary: hooks execute scripts copied into the target repository under `.claude/hooks/` or `.codex/hooks/`. Review those files before enabling hooks, keep them under version control, and do not enable hooks in repositories you do not trust.
 
 ---
 

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Core Workflow",
+      "description": "Everyday planning, coding, testing, debugging, and review loops.",
+      "skills": [
+        "ak-align",
+        "ak-code",
+        "ak-tdd",
+        "ak-diagnose",
+        "ak-review",
+        "ak-ci-check"
+      ]
+    },
+    {
+      "title": "Security & Release",
+      "description": "Security, DevOps, PR review, and isolated branch workflows.",
+      "skills": [
+        "ak-security",
+        "ak-devops",
+        "ak-prreview",
+        "ak-worktree"
+      ]
+    },
+    {
+      "title": "Knowledge & Docs",
+      "description": "Repository comprehension, architecture care, PRDs, ADRs, and documentation.",
+      "skills": [
+        "ak-grok",
+        "ak-audit-arch",
+        "ak-doc",
+        "ak-align-docs",
+        "ak-to-prd"
+      ]
+    },
+    {
+      "title": "Memory Ops",
+      "description": "Project scaffolding, memory consolidation, handoff, and context compression.",
+      "skills": [
+        "ak-scratch",
+        "ak-compact",
+        "ak-handoff",
+        "ak-headroom"
+      ]
+    },
+    {
+      "title": "Skill Evolution",
+      "description": "Skill triage, capability design, and mentor-style scope pressure testing.",
+      "skills": [
+        "ak-skillset",
+        "ak-grill"
+      ]
+    },
+    {
+      "title": "Advanced Bundle",
+      "description": "The full portable framework index for users who want one master skill.",
+      "skills": [
+        "antariksh-unified-skill"
+      ]
+    }
+  ]
+}

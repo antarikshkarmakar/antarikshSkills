@@ -226,6 +226,15 @@ skillkit conflicts
 ```
 This analyzes the triggers (e.g., `/ak-align`, `/ak-tdd`, `/ak-diagnose`) defined in each modular `SKILL.md`'s frontmatter and reports any overlaps.
 
+#### skills.sh Integration
+This repository is compatible with [skills.sh](https://www.skills.sh/) as both a root master skill and a modular skill collection. The repo root exposes `antariksh-unified-skill`; the `skills/` directory exposes the 21 focused `ak-*` skills. For public discovery, prefer installing the modular collection:
+
+```bash
+npx skills add antarikshkarmakar/antarikshSkills --full-depth --skill '*' -g -a codex -a claude-code -y
+```
+
+The root `antariksh-unified-skill` is intentionally grouped as an **Advanced Bundle** in `skills.sh.json` because it aggregates security, DevOps, PR review, hooks, memory, and repository-scanning workflows in one file. Scanner risk labels on that bundle can be higher than the modular skills without meaning the framework is unsafe; use the focused `ak-*` skills for normal installation and the bundle only when a single portable index is desired.
+
 #### Factory Droid Integration
 Factory Droid can pull and install custom plugins directly from your public repository.
 

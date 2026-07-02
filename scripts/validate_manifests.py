@@ -69,6 +69,10 @@ def main():
     codex_marketplace_path = os.path.join(root, ".agents", "plugins", "marketplace.json")
     codex_marketplace_data = load_json_no_duplicates(codex_marketplace_path, errors, root)
 
+    # Load skills.sh repo page grouping metadata
+    skills_sh_path = os.path.join(root, "skills.sh.json")
+    skills_sh_data = load_json_no_duplicates(skills_sh_path, errors, root)
+
     # Load README.md
     readme_path = os.path.join(root, "README.md")
     with open(readme_path, "r", encoding="utf-8") as f:
@@ -116,6 +120,8 @@ def main():
         "native plugin runtime context comes from the packaged skills under `skills/`",
         "codex plugin add antariksh-skills@antariksh-skills",
         "unexpected argument 'marketplace'",
+        "npx skills add antarikshkarmakar/antarikshSkills --full-depth --skill '*'",
+        "Advanced Bundle",
     )
     for required_text in required_readme_notes:
         if required_text not in readme_content:
@@ -178,6 +184,41 @@ def main():
         if folder_name not in skill_folders:
             errors.append(f"package.json declares skill '{key}', but folder 'skills/{folder_name}' does not exist")
 
+    # Verify skills.sh repo-page grouping metadata
+    if skills_sh_data.get("$schema") != "https://skills.sh/schemas/skills.sh.schema.json":
+        errors.append("skills.sh.json must declare the skills.sh schema URL")
+    if skills_sh_data.get("notGrouped") != "bottom":
+        errors.append("skills.sh.json notGrouped must be 'bottom'")
+    groupings = skills_sh_data.get("groupings", [])
+    if not isinstance(groupings, list) or not groupings:
+        errors.append("skills.sh.json must contain at least one grouping")
+    else:
+        grouped_skills = []
+        for group in groupings:
+            title = group.get("title") if isinstance(group, dict) else None
+            skills = group.get("skills") if isinstance(group, dict) else None
+            if not title:
+                errors.append("skills.sh.json contains a grouping without a title")
+            if not isinstance(skills, list) or not skills:
+                errors.append(f"skills.sh.json grouping '{title or '<missing>'}' must list at least one skill")
+                continue
+            grouped_skills.extend(skills)
+
+        expected_skills_sh_names = {f"ak-{folder}" for folder in skill_folders}
+        expected_skills_sh_names.add("antariksh-unified-skill")
+        grouped_skill_set = set(grouped_skills)
+        missing_grouped = sorted(expected_skills_sh_names - grouped_skill_set)
+        extra_grouped = sorted(grouped_skill_set - expected_skills_sh_names)
+        for name in missing_grouped:
+            errors.append(f"skills.sh.json is missing skill '{name}'")
+        for name in extra_grouped:
+            errors.append(f"skills.sh.json references unknown skill '{name}'")
+        for name in sorted({name for name in grouped_skills if grouped_skills.count(name) > 1}):
+            errors.append(f"skills.sh.json lists skill '{name}' more than once")
+        advanced = next((group for group in groupings if isinstance(group, dict) and group.get("title") == "Advanced Bundle"), None)
+        if not advanced or "antariksh-unified-skill" not in advanced.get("skills", []):
+            errors.append("skills.sh.json must group 'antariksh-unified-skill' under 'Advanced Bundle'")
+
     # Verify Codex-native plugin metadata
     expected_codex_name = package_data.get("name")
     if claude_plugin_data.get("name") != expected_codex_name:
@@ -225,6 +266,7 @@ def main():
         (".claude-plugin/plugin.json", json.dumps(claude_plugin_data)),
         (".claude-plugin/marketplace.json", json.dumps(claude_marketplace_data)),
         (".codex-plugin/plugin.json", json.dumps(codex_plugin_data)),
+        ("skills.sh.json", json.dumps(skills_sh_data)),
     ))
     for label, content in public_files_to_check:
         for stale_text in stale_public_strings:

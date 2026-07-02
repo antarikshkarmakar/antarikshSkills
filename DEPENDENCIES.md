@@ -9,7 +9,7 @@ This document outlines the software dependencies required or optionally used by 
 | **`PowerShell`** | Hooks, installer | **Required** (on Windows) | `$PSVersionTable` | Pre-installed on Windows; install PowerShell Core (`pwsh`) on Unix | Execution falls back to Unix/WSL shell scripts. |
 | **`jq`** | Shell hooks, JSON manipulation | Optional | `command -v jq` | `scoop install jq` / `brew install jq` | Falls back to manual text parsing (less robust). |
 | **`npx`** / **`npm`** | `ak-grok`, `ak-devops`, `ak-security` | Optional | `npx --version` | Install Node.js (which bundles npm/npx) | Skip Repomix packaging or IaC vulnerability scanning. |
-| **`repomix`** | `ak-grok` (deep manual code packager) | Optional | `npx repomix --version` | `npm install -g repomix` | Falls back to sequential file-by-file traversing and reading. |
+| **`repomix`** | `ak-grok` (deep manual code packager) | Optional | `repomix --version` or `npx --yes repomix@1.16.0 --version` | `npm install -g repomix` after reviewing the package | Falls back to sequential file-by-file traversing and reading. |
 | **`shellcheck`** | `ak-ci-check` | Optional | `shellcheck --version` | `scoop install shellcheck` / `brew install shellcheck` | Skip ShellCheck validation of scripts. |
 | **`trivy`** | `ak-ci-check`, `ak-security` | Optional | `trivy --version` | Install Aquasecurity Trivy CLI | Skip security vulnerability scans. |
 | **`checkov`** | `ak-ci-check`, `ak-security` | Optional | `checkov --version` | `pip install checkov` | Skip static analysis of IaC templates. |

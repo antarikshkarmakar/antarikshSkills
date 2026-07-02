@@ -50,8 +50,7 @@ if ($detectedSkillNames.Count -gt 0) {
 # Detect the caveman plugin (read-only -- never installs anything; caveman is a
 # Claude Code plugin registered in plugins/installed_plugins.json, not a skills/ folder).
 $pluginsRegistry = Join-Path $env:USERPROFILE ".claude/plugins/installed_plugins.json"
-$cavemanInstallCmd = "Invoke-WebRequest -Uri https://github.com/JuliusBrussee/caveman/raw/main/install.ps1 -OutFile install_caveman.ps1; Get-Content install_caveman.ps1; .\install_caveman.ps1"
-$cavemanStatus = "Caveman: not installed -- Philosophy V falls back to manual terse-style instructions. To install: $cavemanInstallCmd"
+$cavemanStatus = "Caveman: not installed -- Philosophy V falls back to manual terse-style instructions. Review Caveman's repository and install it manually if you trust it: https://github.com/JuliusBrussee/caveman"
 if ((Test-Path $pluginsRegistry) -and (Select-String -Path $pluginsRegistry -Pattern '"caveman@caveman"' -Quiet)) {
     $cavemanStatus = "Caveman: installed -- Philosophy V and /compact delegate to /caveman and /caveman-compress."
 }

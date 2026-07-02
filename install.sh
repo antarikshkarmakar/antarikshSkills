@@ -90,8 +90,7 @@ fi
 # Detect the caveman plugin (read-only -- never installs anything; caveman is a
 # Claude Code plugin registered in plugins/installed_plugins.json, not a skills/ folder).
 PLUGINS_REGISTRY="$HOME/.claude/plugins/installed_plugins.json"
-CAVEMAN_INSTALL_CMD="curl -fsSL -o install_caveman.sh https://github.com/JuliusBrussee/caveman/raw/main/install.sh && less install_caveman.sh && bash install_caveman.sh"
-CAVEMAN_STATUS="Caveman: not installed -- Philosophy V falls back to manual terse-style instructions. To install: $CAVEMAN_INSTALL_CMD"
+CAVEMAN_STATUS="Caveman: not installed -- Philosophy V falls back to manual terse-style instructions. Review Caveman's repository and install it manually if you trust it: https://github.com/JuliusBrussee/caveman"
 if [ -f "$PLUGINS_REGISTRY" ] && grep -qF '"caveman@caveman"' "$PLUGINS_REGISTRY"; then
     CAVEMAN_STATUS="Caveman: installed -- Philosophy V and /compact delegate to /caveman and /caveman-compress."
 fi

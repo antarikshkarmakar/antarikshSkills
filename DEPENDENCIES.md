@@ -20,5 +20,5 @@ This document outlines the software dependencies required or optionally used by 
 | **`graphify`** | `ak-grok` | Optional | Check skill config directory | Locally installed skill config | Falls back to CodeGraph or manual parsing. |
 | **`codegraph`** | `ak-grok`, `ak-audit-arch` | Optional | `codegraph --version` | Install CodeGraph CLI tool | Falls back to manual text-based AST structure walk. |
 | **`sentry-cli`** | `ak-diagnose` | Optional | `sentry-cli --version` | Install Sentry CLI tool | Falls back to manual error logs and reproduction scripts. |
-| **`caveman`** | `ak-compact`, `RULESET.md` Philosophy V | Optional | Check Claude plugin registry | Install JuliusBrussee/caveman plugin | Fall back to manual token compression and memory consolidation. |
+| **`caveman`** | `ak-compact`, `RULESET.md` Philosophy V | Optional | Check Claude plugin registry | Review and install the optional caveman plugin manually if desired. | Fall back to manual token compression and memory consolidation. |
 | **`headroom`** | `ak-headroom`, `RULESET.md` Cache Optimization | Optional | `headroom --version` | `pip install "headroom-ai[mcp]"` or `pipx install headroom-ai` for the CLI; npm package is SDK-only | Skip reversible context compression; fall back to normal text processing. |

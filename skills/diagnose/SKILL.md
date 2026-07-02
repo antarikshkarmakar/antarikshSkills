@@ -11,10 +11,8 @@ trigger: /ak-diagnose
 
 ## 1. REPRODUCE
 *   **Minimal Repro**: Write a minimal script or test case that reliably reproduces the bug. Smallest, simplest version that fails consistently.
-*   **Sentry Error Telemetry**: If the user provides a Sentry Issue ID, Event ID, or Trace URL, verify Sentry configuration in environment variables (`SENTRY_ORG_SLUG`, `SENTRY_AUTH_TOKEN`) or fall back to `memory/local_env.md` status. Run:
-    *   *Sentry CLI*: `sentry-cli --org "$SENTRY_ORG_SLUG" --auth-token "$SENTRY_AUTH_TOKEN" ...` (or standard `sentry` commands which read these variables automatically).
-    *   *Sentry API*: `curl -s -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" "https://sentry.io/api/0/organizations/$SENTRY_ORG_SLUG/issues/<issue-id>/events/?full=true"`
-    Use the returned stack trace, request payloads, local variables, and breadcrumbs to directly pinpoint the error and construct the reproduction test.
+*   **Sentry Error Telemetry**: If the user provides a Sentry Issue ID, Event ID, or Trace URL, verify Sentry configuration in environment variables such as `SENTRY_ORG_SLUG` and `SENTRY_AUTH_TOKEN`, or fall back to `memory/local_env.md` status. Prefer the installed Sentry CLI or an approved Sentry API client that reads credentials from environment variables. Do not print bearer tokens or embed tokens in copied commands.
+*   Use the returned stack trace, request payloads, local variables, and breadcrumbs to directly pinpoint the error and construct the reproduction test.
 *   **Fallback Log & Trace**: If a deterministic repro isn't feasible and Sentry isn't configured, add verbose output or breakpoints to watch data flow in real time.
 *   **PII & Secrets Scrubbing**: Before printing, saving, or writing stack traces, logs, or error telemetry to disk (daily logs, scratch files, or chat), strip all authentication headers, bearer tokens, API keys, passwords, and sensitive PII (e.g. emails, phone numbers) to prevent leakages.
 
@@ -44,4 +42,3 @@ Never claim the bug is fixed based on code inspection. Run the repro. Show it pa
 
 > [!TIP]
 > **Subagent Debugging Delegation**: For complex, multi-step debugging sessions (e.g. running multiple test iterations), delegate the REPRODUCE/MINIMIZE loops to an isolated subagent. The subagent should return only a verified diagnostic report and a surgical fix, keeping the main session's context clean.
-

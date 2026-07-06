@@ -35,7 +35,7 @@ If any available: delegate to it. If graphify is chosen, invoke `/graphify` and 
   ```bash
   repomix --output repomix-output.xml
   ```
-  Do not auto-install packages during grokking. Use the generated XML to avoid sequential file reads, then delete `repomix-output.xml` before finishing so it cannot be tracked. If `repomix` is unavailable, fall back to manual directory traversing.
+  Do not auto-install packages during grokking. Use the generated XML to avoid sequential file reads. When done, clean up the temporary `repomix-output.xml` — it is a large generated build artifact that should not be committed to the repository (alternatively, add it to `.gitignore`). Tell the user you removed it. If `repomix` is unavailable, fall back to manual directory traversing.
 
 ## 4. Persist Findings
 Write to `memory/projects/<name>.md`:
@@ -47,4 +47,4 @@ Write to `memory/projects/<name>.md`:
 So next `/ak-grok` run is incremental, not full scan.
 
 > [!TIP]
-> **Subagent Cache Hygiene**: Full repository scans consume significant context tokens. If supported by your runner (e.g. Antigravity subagents or CLI parallel runs), delegate `/ak-grok` to a background subagent, persisting findings to `memory/projects/<name>.md` outside the main session to keep the token cache lean.
+> **Subagent Cache Hygiene**: Full repository scans consume significant context tokens. If supported by your runner (e.g. Antigravity subagents or CLI parallel runs), delegate `/ak-grok` to a background subagent that writes its findings to the project's own `memory/projects/<name>.md` file. This keeps the main session's token cache lean, and the resulting file is visible to the user and versioned in their repository.

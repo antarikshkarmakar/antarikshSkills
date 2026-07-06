@@ -47,6 +47,7 @@ Before writing code, stop at first rung that works:
 - Compress before it enters context — quote excerpts, not raw files
 - **Subagent Delegation**: Delegate heavy operations (like `/ak-grok` repository scans, `/ak-diagnose` loops, or `/ak-audit-arch` sweeps) to background subagents when supported by the runner tool. This keeps the main session's context cache clean, bringing back only the final verified results/patches. Assign one tack/hypothesis per subagent — a focused agent outperforms one juggling multiple angles.
 - **Swarm Orchestration (Ruflo Inspiration)**: For complex multi-file refactors or migrations, partition the work into independent modules, spawn background subagents to work concurrently on separate directories or Git worktrees, and synthesize their results into a unified pull request.
+- **Fleet Orchestration**: For fleet-scale work (3+ independent units), run `/ak-orchestrate` — the orchestrator plans, briefs, and judges while children execute; child reports flow back into memory. Route mechanical child work to cheaper model tiers when the runner supports it.
 - **Repomix Packaging**: Prefer a reviewed local `repomix` executable. If using `npx`, pin the package version, e.g. `npx --yes repomix@1.16.0`, to bundle codebase contents into a single structured, token-efficient XML file that respects `.gitignore` rules.
 - **Headroom Compression (Optional)**: If Headroom is detected (run `/ak-headroom` to check), leverage its reversible compression to reduce the token footprint of large tool outputs or debugging logs while keeping them retrievable by hash.
 
@@ -114,6 +115,7 @@ Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules wit
 | `/ak-review` | Adversarial duel review → `.agents/skills/review/SKILL.md` |
 | `/ak-prreview` | Gated GitHub PR review → `.agents/skills/prreview/SKILL.md` |
 | `/ak-worktree` | Git Worktrees parallel workflow → `.agents/skills/worktree/SKILL.md` |
+| `/ak-orchestrate` | Fleet orchestration: plan → decompose → brief → delegate → synthesize → `.agents/skills/orchestrate/SKILL.md` |
 | `/ak-doc` | Direct documentation → `.agents/skills/doc/SKILL.md` |
 | `/ak-grok` | Repository comprehension → `.agents/skills/grok/SKILL.md` |
 | `/ak-audit-arch` | Architecture health check → `.agents/skills/audit-arch/SKILL.md` |

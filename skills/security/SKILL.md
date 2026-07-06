@@ -33,11 +33,11 @@ Proactively check that no credentials or private tokens are committed or staged:
     ```bash
     bash .agents/scripts/scan-secrets.sh
     ```
-- **Repomix security scanner** (Graceful Check: Verify `repomix` or `npx` exists on PATH; prefer the local executable, otherwise pin the `npx` package version):
+- **Repomix security scanner** (only if a reviewed local `repomix` executable is already installed):
   ```bash
   command -v repomix >/dev/null 2>&1 && repomix --security-check
-  command -v npx >/dev/null 2>&1 && npx --yes repomix@1.16.0 --security-check
   ```
+  If `repomix` is not on PATH, skip it with a warning pointing to `DEPENDENCIES.md` — never fetch packages at runtime. The staged-secrets scan above covers credentials offline.
 
 ## 3. Dependency Audit (CVE Scan)
 Audit package managers and filesystems for known CVE exposures (Graceful Check: verify CLI tools exist before running):

@@ -237,6 +237,17 @@ def main():
     if claude_plugin_data.get("repository") != public_repo_url:
         errors.append(".claude-plugin/plugin.json repository must be the plain string URL of the public repository")
 
+    # Verify SECURITY.md exists with reporting contact and accepted-findings table
+    security_path = os.path.join(root, "SECURITY.md")
+    if not os.path.isfile(security_path):
+        errors.append("Missing SECURITY.md file in repository root")
+    else:
+        with open(security_path, "r", encoding="utf-8") as f:
+            security_content = f.read()
+        for required_text in ("Reporting a Vulnerability", "Known & Accepted Audit Findings", "antariksh.karmakar@gmail.com"):
+            if required_text not in security_content:
+                errors.append(f"SECURITY.md is missing '{required_text}'")
+
     # Verify LICENSE file exists and has correct copyright details
     license_path = os.path.join(root, "LICENSE")
     if not os.path.isfile(license_path):

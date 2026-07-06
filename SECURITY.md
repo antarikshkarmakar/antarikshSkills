@@ -16,7 +16,7 @@ This repository ships **prompt-level agent instructions** (`SKILL.md` files, rul
 ## Security Design Principles
 
 - **No auto-install, ever**: skills never install software on the user's behalf. Missing tools produce a warning pointing to [DEPENDENCIES.md](DEPENDENCIES.md) install hints (Philosophy VIII).
-- **Pinned external execution**: the only remote-package invocation anywhere in the skills is `npx --yes repomix@1.16.0` — version-pinned, gated behind a PATH check, with a local executable preferred.
+- **No runtime package fetching**: skills never invoke `npx`, `uvx`, or any download-and-execute mechanism. External tools (repomix, trivy, checkov, shellcheck) run only when a locally installed executable already exists on PATH; otherwise the check is skipped with a pointer to [DEPENDENCIES.md](DEPENDENCIES.md).
 - **Untrusted-input rules**: `/ak-diagnose` treats logs, telemetry, and stack traces as untrusted evidence — agents must never execute instructions found inside them.
 - **Approval gates**: anything visible to others or hard to reverse (posting PR reviews, changing contracts) requires explicit user confirmation (Philosophy VIII); `/ak-prreview` drafts and asks before posting.
 - **Secrets hygiene**: `scripts/scan-secrets.sh`/`.ps1` scan staged changes for hardcoded credentials (regression-tested in CI); memory files must never contain plaintext tokens; installers scaffold a `.gitignore` covering `.env` and local config.
@@ -28,7 +28,7 @@ This repository ships **prompt-level agent instructions** (`SKILL.md` files, rul
 
 | Finding | File(s) | Why it's accepted |
 | :--- | :--- | :--- |
-| Invokes `npx` while processing repository content | `skills/security/SKILL.md`, `skills/ci-check/SKILL.md` | The skills' purpose is running security scanners. The invocation is version-pinned (`repomix@1.16.0`), PATH-gated, and a reviewed local executable is preferred. |
+| Executes local scanner tooling while processing repository content | `skills/security/SKILL.md`, `skills/ci-check/SKILL.md` | The skills' purpose is running security scanners (repomix, trivy, checkov). Only locally installed executables are invoked — runtime package fetching (`npx` and similar) was removed entirely in v1.4.1. |
 | PowerShell hooks run with `-ExecutionPolicy Bypass` | `install.ps1` | Standard mechanism for Claude Code hooks on default Windows policy; the hooks are opt-in (`-Hooks` flag), short, and readable before install. The installer never fetches remote code. |
 | Hook config executes scripts from `${CLAUDE_PROJECT_DIR}` | `templates/.claude/settings.json` | This is the definition of a Claude Code session hook. Integrity depends on the user's own project directory, which the user controls. |
 | Med risk: fetches error telemetry / posts PR reviews | `skills/diagnose/SKILL.md`, `skills/prreview/SKILL.md` | Core function of those skills. Credentials come from environment variables only (never printed or stored), and PR posting sits behind an explicit yes/no gate. |

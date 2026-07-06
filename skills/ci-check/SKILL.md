@@ -11,7 +11,7 @@ This skill allows you to run all validation, linting, ruleset synchronization, a
 ---
 
 ## Graceful Tool Detection & Portability
-Before running external CLI tools (`shellcheck`, `trivy`, `checkov`, `repomix` or `npx`), check if the command exists on the local PATH:
+Before running external CLI tools (`shellcheck`, `trivy`, `checkov`, or `repomix`), check if the command exists on the local PATH:
 - **On macOS / Linux (Bash)**: `command -v <tool-name> >/dev/null 2>&1`
 - **On Windows (PowerShell)**: `Get-Command <tool-name> -ErrorAction SilentlyContinue`
 
@@ -84,12 +84,11 @@ Run local security audits to ensure no secrets have been leaked and configuratio
     ```bash
     bash .agents/scripts/scan-secrets.sh
     ```
-- **Repomix Security Scan**:
-  Verify credentials safety across the repository codebase:
+- **Repomix Security Scan** (only if a reviewed local `repomix` executable is already installed):
   ```bash
   repomix --security-check
-  npx --yes repomix@1.16.0 --security-check
   ```
+  If `repomix` is not on PATH, skip this scan with a warning pointing to `DEPENDENCIES.md` — do not fetch it at runtime. The git secrets check above already covers staged credentials offline.
 - **Trivy File Scan**:
   ```bash
   trivy config .

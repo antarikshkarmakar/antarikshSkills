@@ -7,6 +7,7 @@
       "description": "Everyday planning, coding, testing, debugging, and review loops.",
       "skills": [
         "ak-align",
+        "ak-spec",
         "ak-code",
         "ak-tdd",
         "ak-diagnose",

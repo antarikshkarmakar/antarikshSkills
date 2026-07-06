@@ -1,6 +1,6 @@
 {
   "name": "antariksh-skills",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Master developer skill framework combining planning, simplified TDD/diagnosis loops, adversarial reviews, and context compression rules.",
   "license": "MIT",
   "author": {

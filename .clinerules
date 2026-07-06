@@ -111,6 +111,7 @@ Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules wit
 | `/ak-align` | Pre-coding scope alignment (Socratic) → `.agents/skills/align/SKILL.md` |
 | `/ak-align-docs` | Scope alignment + shared language + ADR → `.agents/skills/align-docs/SKILL.md` |
 | `/ak-to-prd` | Product requirements doc with module quiz → `.agents/skills/to-prd/SKILL.md` |
+| `/ak-spec` | Spec-driven development: specify → clarify → plan → tasks → analyze → implement → converge → `.agents/skills/spec/SKILL.md` |
 | `/ak-tdd` | Test-driven development loop → `.agents/skills/tdd/SKILL.md` |
 | `/ak-diagnose` | Structured debugging → `.agents/skills/diagnose/SKILL.md` |
 | `/ak-devops` | DevOps & CI/CD automation → `.agents/skills/devops/SKILL.md` |

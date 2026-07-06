@@ -2,6 +2,33 @@
 
 A universal master agent instructions, ruleset, and memory scaffolding framework designed to run seamlessly on **any LLM** (Gemini, OpenAI, Ollama, DeepSeek, Minimax, Claude) and **any assistant interface** (Claude Code, Codex, Cursor, VS Code + Copilot, Antigravity, Cline/Roo-Code, OpenCode, or standard Web UIs).
 
+## Quick Start
+
+Pick the path that matches your tooling — each takes under a minute:
+
+**Claude Code** (inside an interactive `claude` session):
+```
+/plugin marketplace add antarikshkarmakar/antarikshSkills
+/plugin install antariksh-skills
+```
+Then invoke skills with the plugin namespace, e.g. `/antariksh-skills:align`, `/antariksh-skills:tdd`.
+
+**Codex CLI**:
+```bash
+codex plugin marketplace add antarikshkarmakar/antarikshSkills
+codex plugin add antariksh-skills@antariksh-skills
+```
+
+**skills.sh (any supported agent)**:
+```bash
+npx skills add antarikshkarmakar/antarikshSkills --full-depth --skill '*' -g -a codex -a claude-code
+```
+Review the Gen/Socket/Snyk security assessment the CLI shows before confirming — command-running DevOps skills such as `ak-ci-check` legitimately score above pure-prose skills.
+
+**Per-project install** (generates rule files + Second Brain memory scaffolding, enables the `/ak-*` shorthand): see [How to Install in a Project](#how-to-install-in-a-project).
+
+**Refresh everything at once** (WSL/macOS/Linux): `bash scripts/refresh-plugins.sh` re-syncs the Claude Code, Codex, and skills.sh installs to the latest published version.
+
 ## Why This Exists
 
 Most agent setups force a choice between two failure modes: a pile of slash commands you have to remember to reach for, or a single LLM/IDE pairing that loses all context the moment you switch tools. This framework is a single canonical ruleset (`templates/RULESET.md`) that compiles into whatever file each tool actually reads — `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md` — so the same philosophy, memory, and command set follow you across tools and sessions instead of resetting every time you switch one.
@@ -44,7 +71,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 - `SKILL.md`: **Generated** master skill definition for this framework (used by Claude Code's Skill system, Antigravity, OpenClaw, etc.). It compiles into a self-contained command index and session loop guide to support toolless/web-UI environments.
 - `install.ps1`: Windows PowerShell deployer script.
 - `install.sh`: macOS/Linux/WSL Bash deployer script.
-- `scripts/`: Development, validation, and CI scripts (manifest parity check, credentials scanner, and installer/secrets verification test suites).
+- `scripts/`: Development, validation, and CI scripts (manifest parity check, credentials scanner, installer/secrets verification test suites, and `refresh-plugins.sh` to re-sync Claude Code/Codex/skills.sh installs).
 - [DEPENDENCIES.md](file:///c:/GitHub/antarikshSkills/DEPENDENCIES.md): Matrix of external dependencies and software checked or used by this framework.
 - `templates/`: Base structures for initialization:
   - `MEMORY.md`: Root-level Second Brain index of status, projects, focus, open loops, and detected agent skills.

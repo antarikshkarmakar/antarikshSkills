@@ -45,7 +45,7 @@ Before writing code, stop at first rung that works:
 - Keep `AGENTS.md`, `MEMORY.md` under 300 lines
 - Avoid constant tiny turns that waste context cache
 - Compress before it enters context — quote excerpts, not raw files
-- **Subagent Delegation**: Delegate heavy operations (like `/ak-grok` repository scans, `/ak-diagnose` loops, or `/ak-audit-arch` sweeps) to background subagents when supported by the runner tool. This keeps the main session's context cache clean, bringing back only the final verified results/patches.
+- **Subagent Delegation**: Delegate heavy operations (like `/ak-grok` repository scans, `/ak-diagnose` loops, or `/ak-audit-arch` sweeps) to background subagents when supported by the runner tool. This keeps the main session's context cache clean, bringing back only the final verified results/patches. Assign one tack/hypothesis per subagent — a focused agent outperforms one juggling multiple angles.
 - **Swarm Orchestration (Ruflo Inspiration)**: For complex multi-file refactors or migrations, partition the work into independent modules, spawn background subagents to work concurrently on separate directories or Git worktrees, and synthesize their results into a unified pull request.
 - **Repomix Packaging**: Prefer a reviewed local `repomix` executable. If using `npx`, pin the package version, e.g. `npx --yes repomix@1.16.0`, to bundle codebase contents into a single structured, token-efficient XML file that respects `.gitignore` rules.
 - **Headroom Compression (Optional)**: If Headroom is detected (run `/ak-headroom` to check), leverage its reversible compression to reduce the token footprint of large tool outputs or debugging logs while keeping them retrievable by hash.
@@ -70,6 +70,7 @@ Before any visible-to-others or hard-to-reverse action → show exactly what wil
 - Surface tradeoffs — name alternatives instead of silently picking
 - Push back when simpler approach suffices
 - Stop when confused — ask, don't guess
+- **Re-plan on failure**: If the plan is going sideways or repeated attempts keep failing, stop and re-enter `/ak-align` with what you learned — do not brute-force forward on a broken plan
 
 ### X. Goal-Driven Execution (Evidence over Claims)
 - Define success criteria before acting

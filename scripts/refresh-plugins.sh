@@ -61,7 +61,7 @@ fi
 if have npx; then
     section "skills.sh"
     # --full-depth is required: the repo has a root SKILL.md, and without the flag
-    # the CLI stops there instead of discovering the 22 skills under skills/.
+    # the CLI stops there instead of discovering the 23 skills under skills/.
     # Review the Gen/Socket/Snyk risk assessment shown before confirming installs.
     npx --yes skills@latest add "$REPO_SLUG" --full-depth --skill '*' -g -a codex -a claude-code -y \
         || mark_failed "skills.sh add failed for $REPO_SLUG."

@@ -66,7 +66,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 ## Repository Structure
 
 - `templates/RULESET.md`: **The single canonical source** for the shared rules body (philosophies, command protocol, Second Brain protocol). Slash commands are a lean lookup table pointing to `.agents/skills/` — detailed instructions live in modular skill files, not in RULESET.md itself. Edit this file, not the 6 generated rule files below — they drift out of sync if hand-edited directly.
-- `skills/`: **Modular on-demand skill files.** Each slash command is a thin pointer in RULESET.md; the full workflow lives in its own `.agents/skills/<name>/SKILL.md`. This keeps RULESET.md lean (~150 lines) and context-cache-friendly. Currently includes: `align/`, `align-docs/`, `tdd/`, `diagnose/`, `devops/`, `ci-check/`, `security/`, `skillset/`, `code/`, `review/`, `prreview/`, `worktree/`, `orchestrate/`, `doc/`, `grok/`, `audit-arch/`, `scratch/`, `compact/`, `handoff/`, `grill/`, `to-prd/`, `headroom/`.
+- `skills/`: **Modular on-demand skill files.** Each slash command is a thin pointer in RULESET.md; the full workflow lives in its own `.agents/skills/<name>/SKILL.md`. This keeps RULESET.md lean (~150 lines) and context-cache-friendly. Currently includes: `align/`, `align-docs/`, `tdd/`, `diagnose/`, `devops/`, `ci-check/`, `security/`, `skillset/`, `code/`, `review/`, `prreview/`, `worktree/`, `orchestrate/`, `spec/`, `doc/`, `grok/`, `audit-arch/`, `scratch/`, `compact/`, `handoff/`, `grill/`, `to-prd/`, `headroom/`.
 - `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md`: **Generated** from `templates/RULESET.md` plus a tool-specific header, at install time. Also copies the root-level `skills/` recursively to the target directory as `.agents/skills/`. Used by Codex/OpenCode/CLI assistants, Claude Code, Cursor, Cline/Roo-Code, Gemini CLI, and GitHub Copilot Chat respectively. (`.cursorrules` is Cursor's legacy format — still read, but Cursor's current standard is `.cursor/rules/*.mdc`; Cursor users are covered either way since Cursor also reads `AGENTS.md` natively. Copilot's autonomous coding agent already reads `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` directly — `.github/copilot-instructions.md` is what closes the gap for everyday Copilot Chat.)
 - `SKILL.md`: **Generated** master skill definition for this framework (used by Claude Code's Skill system, Antigravity, OpenClaw, etc.). It compiles into a self-contained command index and session loop guide to support toolless/web-UI environments.
 - `install.ps1`: Windows PowerShell deployer script.
@@ -150,7 +150,7 @@ This repository is pre-configured as a **Claude Code Plugin Marketplace**. You c
    ```bash
    /plugin install antariksh-skills
    ```
-   This registers the 22 modular skill guides globally inside Claude Code.
+   This registers the 23 modular skill guides globally inside Claude Code.
 
 **Native Claude Code invocation names:** Claude Code namespaces plugin skills as `/<plugin-name>:<skill-folder>`. After marketplace install, use `/antariksh-skills:align`, `/antariksh-skills:tdd`, `/antariksh-skills:diagnose`, etc. The `/ak-*` names are this framework's installer/ruleset shorthand and remain available when you run `install.ps1` or `install.sh` in a target project. Native Claude Code plugin installs do not expose `/ak-align` aliases. The root `CLAUDE.md` and `SKILL.md` files are portable installer/toolless assets; native plugin runtime context comes from the packaged skills under `skills/`.
 
@@ -158,7 +158,7 @@ This repository is pre-configured as a **Claude Code Plugin Marketplace**. You c
 OpenAI's Codex CLI reads `AGENTS.md` as its primary instruction file. Run `codex` from inside the installed project directory — zero extra configuration.
 
 ##### Installing as a Global Plugin
-This repository includes Codex-native plugin metadata in `.codex-plugin/plugin.json` and a repo marketplace catalog at `.agents/plugins/marketplace.json`. The plugin package exposes the 22 modular `ak-*` skills through `skills/`; the project installer remains the path for generating per-repo rule files, memory scaffolding, and opt-in hooks.
+This repository includes Codex-native plugin metadata in `.codex-plugin/plugin.json` and a repo marketplace catalog at `.agents/plugins/marketplace.json`. The plugin package exposes the 23 modular `ak-*` skills through `skills/`; the project installer remains the path for generating per-repo rule files, memory scaffolding, and opt-in hooks.
 
 1. **Add the Marketplace**: Tap the repository inside Codex CLI:
    ```bash
@@ -238,7 +238,7 @@ To install `antarikshSkills` globally or in your project using SkillKit:
 ```bash
 skillkit add antarikshkarmakar/antarikshSkills
 ```
-This registers the master `antariksh-unified-skill` and the modular commands (`/ak-grill`, `/ak-align`, `/ak-align-docs`, `/ak-to-prd`, `/ak-tdd`, `/ak-diagnose`, `/ak-devops`, `/ak-ci-check`, `/ak-security`, `/ak-skillset`, `/ak-code`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-orchestrate`, `/ak-doc`, `/ak-grok`, `/ak-audit-arch`, `/ak-scratch`, `/ak-compact`, `/ak-handoff`, `/ak-headroom`) in your active agent environments.
+This registers the master `antariksh-unified-skill` and the modular commands (`/ak-grill`, `/ak-align`, `/ak-align-docs`, `/ak-to-prd`, `/ak-spec`, `/ak-tdd`, `/ak-diagnose`, `/ak-devops`, `/ak-ci-check`, `/ak-security`, `/ak-skillset`, `/ak-code`, `/ak-review`, `/ak-prreview`, `/ak-worktree`, `/ak-orchestrate`, `/ak-doc`, `/ak-grok`, `/ak-audit-arch`, `/ak-scratch`, `/ak-compact`, `/ak-handoff`, `/ak-headroom`) in your active agent environments.
 
 ##### Format Translation Adapter
 You can translate any modular skill in `skills/` to your favorite agent format using SkillKit's translation engine:
@@ -255,7 +255,7 @@ skillkit conflicts
 This analyzes the triggers (e.g., `/ak-align`, `/ak-tdd`, `/ak-diagnose`) defined in each modular `SKILL.md`'s frontmatter and reports any overlaps.
 
 #### skills.sh Integration
-This repository is compatible with [skills.sh](https://www.skills.sh/) as both a root master skill and a modular skill collection. The repo root exposes `antariksh-unified-skill`; the `skills/` directory exposes the 22 focused `ak-*` skills. For public discovery, prefer installing the modular collection:
+This repository is compatible with [skills.sh](https://www.skills.sh/) as both a root master skill and a modular skill collection. The repo root exposes `antariksh-unified-skill`; the `skills/` directory exposes the 23 focused `ak-*` skills. For public discovery, prefer installing the modular collection:
 
 ```bash
 npx skills add antarikshkarmakar/antarikshSkills --full-depth --skill '*' -g -a codex -a claude-code -y
@@ -346,6 +346,7 @@ The `/ak-*` names below are the portable framework commands used by generated ru
 | **`/ak-align`** | Pre-coding Socratic scope alignment to confirm goals, constraints, non-goals, and establish a strict implementation plan gate. | [skills/align/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/align/SKILL.md) |
 | **`/ak-align-docs`** | Pre-coding alignment + building the project's shared language glossary and writing Architecture Decision Records (ADRs). | [skills/align-docs/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/align-docs/SKILL.md) |
 | **`/ak-to-prd`** | Runs a modules-touched scoping quiz and drafts a Product Requirements Document (PRD) to `memory/prds/`. | [skills/to-prd/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/to-prd/SKILL.md) |
+| **`/ak-spec`** | Spec-driven development loop: specify → clarify → plan → dependency-ordered tasks → cross-artifact analysis → implement → converge against acceptance criteria (inspired by [GitHub spec-kit](https://github.com/github/spec-kit); delegates to it when installed). | [skills/spec/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/spec/SKILL.md) |
 | **`/ak-tdd`** | MATT POCOCK Test-Driven Development (RED-GREEN-REFACTOR) cycle, bootstrapping minimal test setups if needed. | [skills/tdd/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/tdd/SKILL.md) |
 | **`/ak-diagnose`** | Structured debugging loop (REPRODUCE via Sentry/logs → MINIMIZE via bisection → 5-WHYS root cause → FIX & PREVENT). | [skills/diagnose/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/diagnose/SKILL.md) |
 | **`/ak-devops`** | End-to-end DevOps automation (scaffold container/IaC/pipeline files, run linters/scanners, validate dry-runs, debug environments). | [skills/devops/SKILL.md](file:///c:/GitHub/antarikshSkills/skills/devops/SKILL.md) |

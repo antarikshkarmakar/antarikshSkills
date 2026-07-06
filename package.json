@@ -1,6 +1,6 @@
 {
   "name": "antariksh-skills",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Master developer skill framework combining planning, TDD/diagnose loops, adversarial reviews, and context compression rules.",
   "keywords": [
     "ai-agent",
@@ -25,6 +25,7 @@
     "ak-align": "skills/align/SKILL.md",
     "ak-align-docs": "skills/align-docs/SKILL.md",
     "ak-to-prd": "skills/to-prd/SKILL.md",
+    "ak-spec": "skills/spec/SKILL.md",
     "ak-tdd": "skills/tdd/SKILL.md",
     "ak-diagnose": "skills/diagnose/SKILL.md",
     "ak-devops": "skills/devops/SKILL.md",

@@ -22,6 +22,7 @@ Assume the Proposer is wrong. Attack on applicable axes:
 - **Silent Failures** — errors swallowed, exceptions caught and ignored
 - **Assumption Violations** — code assumes invariants that don't hold
 - **Interface Drift** — if the changes touch files defined in `INTERFACES.md`, verify that the implementation complies with interface contracts
+- **Behavioral Diff** — when relevant, run the same scenario against the base branch (`main`) and the change branch and compare outputs; any unexplained behavioral difference is a finding
 - **Security Surfaces** — injection, auth bypass, credential exposure
 - **Classic Bugs** — off-by-one, use-after-free, SQL injection patterns
 

@@ -15,7 +15,7 @@ Before running external CLI tools (`shellcheck`, `trivy`, `checkov`, `repomix` o
 - **On macOS / Linux (Bash)**: `command -v <tool-name> >/dev/null 2>&1`
 - **On Windows (PowerShell)**: `Get-Command <tool-name> -ErrorAction SilentlyContinue`
 
-If a tool is missing, output a clean warning suggesting how to install it (e.g. using Scoop, Homebrew, Apt, or NPM) instead of failing with a command execution error.
+If a tool is missing, output a clean warning pointing the user to the install hint in `DEPENDENCIES.md`, then skip that check. Never install, download, or execute software on the user's behalf — all install decisions belong to the user (Philosophy VIII).
 
 ---
 
@@ -39,10 +39,7 @@ git add --renormalize .
 ---
 
 ## 2. Script Linting (ShellCheck)
-Ensure that all bash script modifications comply with ShellCheck rules:
-- **On Linux (apt)**: `sudo apt install shellcheck`
-- **On macOS (Homebrew)**: `brew install shellcheck`
-- **On Windows (Scoop)**: `scoop install shellcheck`
+Ensure that all bash script modifications comply with ShellCheck rules. If `shellcheck` is not on PATH, skip this check with a warning and point the user to the install hint in `DEPENDENCIES.md` — never install software yourself.
 
 **Command to run**:
 ```bash

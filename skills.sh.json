@@ -21,7 +21,8 @@
         "ak-security",
         "ak-devops",
         "ak-prreview",
-        "ak-worktree"
+        "ak-worktree",
+        "ak-orchestrate"
       ]
     },
     {

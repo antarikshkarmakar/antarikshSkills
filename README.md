@@ -73,6 +73,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 - `install.sh`: macOS/Linux/WSL Bash deployer script.
 - `scripts/`: Development, validation, and CI scripts (manifest parity check, credentials scanner, installer/secrets verification test suites, and `refresh-plugins.sh` to re-sync Claude Code/Codex/skills.sh installs).
 - [DEPENDENCIES.md](file:///c:/GitHub/antarikshSkills/DEPENDENCIES.md): Matrix of external dependencies and software checked or used by this framework.
+- [SECURITY.md](file:///c:/GitHub/antarikshSkills/SECURITY.md): Vulnerability reporting contact, security design principles, and the known/accepted skills.sh audit findings with rationale.
 - `templates/`: Base structures for initialization:
   - `MEMORY.md`: Root-level Second Brain index of status, projects, focus, open loops, and detected agent skills.
   - `GLOSSARY.md`: Domain term/definition table — built by `/ak-align-docs` (Philosophy XI).

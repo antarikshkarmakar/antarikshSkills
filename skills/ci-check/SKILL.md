@@ -76,9 +76,9 @@ Run `git diff --exit-code` to confirm that compiled files do not show unstaged d
 Run local security audits to ensure no secrets have been leaked and configurations are safe:
 - **Git Secrets Check** (Lightweight & Offline):
   Verify no `.env` files are tracked by Git, and scan staged changes for credentials (runs the shared secrets scan script):
-  - **On Windows (PowerShell)**:
+  - **On Windows (PowerShell)** (the script is a local file installed into your repo — review `.agents/scripts/scan-secrets.ps1` before first use):
     ```powershell
-    powershell -ExecutionPolicy Bypass -File .agents/scripts/scan-secrets.ps1
+    powershell -ExecutionPolicy RemoteSigned -File .agents/scripts/scan-secrets.ps1
     ```
   - **On macOS / Linux (Bash)**:
     ```bash

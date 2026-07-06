@@ -25,9 +25,9 @@ Evaluate target files and PR diffs against all 10 core threat categories:
 ## 2. Secrets Scan
 Proactively check that no credentials or private tokens are committed or staged:
 - **Git staged secrets search** (runs the shared secrets scan script):
-  - **On Windows (PowerShell)**:
+  - **On Windows (PowerShell)** (the script is a local file installed into your repo — review `.agents/scripts/scan-secrets.ps1` before first use):
     ```powershell
-    powershell -ExecutionPolicy Bypass -File .agents/scripts/scan-secrets.ps1
+    powershell -ExecutionPolicy RemoteSigned -File .agents/scripts/scan-secrets.ps1
     ```
   - **On macOS / Linux (Bash)**:
     ```bash

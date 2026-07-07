@@ -11,6 +11,7 @@
         "ak-code",
         "ak-tdd",
         "ak-diagnose",
+        "ak-bughunt",
         "ak-review",
         "ak-ci-check"
       ]

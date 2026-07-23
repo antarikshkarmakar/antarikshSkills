@@ -37,6 +37,9 @@ $pluginsRegistry = Join-Path $env:USERPROFILE ".claude/plugins/installed_plugins
 $detectedSkillNames = @()
 $graphifyInstalled = $false
 $cavemanInstalled = $false
+$codegraphInstalled = $false
+$sentryInstalled = $false
+$headroomInstalled = $false
 $pythonCmd = $null
 $optionalInstallDryRun = $env:ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN -in @("1", "true", "TRUE")
 
@@ -47,6 +50,18 @@ function Get-PythonCommand {
         }
     }
     return $null
+}
+
+function Test-CommandRuns {
+    param(
+        [string]$Command,
+        [string[]]$Arguments
+    )
+
+    $cmd = Get-Command $Command -ErrorAction SilentlyContinue
+    if (-not $cmd) { return $false }
+    & $cmd.Source @Arguments *> $null
+    return $LASTEXITCODE -eq 0
 }
 
 function Get-GraphifyCommand {
@@ -90,6 +105,9 @@ function Update-OptionalAcceleratorStatus {
     $script:detectedSkillNames = @()
     $script:graphifyInstalled = $false
     $script:cavemanInstalled = $false
+    $script:codegraphInstalled = $false
+    $script:sentryInstalled = $false
+    $script:headroomInstalled = $false
     $script:graphifyStatus = "Graphify: not found under $skillsDir and no graphify CLI detected -- /grok will fall back to a manual directory/stack scan."
 
     if (Test-Path $skillsDir) {
@@ -114,6 +132,24 @@ function Update-OptionalAcceleratorStatus {
     if ((Test-Path $pluginsRegistry) -and (Select-String -Path $pluginsRegistry -Pattern '"caveman@caveman"' -Quiet)) {
         $script:cavemanStatus = "Caveman: installed -- Philosophy V and /compact delegate to /caveman and /caveman-compress."
         $script:cavemanInstalled = $true
+    }
+
+    $script:codegraphStatus = "CodeGraph: not found on PATH -- /grok and /audit-arch fall back to graphify/Understand-Anything/manual scan."
+    if (Test-CommandRuns "codegraph" @("--version")) {
+        $script:codegraphStatus = "CodeGraph: detected on PATH -- /grok and /audit-arch can delegate to it for call-graph/blast-radius queries."
+        $script:codegraphInstalled = $true
+    }
+
+    $script:sentryStatus = "Sentry: not found -- /diagnose falls back to manual reproduction script or log-tracing."
+    if ((Test-CommandRuns "sentry" @("--version")) -or (Test-CommandRuns "sentry-cli" @("--version"))) {
+        $script:sentryStatus = "Sentry: detected on PATH -- /diagnose can pull telemetry and crash traces directly using the CLI or REST API."
+        $script:sentryInstalled = $true
+    }
+
+    $script:headroomStatus = "Headroom: not found on PATH -- /ak-headroom and Cache Optimization fall back to uncompressed context."
+    if (Test-CommandRuns "headroom" @("--version")) {
+        $script:headroomStatus = "Headroom: detected on PATH -- /ak-headroom and Cache Optimization can delegate to it for reversible compression."
+        $script:headroomInstalled = $true
     }
 }
 
@@ -198,11 +234,127 @@ function Install-CavemanOptional {
     }
 }
 
+function Install-CodeGraphOptional {
+    if ($script:codegraphInstalled) { return }
+
+    if (-not (Test-CommandRuns "npm" @("--version"))) {
+        Write-Host "CodeGraph optional install skipped: npm not found. See DEPENDENCIES.md." -ForegroundColor Yellow
+        return
+    }
+
+    if (-not (Confirm-OptionalInstall "CodeGraph (npm package @colbymchenry/codegraph + codegraph install)")) {
+        Write-Host "Skipped optional accelerator: CodeGraph" -ForegroundColor Yellow
+        return
+    }
+
+    if ($optionalInstallDryRun) {
+        Write-Host "DRY RUN: would run 'npm install -g @colbymchenry/codegraph' then 'codegraph install'" -ForegroundColor Cyan
+        return
+    }
+
+    & npm install -g "@colbymchenry/codegraph"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "CodeGraph optional install failed. Continue with manual /ak-grok fallback." -ForegroundColor Yellow
+        return
+    }
+
+    if (Test-CommandRuns "codegraph" @("--version")) {
+        & codegraph install
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "CodeGraph CLI installed, but agent registration failed. Run 'codegraph install' after review." -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "CodeGraph package installed, but codegraph is not on PATH. Add the npm global bin directory to PATH, then run 'codegraph install'." -ForegroundColor Yellow
+    }
+}
+
+function Install-SentryOptional {
+    if ($script:sentryInstalled) { return }
+
+    if (-not (Test-CommandRuns "npm" @("--version"))) {
+        Write-Host "Sentry CLI optional install skipped: npm not found. See DEPENDENCIES.md." -ForegroundColor Yellow
+        return
+    }
+
+    if (-not (Confirm-OptionalInstall "Sentry CLI (npm package sentry; auth remains manual)")) {
+        Write-Host "Skipped optional accelerator: Sentry CLI" -ForegroundColor Yellow
+        return
+    }
+
+    if ($optionalInstallDryRun) {
+        Write-Host "DRY RUN: would run 'npm install -g sentry'" -ForegroundColor Cyan
+        return
+    }
+
+    & npm install -g sentry
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Sentry CLI optional install failed. Continue with manual /ak-diagnose fallback." -ForegroundColor Yellow
+        return
+    }
+    Write-Host "Sentry CLI installed. Run 'sentry auth login' when you want telemetry-backed diagnosis." -ForegroundColor Cyan
+}
+
+function Install-HeadroomOptional {
+    if ($script:headroomInstalled) { return }
+
+    if (Test-CommandRuns "uv" @("--version")) {
+        if (-not (Confirm-OptionalInstall "Headroom CLI (uv tool package headroom-ai[all])")) {
+            Write-Host "Skipped optional accelerator: Headroom" -ForegroundColor Yellow
+            return
+        }
+
+        if ($optionalInstallDryRun) {
+            Write-Host "DRY RUN: would run 'uv tool install `"headroom-ai[all]`"'" -ForegroundColor Cyan
+            return
+        }
+
+        & uv tool install "headroom-ai[all]"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Headroom optional install failed. Continue with uncompressed context fallback." -ForegroundColor Yellow
+            return
+        }
+        Write-Host "Headroom CLI installed. Run 'uv tool update-shell' if headroom is not on PATH, then /ak-headroom for MCP/proxy setup." -ForegroundColor Cyan
+        return
+    }
+
+    $script:pythonCmd = Get-PythonCommand
+    if (-not $script:pythonCmd) {
+        Write-Host "Headroom optional install skipped: uv and python/python3 not found. See DEPENDENCIES.md." -ForegroundColor Yellow
+        return
+    }
+
+    & $script:pythonCmd -m pip --version *> $null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Headroom optional install skipped: pip is not available for $script:pythonCmd. See DEPENDENCIES.md." -ForegroundColor Yellow
+        return
+    }
+
+    if (-not (Confirm-OptionalInstall "Headroom CLI (python package headroom-ai[all])")) {
+        Write-Host "Skipped optional accelerator: Headroom" -ForegroundColor Yellow
+        return
+    }
+
+    if ($optionalInstallDryRun) {
+        Write-Host "DRY RUN: would run '$script:pythonCmd -m pip install --user `"headroom-ai[all]`"'" -ForegroundColor Cyan
+        return
+    }
+
+    & $script:pythonCmd -m pip install --user "headroom-ai[all]"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Headroom optional install failed. Continue with uncompressed context fallback." -ForegroundColor Yellow
+        return
+    }
+    Write-Host "Headroom CLI installed. Add the Python user scripts directory to PATH if needed, then run /ak-headroom for MCP/proxy setup." -ForegroundColor Cyan
+}
+
 Update-OptionalAcceleratorStatus
 if ($InstallOptional) {
-    Write-Host "Optional accelerator install requested. Supported: Graphify and Caveman. CodeGraph, Sentry, and Headroom remain manual environment/tool installs." -ForegroundColor Cyan
+    Write-Host "Optional accelerator install requested. Supported: Graphify, Caveman, CodeGraph, Sentry CLI, and Headroom." -ForegroundColor Cyan
     Install-GraphifyOptional
     Install-CavemanOptional
+    Install-CodeGraphOptional
+    Install-SentryOptional
+    Install-HeadroomOptional
     Update-OptionalAcceleratorStatus
 }
 
@@ -211,26 +363,8 @@ if ($detectedSkillNames.Count -gt 0) {
     Write-Host "Detected agent skills: $($detectedSkillNames -join ', ')" -ForegroundColor Cyan
 }
 Write-Host $cavemanStatus -ForegroundColor Cyan
-
-# Detect the CodeGraph CLI (read-only -- checks PATH only, never installs anything).
-$codegraphStatus = "CodeGraph: not found on PATH -- /grok and /audit-arch fall back to graphify/Understand-Anything/manual scan."
-if (Get-Command codegraph -ErrorAction SilentlyContinue) {
-    $codegraphStatus = "CodeGraph: detected on PATH -- /grok and /audit-arch can delegate to it for call-graph/blast-radius queries."
-}
 Write-Host $codegraphStatus -ForegroundColor Cyan
-
-# Detect Sentry CLI (read-only -- checks PATH only, never installs anything).
-$sentryStatus = "Sentry: not found -- /diagnose falls back to manual reproduction script or log-tracing."
-if ((Get-Command sentry -ErrorAction SilentlyContinue) -or (Get-Command sentry-cli -ErrorAction SilentlyContinue)) {
-    $sentryStatus = "Sentry: detected on PATH -- /diagnose can pull telemetry and crash traces directly using the CLI or REST API."
-}
 Write-Host $sentryStatus -ForegroundColor Cyan
-
-# Detect Headroom CLI (read-only -- checks PATH only, never installs anything).
-$headroomStatus = "Headroom: not found on PATH -- /ak-headroom and Cache Optimization fall back to uncompressed context."
-if (Get-Command headroom -ErrorAction SilentlyContinue) {
-    $headroomStatus = "Headroom: detected on PATH -- /ak-headroom and Cache Optimization can delegate to it for reversible compression."
-}
 Write-Host $headroomStatus -ForegroundColor Cyan
 
 # Generate the portable rule files from the single canonical templates/RULESET.md.

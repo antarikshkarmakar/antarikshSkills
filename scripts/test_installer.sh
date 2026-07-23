@@ -261,7 +261,37 @@ cat > "$TMP_OPTIONAL_BIN/graphify" <<'EOF'
 #!/bin/sh
 exit 1
 EOF
-chmod +x "$TMP_OPTIONAL_BIN/python3" "$TMP_OPTIONAL_BIN/claude" "$TMP_OPTIONAL_BIN/graphify"
+cat > "$TMP_OPTIONAL_BIN/codegraph" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
+cat > "$TMP_OPTIONAL_BIN/sentry" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
+cat > "$TMP_OPTIONAL_BIN/sentry-cli" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
+cat > "$TMP_OPTIONAL_BIN/headroom" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
+cat > "$TMP_OPTIONAL_BIN/uv" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
+cat > "$TMP_OPTIONAL_BIN/npm" <<'EOF'
+#!/bin/sh
+if [ "$1" = "--version" ]; then
+    echo "0.0.0"
+    exit 0
+fi
+exit 0
+EOF
+chmod +x "$TMP_OPTIONAL_BIN/python3" "$TMP_OPTIONAL_BIN/claude" "$TMP_OPTIONAL_BIN/graphify" \
+    "$TMP_OPTIONAL_BIN/codegraph" "$TMP_OPTIONAL_BIN/sentry" "$TMP_OPTIONAL_BIN/sentry-cli" \
+    "$TMP_OPTIONAL_BIN/headroom" "$TMP_OPTIONAL_BIN/uv" "$TMP_OPTIONAL_BIN/npm"
 
 optional_output=$(
     cd "$ROOT_DIR" && \
@@ -282,6 +312,18 @@ if ! echo "$optional_output" | grep -q "DRY RUN: would run 'python3 -m pip insta
 fi
 if ! echo "$optional_output" | grep -q "DRY RUN: would run 'claude plugin marketplace add JuliusBrussee/caveman'"; then
     echo "Scenario 5 FAIL: Caveman optional plugin install command was not selected"
+    exit 1
+fi
+if ! echo "$optional_output" | grep -q "DRY RUN: would run 'npm install -g @colbymchenry/codegraph' then 'codegraph install'"; then
+    echo "Scenario 5 FAIL: CodeGraph optional install command was not selected"
+    exit 1
+fi
+if ! echo "$optional_output" | grep -q "DRY RUN: would run 'npm install -g sentry'"; then
+    echo "Scenario 5 FAIL: Sentry CLI optional install command was not selected"
+    exit 1
+fi
+if ! echo "$optional_output" | grep -q "DRY RUN: would run 'python3 -m pip install --user \"headroom-ai\[all\]\"'"; then
+    echo "Scenario 5 FAIL: Headroom optional install command was not selected"
     exit 1
 fi
 

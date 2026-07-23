@@ -253,6 +253,12 @@ try {
     $fakePython = Join-Path $tmpOptionalBin "python.cmd"
     $fakeClaude = Join-Path $tmpOptionalBin "claude.cmd"
     $fakeGraphify = Join-Path $tmpOptionalBin "graphify.cmd"
+    $fakeCodeGraph = Join-Path $tmpOptionalBin "codegraph.cmd"
+    $fakeSentry = Join-Path $tmpOptionalBin "sentry.cmd"
+    $fakeSentryCli = Join-Path $tmpOptionalBin "sentry-cli.cmd"
+    $fakeHeadroom = Join-Path $tmpOptionalBin "headroom.cmd"
+    $fakeUv = Join-Path $tmpOptionalBin "uv.cmd"
+    $fakeNpm = Join-Path $tmpOptionalBin "npm.cmd"
     Set-Content -Path $fakePython -Value @"
 @echo off
 if "%1"=="-m" if "%2"=="graphify" exit /b 1
@@ -270,6 +276,34 @@ exit /b 0
     Set-Content -Path $fakeGraphify -Value @"
 @echo off
 exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeCodeGraph -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeSentry -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeSentryCli -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeHeadroom -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeUv -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeNpm -Value @"
+@echo off
+if "%1"=="--version" (
+  echo 0.0.0
+  exit /b 0
+)
+exit /b 0
 "@ -NoNewline
 
     $oldPath = $env:PATH
@@ -291,6 +325,15 @@ exit /b 1
         }
         if ($optionalOutput -notmatch "DRY RUN: would run 'claude plugin marketplace add JuliusBrussee/caveman'") {
             throw "Scenario 5 FAIL: Caveman optional plugin install command was not selected"
+        }
+        if ($optionalOutput -notmatch "DRY RUN: would run 'npm install -g @colbymchenry/codegraph' then 'codegraph install'") {
+            throw "Scenario 5 FAIL: CodeGraph optional install command was not selected"
+        }
+        if ($optionalOutput -notmatch "DRY RUN: would run 'npm install -g sentry'") {
+            throw "Scenario 5 FAIL: Sentry CLI optional install command was not selected"
+        }
+        if ($optionalOutput -notmatch "DRY RUN: would run 'python -m pip install --user `"headroom-ai\[all\]`"'") {
+            throw "Scenario 5 FAIL: Headroom optional install command was not selected"
         }
     } finally {
         $env:PATH = $oldPath

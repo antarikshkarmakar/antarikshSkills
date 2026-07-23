@@ -281,6 +281,10 @@ cat > "$TMP_OPTIONAL_BIN/uv" <<'EOF'
 #!/bin/sh
 exit 1
 EOF
+cat > "$TMP_OPTIONAL_BIN/pipx" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
 cat > "$TMP_OPTIONAL_BIN/npm" <<'EOF'
 #!/bin/sh
 if [ "$1" = "--version" ]; then
@@ -291,12 +295,13 @@ exit 0
 EOF
 chmod +x "$TMP_OPTIONAL_BIN/python3" "$TMP_OPTIONAL_BIN/claude" "$TMP_OPTIONAL_BIN/graphify" \
     "$TMP_OPTIONAL_BIN/codegraph" "$TMP_OPTIONAL_BIN/sentry" "$TMP_OPTIONAL_BIN/sentry-cli" \
-    "$TMP_OPTIONAL_BIN/headroom" "$TMP_OPTIONAL_BIN/uv" "$TMP_OPTIONAL_BIN/npm"
+    "$TMP_OPTIONAL_BIN/headroom" "$TMP_OPTIONAL_BIN/uv" "$TMP_OPTIONAL_BIN/pipx" "$TMP_OPTIONAL_BIN/npm"
 
 optional_output=$(
     cd "$ROOT_DIR" && \
     HOME="$TMP_OPTIONAL_HOME" \
     PATH="$TMP_OPTIONAL_BIN:$PATH" \
+    VIRTUAL_ENV="$TMP_OPTIONAL_HOME/venv" \
     ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN=1 \
     bash install.sh --target "$TMP_OPTIONAL" --rules-only --install-optional
 )
@@ -306,7 +311,7 @@ if ! echo "$optional_output" | grep -q "Optional accelerator install requested";
     echo "Scenario 5 FAIL: Optional install branch did not run"
     exit 1
 fi
-if ! echo "$optional_output" | grep -q "DRY RUN: would run 'python3 -m pip install --user graphifyy' then 'graphify install'"; then
+if ! echo "$optional_output" | grep -q "DRY RUN: would run 'python3 -m pip install graphifyy' then 'graphify install'"; then
     echo "Scenario 5 FAIL: Graphify optional install command was not selected"
     exit 1
 fi
@@ -322,7 +327,7 @@ if ! echo "$optional_output" | grep -q "DRY RUN: would run 'npm install -g sentr
     echo "Scenario 5 FAIL: Sentry CLI optional install command was not selected"
     exit 1
 fi
-if ! echo "$optional_output" | grep -q "DRY RUN: would run 'python3 -m pip install --user \"headroom-ai\[all\]\"'"; then
+if ! echo "$optional_output" | grep -q "DRY RUN: would run 'python3 -m pip install \"headroom-ai\[all\]\"'"; then
     echo "Scenario 5 FAIL: Headroom optional install command was not selected"
     exit 1
 fi

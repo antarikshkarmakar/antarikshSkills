@@ -64,6 +64,28 @@ function Test-CommandRuns {
     return $LASTEXITCODE -eq 0
 }
 
+function Test-PythonVirtualEnv {
+    if ($env:VIRTUAL_ENV) {
+        return $true
+    }
+    if (-not $script:pythonCmd) {
+        return $false
+    }
+    & $script:pythonCmd -c "import sys; raise SystemExit(0 if sys.prefix != getattr(sys, 'base_prefix', sys.prefix) else 1)" *> $null
+    return $LASTEXITCODE -eq 0
+}
+
+function Get-PythonScriptsPath {
+    if (-not $script:pythonCmd) {
+        return $null
+    }
+    $scriptsPath = (& $script:pythonCmd -c "import sysconfig; print(sysconfig.get_path('scripts') or '')" 2>$null | Select-Object -First 1)
+    if ($scriptsPath) {
+        return $scriptsPath
+    }
+    return $null
+}
+
 function Get-GraphifyCommand {
     $cmd = Get-Command graphify -ErrorAction SilentlyContinue
     if ($cmd) {
@@ -73,27 +95,30 @@ function Get-GraphifyCommand {
         }
     }
 
-    if (-not $script:pythonCmd) {
-        $script:pythonCmd = Get-PythonCommand
-    }
-    if (-not $script:pythonCmd) {
-        return $null
+    $candidateRoots = @((Join-Path $HOME ".local/bin"))
+    if ($script:pythonCmd) {
+        $scriptsPath = Get-PythonScriptsPath
+        if ($scriptsPath) {
+            $candidateRoots += $scriptsPath
+        }
+        $userBase = (& $script:pythonCmd -m site --user-base 2>$null | Select-Object -First 1)
+        if ($userBase) {
+            $candidateRoots += (Join-Path $userBase "Scripts")
+            $candidateRoots += (Join-Path $userBase "bin")
+        }
     }
 
-    $userBase = (& $script:pythonCmd -m site --user-base 2>$null | Select-Object -First 1)
-    if (-not $userBase) {
-        return $null
-    }
-
-    foreach ($candidate in @(
-        (Join-Path $userBase "Scripts/graphify.exe"),
-        (Join-Path $userBase "Scripts/graphify.cmd"),
-        (Join-Path $userBase "bin/graphify")
-    )) {
-        if (Test-Path $candidate) {
-            & $candidate --help *> $null
-            if ($LASTEXITCODE -eq 0) {
-                return $candidate
+    foreach ($root in ($candidateRoots | Where-Object { $_ } | Select-Object -Unique)) {
+        foreach ($candidate in @(
+            (Join-Path $root "graphify.exe"),
+            (Join-Path $root "graphify.cmd"),
+            (Join-Path $root "graphify")
+        )) {
+            if (Test-Path $candidate) {
+                & $candidate --help *> $null
+                if ($LASTEXITCODE -eq 0) {
+                    return $candidate
+                }
             }
         }
     }
@@ -167,32 +192,69 @@ function Confirm-OptionalInstall {
 function Install-GraphifyOptional {
     if ($script:graphifyInstalled) { return }
 
-    $script:pythonCmd = Get-PythonCommand
-    if (-not $script:pythonCmd) {
-        Write-Host "Graphify optional install skipped: python/python3 not found. See DEPENDENCIES.md." -ForegroundColor Yellow
-        return
-    }
+    if (Test-CommandRuns "uv" @("--version")) {
+        if (-not (Confirm-OptionalInstall "Graphify (uv tool package graphifyy + graphify install)")) {
+            Write-Host "Skipped optional accelerator: Graphify" -ForegroundColor Yellow
+            return
+        }
+        if ($optionalInstallDryRun) {
+            Write-Host "DRY RUN: would run 'uv tool install graphifyy' then 'graphify install'" -ForegroundColor Cyan
+            return
+        }
+        & uv tool install graphifyy
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Graphify optional install failed. Continue with manual /ak-grok fallback." -ForegroundColor Yellow
+            return
+        }
+    } elseif (Test-CommandRuns "pipx" @("--version")) {
+        if (-not (Confirm-OptionalInstall "Graphify (pipx package graphifyy + graphify install)")) {
+            Write-Host "Skipped optional accelerator: Graphify" -ForegroundColor Yellow
+            return
+        }
+        if ($optionalInstallDryRun) {
+            Write-Host "DRY RUN: would run 'pipx install graphifyy' then 'graphify install'" -ForegroundColor Cyan
+            return
+        }
+        & pipx install graphifyy
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Graphify optional install failed. Continue with manual /ak-grok fallback." -ForegroundColor Yellow
+            return
+        }
+    } else {
+        $script:pythonCmd = Get-PythonCommand
+        if (-not $script:pythonCmd) {
+            Write-Host "Graphify optional install skipped: uv, pipx, and python/python3 not found. See DEPENDENCIES.md." -ForegroundColor Yellow
+            return
+        }
 
-    & $script:pythonCmd -m pip --version *> $null
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Graphify optional install skipped: pip is not available for $script:pythonCmd. See DEPENDENCIES.md." -ForegroundColor Yellow
-        return
-    }
+        & $script:pythonCmd -m pip --version *> $null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Graphify optional install skipped: pip is not available for $script:pythonCmd. See DEPENDENCIES.md." -ForegroundColor Yellow
+            return
+        }
 
-    if (-not (Confirm-OptionalInstall "Graphify (python package graphifyy)")) {
-        Write-Host "Skipped optional accelerator: Graphify" -ForegroundColor Yellow
-        return
-    }
+        if (-not (Confirm-OptionalInstall "Graphify (python package graphifyy)")) {
+            Write-Host "Skipped optional accelerator: Graphify" -ForegroundColor Yellow
+            return
+        }
 
-    if ($optionalInstallDryRun) {
-        Write-Host "DRY RUN: would run '$script:pythonCmd -m pip install --user graphifyy' then 'graphify install'" -ForegroundColor Cyan
-        return
-    }
-
-    & $script:pythonCmd -m pip install --user graphifyy
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Graphify optional install failed. Continue with manual /ak-grok fallback." -ForegroundColor Yellow
-        return
+        if (Test-PythonVirtualEnv) {
+            if ($optionalInstallDryRun) {
+                Write-Host "DRY RUN: would run '$script:pythonCmd -m pip install graphifyy' then 'graphify install'" -ForegroundColor Cyan
+                return
+            }
+            & $script:pythonCmd -m pip install graphifyy
+        } else {
+            if ($optionalInstallDryRun) {
+                Write-Host "DRY RUN: would run '$script:pythonCmd -m pip install --user graphifyy' then 'graphify install'" -ForegroundColor Cyan
+                return
+            }
+            & $script:pythonCmd -m pip install --user graphifyy
+        }
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Graphify optional install failed. Continue with manual /ak-grok fallback." -ForegroundColor Yellow
+            return
+        }
     }
 
     $graphifyCommand = Get-GraphifyCommand
@@ -202,7 +264,7 @@ function Install-GraphifyOptional {
             Write-Host "Graphify package installed, but skill registration failed. Run 'graphify install' after review." -ForegroundColor Yellow
         }
     } else {
-        Write-Host "Graphify package installed, but the graphify CLI is not on PATH. Add the Python user scripts directory to PATH, then run 'graphify install'." -ForegroundColor Yellow
+        Write-Host "Graphify package installed, but the graphify CLI is not on PATH. Run 'uv tool update-shell' or 'pipx ensurepath' if applicable, then run 'graphify install'." -ForegroundColor Yellow
     }
 }
 
@@ -317,9 +379,29 @@ function Install-HeadroomOptional {
         return
     }
 
+    if (Test-CommandRuns "pipx" @("--version")) {
+        if (-not (Confirm-OptionalInstall "Headroom CLI (pipx package headroom-ai[all])")) {
+            Write-Host "Skipped optional accelerator: Headroom" -ForegroundColor Yellow
+            return
+        }
+
+        if ($optionalInstallDryRun) {
+            Write-Host "DRY RUN: would run 'pipx install `"headroom-ai[all]`"'" -ForegroundColor Cyan
+            return
+        }
+
+        & pipx install "headroom-ai[all]"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Headroom optional install failed. Continue with uncompressed context fallback." -ForegroundColor Yellow
+            return
+        }
+        Write-Host "Headroom CLI installed. Run 'pipx ensurepath' if headroom is not on PATH, then /ak-headroom for MCP/proxy setup." -ForegroundColor Cyan
+        return
+    }
+
     $script:pythonCmd = Get-PythonCommand
     if (-not $script:pythonCmd) {
-        Write-Host "Headroom optional install skipped: uv and python/python3 not found. See DEPENDENCIES.md." -ForegroundColor Yellow
+        Write-Host "Headroom optional install skipped: uv, pipx, and python/python3 not found. See DEPENDENCIES.md." -ForegroundColor Yellow
         return
     }
 
@@ -335,11 +417,19 @@ function Install-HeadroomOptional {
     }
 
     if ($optionalInstallDryRun) {
-        Write-Host "DRY RUN: would run '$script:pythonCmd -m pip install --user `"headroom-ai[all]`"'" -ForegroundColor Cyan
+        if (Test-PythonVirtualEnv) {
+            Write-Host "DRY RUN: would run '$script:pythonCmd -m pip install `"headroom-ai[all]`"'" -ForegroundColor Cyan
+        } else {
+            Write-Host "DRY RUN: would run '$script:pythonCmd -m pip install --user `"headroom-ai[all]`"'" -ForegroundColor Cyan
+        }
         return
     }
 
-    & $script:pythonCmd -m pip install --user "headroom-ai[all]"
+    if (Test-PythonVirtualEnv) {
+        & $script:pythonCmd -m pip install "headroom-ai[all]"
+    } else {
+        & $script:pythonCmd -m pip install --user "headroom-ai[all]"
+    }
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Headroom optional install failed. Continue with uncompressed context fallback." -ForegroundColor Yellow
         return

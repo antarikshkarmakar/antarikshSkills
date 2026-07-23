@@ -1,6 +1,6 @@
 {
   "name": "antariksh-skills",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Unified developer workflow framework with planning, TDD, diagnosis, security checks, adversarial review, and memory protocols.",
   "author": {
     "name": "Antariksh",

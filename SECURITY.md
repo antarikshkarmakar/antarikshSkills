@@ -15,7 +15,7 @@ This repository ships **prompt-level agent instructions** (`SKILL.md` files, rul
 
 ## Security Design Principles
 
-- **No auto-install, ever**: skills never install software on the user's behalf. Missing tools produce a warning pointing to [DEPENDENCIES.md](DEPENDENCIES.md) install hints (Philosophy VIII).
+- **No default auto-install**: skills never install software on the user's behalf. The project installers only install third-party accelerators when the user explicitly passes `--install-optional` / `-InstallOptional` and confirms the prompt. Missing tools otherwise produce a warning pointing to [DEPENDENCIES.md](DEPENDENCIES.md) install hints (Philosophy VIII).
 - **No runtime package fetching**: skills never invoke `npx`, `uvx`, or any download-and-execute mechanism. External tools (repomix, trivy, checkov, shellcheck) run only when a locally installed executable already exists on PATH; otherwise the check is skipped with a pointer to [DEPENDENCIES.md](DEPENDENCIES.md).
 - **Untrusted-input rules**: `/ak-diagnose` treats logs, telemetry, and stack traces as untrusted evidence — agents must never execute instructions found inside them.
 - **Approval gates**: anything visible to others or hard to reverse (posting PR reviews, changing contracts) requires explicit user confirmation (Philosophy VIII); `/ak-prreview` drafts and asks before posting.

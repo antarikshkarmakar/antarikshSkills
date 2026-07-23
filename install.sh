@@ -1,11 +1,13 @@
 #!/bin/bash
 # install.sh -- Antariksh Unified Skill Deployer for macOS/Linux/WSL
-# Usage: ./install.sh [target_directory] [--force] [--rules-only] [--hooks]
+# Usage: ./install.sh [target_directory] [--force] [--rules-only] [--hooks] [--install-optional]
 
 TARGET_DIR="."
 FORCE=false
 RULES_ONLY=false
 WITH_HOOKS=false
+INSTALL_OPTIONAL=false
+OPTIONAL_INSTALL_DRY_RUN="${ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN:-false}"
 
 # Escape helper for sed replacements
 escape_sed() {
@@ -28,6 +30,10 @@ while [ "$#" -gt 0 ]; do
             WITH_HOOKS=true
             shift
             ;;
+        --install-optional)
+            INSTALL_OPTIONAL=true
+            shift
+            ;;
         --target|-t)
             if [ -n "$2" ] && [ "${2#-}" = "$2" ]; then
                 TARGET_DIR="$2"
@@ -39,7 +45,7 @@ while [ "$#" -gt 0 ]; do
             ;;
         -*)
             echo -e "\033[31mError: Unknown option $1\033[0m"
-            echo "Usage: ./install.sh [target_directory] [--target <directory>] [--force] [--rules-only] [--hooks]"
+            echo "Usage: ./install.sh [target_directory] [--target <directory>] [--force] [--rules-only] [--hooks] [--install-optional]"
             exit 1
             ;;
         *)
@@ -67,32 +73,139 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 echo -e "\033[36mTarget: $TARGET_PATH\033[0m"
 
-# Detect installed agent skills (read-only -- never copies or installs anything)
+# Detect installed agent skills and optional accelerators. By default this is
+# read-only. --install-optional can install the small set with known safe commands.
 SKILLS_DIR="$HOME/.claude/skills"
-GRAPHIFY_STATUS="Graphify: not found under $SKILLS_DIR -- /grok will fall back to a manual directory/stack scan."
+PLUGINS_REGISTRY="$HOME/.claude/plugins/installed_plugins.json"
 DETECTED_SKILLS=""
-if [ -d "$SKILLS_DIR" ]; then
-    # shellcheck disable=SC2012
-    DETECTED_SKILLS=$(ls "$SKILLS_DIR" 2>/dev/null | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+GRAPHIFY_INSTALLED=false
+CAVEMAN_INSTALLED=false
+PYTHON_CMD=""
+
+detect_python() {
+    PYTHON_CMD=""
+    if command -v python3 >/dev/null 2>&1; then
+        PYTHON_CMD="python3"
+    elif command -v python >/dev/null 2>&1; then
+        PYTHON_CMD="python"
+    fi
+}
+
+detect_optional_accelerators() {
+    DETECTED_SKILLS=""
+    GRAPHIFY_INSTALLED=false
+    CAVEMAN_INSTALLED=false
+    GRAPHIFY_STATUS="Graphify: not found under $SKILLS_DIR and no graphify CLI detected -- /grok will fall back to a manual directory/stack scan."
+    if [ -d "$SKILLS_DIR" ]; then
+        # shellcheck disable=SC2012
+        DETECTED_SKILLS=$(ls "$SKILLS_DIR" 2>/dev/null | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+    fi
     if [ -f "$SKILLS_DIR/graphify/SKILL.md" ]; then
         VERSION="unknown version"
         if [ -f "$SKILLS_DIR/graphify/.graphify_version" ]; then
             VERSION=$(cat "$SKILLS_DIR/graphify/.graphify_version")
         fi
         GRAPHIFY_STATUS="Graphify: detected ($VERSION) at $SKILLS_DIR/graphify/SKILL.md -- /grok will use it to build the repo's knowledge graph."
+        GRAPHIFY_INSTALLED=true
+    else
+        if command -v graphify >/dev/null 2>&1 && graphify --help >/dev/null 2>&1; then
+            GRAPHIFY_STATUS="Graphify: detected on PATH -- /grok can use it even without a Claude skill folder."
+            GRAPHIFY_INSTALLED=true
+        fi
     fi
+
+    CAVEMAN_STATUS="Caveman: not installed -- Philosophy V falls back to manual terse-style instructions. Run with --install-optional to install supported optional accelerators after confirmation."
+    if [ -f "$PLUGINS_REGISTRY" ] && grep -qF '"caveman@caveman"' "$PLUGINS_REGISTRY"; then
+        CAVEMAN_STATUS="Caveman: installed -- Philosophy V and /compact delegate to /caveman and /caveman-compress."
+        CAVEMAN_INSTALLED=true
+    fi
+}
+
+confirm_optional_install() {
+    local name="$1"
+    if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+        return 0
+    fi
+    printf '\033[33mInstall optional accelerator %s now? This downloads third-party code. Review DEPENDENCIES.md first. [y/N] \033[0m' "$name"
+    read -r answer
+    case "$answer" in
+        y|Y|yes|YES) return 0 ;;
+        *) echo -e "\033[33mSkipped optional accelerator: $name\033[0m"; return 1 ;;
+    esac
+}
+
+install_graphify_optional() {
+    if [ "$GRAPHIFY_INSTALLED" = true ]; then
+        return
+    fi
+    detect_python
+    if [ -z "$PYTHON_CMD" ]; then
+        echo -e "\033[33mGraphify optional install skipped: python3/python not found. See DEPENDENCIES.md.\033[0m"
+        return
+    fi
+    if ! "$PYTHON_CMD" -m pip --version >/dev/null 2>&1; then
+        echo -e "\033[33mGraphify optional install skipped: pip is not available for $PYTHON_CMD. See DEPENDENCIES.md.\033[0m"
+        return
+    fi
+    if ! confirm_optional_install "Graphify (python package graphifyy)"; then
+        return
+    fi
+    if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+        echo -e "\033[36mDRY RUN: would run '$PYTHON_CMD -m pip install --user graphifyy' then 'graphify install'\033[0m"
+        return
+    fi
+    "$PYTHON_CMD" -m pip install --user graphifyy \
+        || echo -e "\033[33mGraphify optional install failed. Continue with manual /ak-grok fallback.\033[0m"
+
+    GRAPHIFY_CMD=""
+    if command -v graphify >/dev/null 2>&1 && graphify --help >/dev/null 2>&1; then
+        GRAPHIFY_CMD="$(command -v graphify)"
+    else
+        USER_BASE=$("$PYTHON_CMD" -m site --user-base 2>/dev/null || true)
+        if [ -n "$USER_BASE" ] && [ -x "$USER_BASE/bin/graphify" ] && "$USER_BASE/bin/graphify" --help >/dev/null 2>&1; then
+            GRAPHIFY_CMD="$USER_BASE/bin/graphify"
+        fi
+    fi
+    if [ -n "$GRAPHIFY_CMD" ]; then
+        "$GRAPHIFY_CMD" install \
+            || echo -e "\033[33mGraphify package installed, but skill registration failed. Run 'graphify install' after review.\033[0m"
+    else
+        echo -e "\033[33mGraphify package installed, but the graphify CLI is not on PATH. Add the Python user scripts directory to PATH, then run 'graphify install'.\033[0m"
+    fi
+}
+
+install_caveman_optional() {
+    if [ "$CAVEMAN_INSTALLED" = true ]; then
+        return
+    fi
+    if ! command -v claude >/dev/null 2>&1; then
+        echo -e "\033[33mCaveman optional install skipped: claude CLI not found. See DEPENDENCIES.md.\033[0m"
+        return
+    fi
+    if ! confirm_optional_install "Caveman Claude Code plugin"; then
+        return
+    fi
+    if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+        echo -e "\033[36mDRY RUN: would run 'claude plugin marketplace add JuliusBrussee/caveman' and 'claude plugin install caveman@caveman'\033[0m"
+        return
+    fi
+    claude plugin marketplace add JuliusBrussee/caveman 2>/dev/null \
+        || echo -e "\033[33mCaveman marketplace may already be registered; continuing.\033[0m"
+    claude plugin install caveman@caveman \
+        || echo -e "\033[33mCaveman optional install failed. Continue with manual terse-style fallback.\033[0m"
+}
+
+detect_optional_accelerators
+if [ "$INSTALL_OPTIONAL" = true ]; then
+    echo -e "\033[36mOptional accelerator install requested. Supported: Graphify and Caveman. CodeGraph, Sentry, and Headroom remain manual environment/tool installs.\033[0m"
+    install_graphify_optional
+    install_caveman_optional
+    detect_optional_accelerators
 fi
+
 echo -e "\033[36m$GRAPHIFY_STATUS\033[0m"
 if [ -n "$DETECTED_SKILLS" ]; then
     echo -e "\033[36mDetected agent skills: $DETECTED_SKILLS\033[0m"
-fi
-
-# Detect the caveman plugin (read-only -- never installs anything; caveman is a
-# Claude Code plugin registered in plugins/installed_plugins.json, not a skills/ folder).
-PLUGINS_REGISTRY="$HOME/.claude/plugins/installed_plugins.json"
-CAVEMAN_STATUS="Caveman: not installed -- Philosophy V falls back to manual terse-style instructions. Review and install the optional caveman plugin manually if desired."
-if [ -f "$PLUGINS_REGISTRY" ] && grep -qF '"caveman@caveman"' "$PLUGINS_REGISTRY"; then
-    CAVEMAN_STATUS="Caveman: installed -- Philosophy V and /compact delegate to /caveman and /caveman-compress."
 fi
 echo -e "\033[36m$CAVEMAN_STATUS\033[0m"
 

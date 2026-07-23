@@ -11,11 +11,17 @@ echo "=== Running Installer Tests (Bash) ==="
 TMP_FRESH=$(mktemp -d -t fresh_repo_XXXXXX)
 TMP_GIT=$(mktemp -d -t git_repo_XXXXXX)
 TMP_HOOKS=$(mktemp -d -t hooks_repo_XXXXXX)
+TMP_OPTIONAL=$(mktemp -d -t optional_repo_XXXXXX)
+TMP_OPTIONAL_HOME=$(mktemp -d -t optional_home_XXXXXX)
+TMP_OPTIONAL_BIN=$(mktemp -d -t optional_bin_XXXXXX)
 
 cleanup() {
     rm -rf "$TMP_FRESH"
     rm -rf "$TMP_GIT"
     rm -rf "$TMP_HOOKS"
+    rm -rf "$TMP_OPTIONAL"
+    rm -rf "$TMP_OPTIONAL_HOME"
+    rm -rf "$TMP_OPTIONAL_BIN"
     echo "Temporary test directories cleaned up."
 }
 trap cleanup EXIT
@@ -232,4 +238,52 @@ else
 fi
 
 echo "Scenario 4 Passed."
+
+# Scenario 5: Optional accelerator install branch is opt-in and dry-run testable
+echo "Running Scenario 5: Optional accelerator install dry-run..."
+cat > "$TMP_OPTIONAL_BIN/python3" <<'EOF'
+#!/bin/sh
+if [ "$1" = "-m" ] && [ "$2" = "graphify" ]; then
+    exit 1
+fi
+if [ "$1" = "-m" ] && [ "$2" = "pip" ] && [ "$3" = "--version" ]; then
+    echo "pip 0.0"
+    exit 0
+fi
+exit 1
+EOF
+cat > "$TMP_OPTIONAL_BIN/claude" <<'EOF'
+#!/bin/sh
+echo "fake claude"
+exit 0
+EOF
+cat > "$TMP_OPTIONAL_BIN/graphify" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
+chmod +x "$TMP_OPTIONAL_BIN/python3" "$TMP_OPTIONAL_BIN/claude" "$TMP_OPTIONAL_BIN/graphify"
+
+optional_output=$(
+    cd "$ROOT_DIR" && \
+    HOME="$TMP_OPTIONAL_HOME" \
+    PATH="$TMP_OPTIONAL_BIN:$PATH" \
+    ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN=1 \
+    bash install.sh --target "$TMP_OPTIONAL" --rules-only --install-optional
+)
+echo "$optional_output"
+
+if ! echo "$optional_output" | grep -q "Optional accelerator install requested"; then
+    echo "Scenario 5 FAIL: Optional install branch did not run"
+    exit 1
+fi
+if ! echo "$optional_output" | grep -q "DRY RUN: would run 'python3 -m pip install --user graphifyy' then 'graphify install'"; then
+    echo "Scenario 5 FAIL: Graphify optional install command was not selected"
+    exit 1
+fi
+if ! echo "$optional_output" | grep -q "DRY RUN: would run 'claude plugin marketplace add JuliusBrussee/caveman'"; then
+    echo "Scenario 5 FAIL: Caveman optional plugin install command was not selected"
+    exit 1
+fi
+
+echo "Scenario 5 Passed."
 echo "=== ALL BASH INSTALLER TESTS PASSED SUCCESSFULLY ==="

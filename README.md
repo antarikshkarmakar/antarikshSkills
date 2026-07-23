@@ -102,14 +102,14 @@ Running the installer detects locally installed agent skills (see below), genera
 cd c:\GitHub\antarikshSkills
 .\install.ps1 -TargetDir C:\path\to\your\project
 ```
-*Add `-Force` to overwrite existing configuration files. Add `-RulesOnly` to only (re)generate the 6 rule files, skipping memory scaffolding — use this to refresh an existing project's rules after `templates/RULESET.md` changes, or to regenerate this repo's own root rule files after editing the template. Add `-Hooks` to also install the opt-in Claude Code hooks (see below).*
+*Add `-Force` to overwrite existing configuration files. Add `-RulesOnly` to only (re)generate the 6 rule files, skipping memory scaffolding — use this to refresh an existing project's rules after `templates/RULESET.md` changes, or to regenerate this repo's own root rule files after editing the template. Add `-Hooks` to also install the opt-in Claude Code hooks (see below). Add `-InstallOptional` to prompt for supported optional accelerator installs when missing.*
 
 ### On macOS / Linux / WSL (Bash)
 ```bash
 cd /path/to/antarikshSkills
 ./install.sh /path/to/your/project
 ```
-*Add `--force` or `-f` to overwrite. Add `--rules-only` or `-r` for the rules-only refresh described above. Add `--hooks` or `-k` for the opt-in Claude Code hooks (see below).*
+*Add `--force` or `-f` to overwrite. Add `--rules-only` or `-r` for the rules-only refresh described above. Add `--hooks` or `-k` for the opt-in Claude Code hooks (see below). Add `--install-optional` to prompt for supported optional accelerator installs when missing.*
 
 ---
 
@@ -298,16 +298,15 @@ GitHub Copilot does not support general prompt marketplaces.
 
 ## Agent Skill Detection (Read-Only)
 
-The installer never installs or copies skills into your project — it only checks whether they're already available on the machine and records what it found in `MEMORY.md` under **Context Agent Needs**, so every agent reading the project's rules knows what's usable without re-probing the filesystem each session.
+The installer always copies this framework's own skills into the target project under `.agents/skills/`. Third-party accelerators are different: by default the installer only detects whether they're already available on the machine and records what it found in `memory/local_env.md`, so every agent reading the project's rules knows what's usable without re-probing the filesystem each session.
 
 Specifically, it checks `~/.claude/skills/` (`%USERPROFILE%\.claude\skills\` on Windows) for:
-- **graphify**: if found, `/ak-grok` uses it to build a real knowledge graph of the repo (`graphify-out/`). If not found, `/ak-grok` checks for Understand-Anything next, then falls back to a manual directory/stack scan. This makes graphify-backed repo comprehension work the same way in Claude Code, Cursor, Codex CLI, or Ollama CLI — any tool with terminal/file access can read graphify's `SKILL.md` directly from the detected path and follow its instructions; no Claude-specific "Skill tool" is required.
+- **graphify**: if found as a Claude skill folder or `graphify` CLI, `/ak-grok` uses it to build a real knowledge graph of the repo (`graphify-out/`). If not found, `/ak-grok` checks for Understand-Anything next, then falls back to a manual directory/stack scan. Run `install.ps1 -InstallOptional` or `install.sh --install-optional` to prompt for installing the Python package and registering the Graphify skill when it is missing.
 - Any other skill folders present, listed for visibility (e.g. `deep-research`, `claude-mem`, etc.).
 
 It also checks `~/.claude/plugins/installed_plugins.json` (a different mechanism -- caveman is a Claude Code *plugin*, not a skills-folder entry) for:
-- **caveman**: if installed, Philosophy V and `/ak-compact` delegate to its `/caveman` (output compression) and `/caveman-compress` (memory-file compression) commands. If not installed, the installer only records a manual-review note -- **it never prints, downloads, or executes a third-party installer automatically**, consistent with Philosophy VIII.
-- For supply-chain safety, this framework does not print or execute raw third-party installer URLs. Review optional plugin repositories manually before installing them.
-- Optional accelerators follow the same rule everywhere: detect if installed, use if available, mention manual install if missing, and never auto-fetch or auto-install.
+- **caveman**: if installed, Philosophy V and `/ak-compact` delegate to its `/caveman` (output compression) and `/caveman-compress` (memory-file compression) commands. If not installed, the default installer only records a manual-review note.
+- For supply-chain safety, this framework does not print or execute raw third-party installer URLs. `install.ps1 -InstallOptional` and `install.sh --install-optional` are explicit opt-in paths: they prompt before installing the supported optional accelerators Graphify and Caveman. CodeGraph, Sentry CLI, and Headroom stay manual because they are environment-specific tools.
 
 And it checks for the [CodeGraph](https://github.com/colbymchenry/codegraph) CLI on PATH (a third option for `/grok`'s knowledge-graph step, alongside graphify and Understand-Anything):
 - **CodeGraph**: if found, `/ak-grok` and `/ak-audit-arch` can delegate to it — beyond a structural map, it exposes real call-graph and blast-radius queries (`codegraph_explore`, `codegraph_impact`, `codegraph_callers`), useful for "what calls this" / "what breaks if I change this." If not found, both fall back the same way they already did (Understand-Anything → manual scan for `/ak-grok`; pathfinder → manual smell-scan for `/ak-audit-arch`).

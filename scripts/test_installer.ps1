@@ -11,10 +11,16 @@ $tempDir = [System.IO.Path]::GetTempPath()
 $tmpFresh = Join-Path $tempDir ("fresh_repo_" + [Guid]::NewGuid().ToString().Substring(0,8))
 $tmpGit = Join-Path $tempDir ("git_repo_" + [Guid]::NewGuid().ToString().Substring(0,8))
 $tmpHooks = Join-Path $tempDir ("hooks_repo_" + [Guid]::NewGuid().ToString().Substring(0,8))
+$tmpOptional = Join-Path $tempDir ("optional_repo_" + [Guid]::NewGuid().ToString().Substring(0,8))
+$tmpOptionalHome = Join-Path $tempDir ("optional_home_" + [Guid]::NewGuid().ToString().Substring(0,8))
+$tmpOptionalBin = Join-Path $tempDir ("optional_bin_" + [Guid]::NewGuid().ToString().Substring(0,8))
 
 if (!(Test-Path $tmpFresh)) { New-Item -ItemType Directory -Path $tmpFresh | Out-Null }
 if (!(Test-Path $tmpGit)) { New-Item -ItemType Directory -Path $tmpGit | Out-Null }
 if (!(Test-Path $tmpHooks)) { New-Item -ItemType Directory -Path $tmpHooks | Out-Null }
+if (!(Test-Path $tmpOptional)) { New-Item -ItemType Directory -Path $tmpOptional | Out-Null }
+if (!(Test-Path $tmpOptionalHome)) { New-Item -ItemType Directory -Path $tmpOptionalHome | Out-Null }
+if (!(Test-Path $tmpOptionalBin)) { New-Item -ItemType Directory -Path $tmpOptionalBin | Out-Null }
 
 $psCmd = if (Get-Command pwsh -ErrorAction SilentlyContinue) { "pwsh" } else { "powershell.exe" }
 
@@ -22,6 +28,9 @@ function Cleanup {
     if (Test-Path $tmpFresh) { Remove-Item -Path $tmpFresh -Recurse -Force -ErrorAction SilentlyContinue }
     if (Test-Path $tmpGit) { Remove-Item -Path $tmpGit -Recurse -Force -ErrorAction SilentlyContinue }
     if (Test-Path $tmpHooks) { Remove-Item -Path $tmpHooks -Recurse -Force -ErrorAction SilentlyContinue }
+    if (Test-Path $tmpOptional) { Remove-Item -Path $tmpOptional -Recurse -Force -ErrorAction SilentlyContinue }
+    if (Test-Path $tmpOptionalHome) { Remove-Item -Path $tmpOptionalHome -Recurse -Force -ErrorAction SilentlyContinue }
+    if (Test-Path $tmpOptionalBin) { Remove-Item -Path $tmpOptionalBin -Recurse -Force -ErrorAction SilentlyContinue }
     Write-Host "Temporary test directories cleaned up." -ForegroundColor Cyan
 }
 
@@ -237,6 +246,63 @@ try {
     Assert-HookCommandCount -Settings $codexSettings -EventName "Stop" -CommandFragment ".codex/hooks/stop-check.ps1" -Label "Codex Stop after rerun"
 
     Write-Host "Scenario 4 Passed." -ForegroundColor Green
+
+    # Scenario 5: Optional accelerator install branch is opt-in and dry-run testable
+    Write-Host "Running Scenario 5: Optional accelerator install dry-run..." -ForegroundColor Yellow
+
+    $fakePython = Join-Path $tmpOptionalBin "python.cmd"
+    $fakeClaude = Join-Path $tmpOptionalBin "claude.cmd"
+    $fakeGraphify = Join-Path $tmpOptionalBin "graphify.cmd"
+    Set-Content -Path $fakePython -Value @"
+@echo off
+if "%1"=="-m" if "%2"=="graphify" exit /b 1
+if "%1"=="-m" if "%2"=="pip" if "%3"=="--version" (
+  echo pip 0.0
+  exit /b 0
+)
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeClaude -Value @"
+@echo off
+echo fake claude
+exit /b 0
+"@ -NoNewline
+    Set-Content -Path $fakeGraphify -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+
+    $oldPath = $env:PATH
+    $oldUserProfile = $env:USERPROFILE
+    $oldDryRun = $env:ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN
+    try {
+        $env:PATH = "$tmpOptionalBin;$oldPath"
+        $env:USERPROFILE = $tmpOptionalHome
+        $env:ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN = "1"
+
+        $optionalOutput = & $psCmd -ExecutionPolicy Bypass -File (Join-Path $rootDir "install.ps1") -TargetDir $tmpOptional -RulesOnly -InstallOptional 2>&1 | Out-String
+        Write-Host $optionalOutput
+
+        if ($optionalOutput -notmatch "Optional accelerator install requested") {
+            throw "Scenario 5 FAIL: Optional install branch did not run"
+        }
+        if ($optionalOutput -notmatch "DRY RUN: would run 'python -m pip install --user graphifyy' then 'graphify install'") {
+            throw "Scenario 5 FAIL: Graphify optional install command was not selected"
+        }
+        if ($optionalOutput -notmatch "DRY RUN: would run 'claude plugin marketplace add JuliusBrussee/caveman'") {
+            throw "Scenario 5 FAIL: Caveman optional plugin install command was not selected"
+        }
+    } finally {
+        $env:PATH = $oldPath
+        $env:USERPROFILE = $oldUserProfile
+        if ($null -eq $oldDryRun) {
+            Remove-Item Env:\ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN -ErrorAction SilentlyContinue
+        } else {
+            $env:ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN = $oldDryRun
+        }
+    }
+
+    Write-Host "Scenario 5 Passed." -ForegroundColor Green
     Write-Host "=== ALL POWERSHELL INSTALLER TESTS PASSED SUCCESSFULLY ===" -ForegroundColor Green
 
 } finally {

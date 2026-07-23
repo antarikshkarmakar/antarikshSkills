@@ -20,11 +20,11 @@ Only re-analyze changed files.
 
 ## 2. Check for Knowledge-Graph Tools
 Priority order (pick first available):
-1. **graphify** — `SKILL.md` at `<home>/.claude/skills/graphify/` (Windows: `%USERPROFILE%`, macOS/Linux: `~`)
+1. **graphify** — `SKILL.md` at `<home>/.claude/skills/graphify/` (Windows: `%USERPROFILE%`, macOS/Linux: `~`) or a local `graphify` CLI on PATH
 2. **Understand-Anything** — `.claude-plugin/` or `.understand-anything/` marker, or `/understand` command
 3. **CodeGraph** — `codegraph` CLI on PATH, or `.codegraph/codegraph.db` in repo
 
-If any available: delegate to it. If graphify is chosen, invoke `/graphify` and follow its manifest-driven extraction loop, then compile the final project report into `memory/projects/<name>.md`. CodeGraph is preferred for "what calls this" or "what breaks if I change this" questions.
+If any available: delegate to it. If graphify is available as a skill, invoke `/graphify` and follow its manifest-driven extraction loop. If only the CLI is available, run `graphify <path>` directly and follow the same generated report/output flow. Compile the final project report into `memory/projects/<name>.md`. CodeGraph is preferred for "what calls this" or "what breaks if I change this" questions.
 
 ## 3. Manual Scan (if no tool available)
 - Walk directory tree

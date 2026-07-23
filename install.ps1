@@ -1,11 +1,12 @@
 # install.ps1 -- Antariksh Unified Skill Deployer for Windows
-# Usage: .\install.ps1 [-TargetDir <path>] [-Force] [-RulesOnly] [-Hooks]
+# Usage: .\install.ps1 [-TargetDir <path>] [-Force] [-RulesOnly] [-Hooks] [-InstallOptional]
 
 param (
     [string]$TargetDir = ".",
     [switch]$Force,
     [switch]$RulesOnly,
-    [switch]$Hooks
+    [switch]$Hooks,
+    [switch]$InstallOptional
 )
 
 $targetPath = Resolve-Path $TargetDir -ErrorAction SilentlyContinue
@@ -29,30 +30,185 @@ if (!(Test-Path $targetPath)) {
 
 $scriptDir = $PSScriptRoot
 
-# Detect installed agent skills (read-only -- never copies or installs anything)
+# Detect installed agent skills and optional accelerators. By default this is
+# read-only. -InstallOptional can install the small set with known safe commands.
 $skillsDir = Join-Path $env:USERPROFILE ".claude/skills"
+$pluginsRegistry = Join-Path $env:USERPROFILE ".claude/plugins/installed_plugins.json"
 $detectedSkillNames = @()
-$graphifyStatus = "Graphify: not found under $skillsDir -- /grok will fall back to a manual directory/stack scan."
-if (Test-Path $skillsDir) {
-    $detectedSkillNames = Get-ChildItem -Path $skillsDir -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+$graphifyInstalled = $false
+$cavemanInstalled = $false
+$pythonCmd = $null
+$optionalInstallDryRun = $env:ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN -in @("1", "true", "TRUE")
+
+function Get-PythonCommand {
+    foreach ($cmd in @("python", "python3")) {
+        if (Get-Command $cmd -ErrorAction SilentlyContinue) {
+            return $cmd
+        }
+    }
+    return $null
+}
+
+function Get-GraphifyCommand {
+    $cmd = Get-Command graphify -ErrorAction SilentlyContinue
+    if ($cmd) {
+        & $cmd.Source --help *> $null
+        if ($LASTEXITCODE -eq 0) {
+            return $cmd.Source
+        }
+    }
+
+    if (-not $script:pythonCmd) {
+        $script:pythonCmd = Get-PythonCommand
+    }
+    if (-not $script:pythonCmd) {
+        return $null
+    }
+
+    $userBase = (& $script:pythonCmd -m site --user-base 2>$null | Select-Object -First 1)
+    if (-not $userBase) {
+        return $null
+    }
+
+    foreach ($candidate in @(
+        (Join-Path $userBase "Scripts/graphify.exe"),
+        (Join-Path $userBase "Scripts/graphify.cmd"),
+        (Join-Path $userBase "bin/graphify")
+    )) {
+        if (Test-Path $candidate) {
+            & $candidate --help *> $null
+            if ($LASTEXITCODE -eq 0) {
+                return $candidate
+            }
+        }
+    }
+
+    return $null
+}
+
+function Update-OptionalAcceleratorStatus {
+    $script:detectedSkillNames = @()
+    $script:graphifyInstalled = $false
+    $script:cavemanInstalled = $false
+    $script:graphifyStatus = "Graphify: not found under $skillsDir and no graphify CLI detected -- /grok will fall back to a manual directory/stack scan."
+
+    if (Test-Path $skillsDir) {
+        $script:detectedSkillNames = Get-ChildItem -Path $skillsDir -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+    }
+
     $graphifySkillFile = Join-Path $skillsDir "graphify/SKILL.md"
     if (Test-Path $graphifySkillFile) {
         $versionFile = Join-Path $skillsDir "graphify/.graphify_version"
         $version = if (Test-Path $versionFile) { (Get-Content $versionFile -Raw).Trim() } else { "unknown version" }
-        $graphifyStatus = "Graphify: detected ($version) at $graphifySkillFile -- /grok will use it to build the repo's knowledge graph."
+        $script:graphifyStatus = "Graphify: detected ($version) at $graphifySkillFile -- /grok will use it to build the repo's knowledge graph."
+        $script:graphifyInstalled = $true
+    } else {
+        $graphifyCommand = Get-GraphifyCommand
+        if ($graphifyCommand) {
+            $script:graphifyStatus = "Graphify: detected at $graphifyCommand -- /grok can use it even without a Claude skill folder."
+            $script:graphifyInstalled = $true
+        }
+    }
+
+    $script:cavemanStatus = "Caveman: not installed -- Philosophy V falls back to manual terse-style instructions. Run with -InstallOptional to install supported optional accelerators after confirmation."
+    if ((Test-Path $pluginsRegistry) -and (Select-String -Path $pluginsRegistry -Pattern '"caveman@caveman"' -Quiet)) {
+        $script:cavemanStatus = "Caveman: installed -- Philosophy V and /compact delegate to /caveman and /caveman-compress."
+        $script:cavemanInstalled = $true
     }
 }
+
+function Confirm-OptionalInstall {
+    param([string]$Name)
+
+    if ($optionalInstallDryRun) {
+        return $true
+    }
+
+    $answer = Read-Host "Install optional accelerator $Name now? This downloads third-party code. Review DEPENDENCIES.md first. [y/N]"
+    return $answer -match "^(y|yes)$"
+}
+
+function Install-GraphifyOptional {
+    if ($script:graphifyInstalled) { return }
+
+    $script:pythonCmd = Get-PythonCommand
+    if (-not $script:pythonCmd) {
+        Write-Host "Graphify optional install skipped: python/python3 not found. See DEPENDENCIES.md." -ForegroundColor Yellow
+        return
+    }
+
+    & $script:pythonCmd -m pip --version *> $null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Graphify optional install skipped: pip is not available for $script:pythonCmd. See DEPENDENCIES.md." -ForegroundColor Yellow
+        return
+    }
+
+    if (-not (Confirm-OptionalInstall "Graphify (python package graphifyy)")) {
+        Write-Host "Skipped optional accelerator: Graphify" -ForegroundColor Yellow
+        return
+    }
+
+    if ($optionalInstallDryRun) {
+        Write-Host "DRY RUN: would run '$script:pythonCmd -m pip install --user graphifyy' then 'graphify install'" -ForegroundColor Cyan
+        return
+    }
+
+    & $script:pythonCmd -m pip install --user graphifyy
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Graphify optional install failed. Continue with manual /ak-grok fallback." -ForegroundColor Yellow
+        return
+    }
+
+    $graphifyCommand = Get-GraphifyCommand
+    if ($graphifyCommand) {
+        & $graphifyCommand install
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Graphify package installed, but skill registration failed. Run 'graphify install' after review." -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "Graphify package installed, but the graphify CLI is not on PATH. Add the Python user scripts directory to PATH, then run 'graphify install'." -ForegroundColor Yellow
+    }
+}
+
+function Install-CavemanOptional {
+    if ($script:cavemanInstalled) { return }
+
+    if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
+        Write-Host "Caveman optional install skipped: claude CLI not found. See DEPENDENCIES.md." -ForegroundColor Yellow
+        return
+    }
+
+    if (-not (Confirm-OptionalInstall "Caveman Claude Code plugin")) {
+        Write-Host "Skipped optional accelerator: Caveman" -ForegroundColor Yellow
+        return
+    }
+
+    if ($optionalInstallDryRun) {
+        Write-Host "DRY RUN: would run 'claude plugin marketplace add JuliusBrussee/caveman' and 'claude plugin install caveman@caveman'" -ForegroundColor Cyan
+        return
+    }
+
+    & claude plugin marketplace add JuliusBrussee/caveman 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Caveman marketplace may already be registered; continuing." -ForegroundColor Yellow
+    }
+    & claude plugin install caveman@caveman
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Caveman optional install failed. Continue with manual terse-style fallback." -ForegroundColor Yellow
+    }
+}
+
+Update-OptionalAcceleratorStatus
+if ($InstallOptional) {
+    Write-Host "Optional accelerator install requested. Supported: Graphify and Caveman. CodeGraph, Sentry, and Headroom remain manual environment/tool installs." -ForegroundColor Cyan
+    Install-GraphifyOptional
+    Install-CavemanOptional
+    Update-OptionalAcceleratorStatus
+}
+
 Write-Host $graphifyStatus -ForegroundColor Cyan
 if ($detectedSkillNames.Count -gt 0) {
     Write-Host "Detected agent skills: $($detectedSkillNames -join ', ')" -ForegroundColor Cyan
-}
-
-# Detect the caveman plugin (read-only -- never installs anything; caveman is a
-# Claude Code plugin registered in plugins/installed_plugins.json, not a skills/ folder).
-$pluginsRegistry = Join-Path $env:USERPROFILE ".claude/plugins/installed_plugins.json"
-$cavemanStatus = "Caveman: not installed -- Philosophy V falls back to manual terse-style instructions. Review and install the optional caveman plugin manually if desired."
-if ((Test-Path $pluginsRegistry) -and (Select-String -Path $pluginsRegistry -Pattern '"caveman@caveman"' -Quiet)) {
-    $cavemanStatus = "Caveman: installed -- Philosophy V and /compact delegate to /caveman and /caveman-compress."
 }
 Write-Host $cavemanStatus -ForegroundColor Cyan
 

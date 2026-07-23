@@ -253,6 +253,13 @@ try {
     $fakePython = Join-Path $tmpOptionalBin "python.cmd"
     $fakeClaude = Join-Path $tmpOptionalBin "claude.cmd"
     $fakeGraphify = Join-Path $tmpOptionalBin "graphify.cmd"
+    $fakeCodeGraph = Join-Path $tmpOptionalBin "codegraph.cmd"
+    $fakeSentry = Join-Path $tmpOptionalBin "sentry.cmd"
+    $fakeSentryCli = Join-Path $tmpOptionalBin "sentry-cli.cmd"
+    $fakeHeadroom = Join-Path $tmpOptionalBin "headroom.cmd"
+    $fakeUv = Join-Path $tmpOptionalBin "uv.cmd"
+    $fakePipx = Join-Path $tmpOptionalBin "pipx.cmd"
+    $fakeNpm = Join-Path $tmpOptionalBin "npm.cmd"
     Set-Content -Path $fakePython -Value @"
 @echo off
 if "%1"=="-m" if "%2"=="graphify" exit /b 1
@@ -271,13 +278,47 @@ exit /b 0
 @echo off
 exit /b 1
 "@ -NoNewline
+    Set-Content -Path $fakeCodeGraph -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeSentry -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeSentryCli -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeHeadroom -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeUv -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakePipx -Value @"
+@echo off
+exit /b 1
+"@ -NoNewline
+    Set-Content -Path $fakeNpm -Value @"
+@echo off
+if "%1"=="--version" (
+  echo 0.0.0
+  exit /b 0
+)
+exit /b 0
+"@ -NoNewline
 
     $oldPath = $env:PATH
     $oldUserProfile = $env:USERPROFILE
     $oldDryRun = $env:ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN
+    $oldVirtualEnv = $env:VIRTUAL_ENV
     try {
         $env:PATH = "$tmpOptionalBin;$oldPath"
         $env:USERPROFILE = $tmpOptionalHome
+        $env:VIRTUAL_ENV = Join-Path $tmpOptionalHome "venv"
         $env:ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN = "1"
 
         $optionalOutput = & $psCmd -ExecutionPolicy Bypass -File (Join-Path $rootDir "install.ps1") -TargetDir $tmpOptional -RulesOnly -InstallOptional 2>&1 | Out-String
@@ -286,15 +327,29 @@ exit /b 1
         if ($optionalOutput -notmatch "Optional accelerator install requested") {
             throw "Scenario 5 FAIL: Optional install branch did not run"
         }
-        if ($optionalOutput -notmatch "DRY RUN: would run 'python -m pip install --user graphifyy' then 'graphify install'") {
+        if ($optionalOutput -notmatch "DRY RUN: would run 'python -m pip install graphifyy' then 'graphify install'") {
             throw "Scenario 5 FAIL: Graphify optional install command was not selected"
         }
         if ($optionalOutput -notmatch "DRY RUN: would run 'claude plugin marketplace add JuliusBrussee/caveman'") {
             throw "Scenario 5 FAIL: Caveman optional plugin install command was not selected"
         }
+        if ($optionalOutput -notmatch "DRY RUN: would run 'npm install -g @colbymchenry/codegraph' then 'codegraph install'") {
+            throw "Scenario 5 FAIL: CodeGraph optional install command was not selected"
+        }
+        if ($optionalOutput -notmatch "DRY RUN: would run 'npm install -g sentry'") {
+            throw "Scenario 5 FAIL: Sentry CLI optional install command was not selected"
+        }
+        if ($optionalOutput -notmatch "DRY RUN: would run 'python -m pip install `"headroom-ai\[all\]`"'") {
+            throw "Scenario 5 FAIL: Headroom optional install command was not selected"
+        }
     } finally {
         $env:PATH = $oldPath
         $env:USERPROFILE = $oldUserProfile
+        if ($null -eq $oldVirtualEnv) {
+            Remove-Item Env:\VIRTUAL_ENV -ErrorAction SilentlyContinue
+        } else {
+            $env:VIRTUAL_ENV = $oldVirtualEnv
+        }
         if ($null -eq $oldDryRun) {
             Remove-Item Env:\ANTARIKSH_INSTALL_OPTIONAL_DRY_RUN -ErrorAction SilentlyContinue
         } else {

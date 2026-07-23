@@ -80,6 +80,9 @@ PLUGINS_REGISTRY="$HOME/.claude/plugins/installed_plugins.json"
 DETECTED_SKILLS=""
 GRAPHIFY_INSTALLED=false
 CAVEMAN_INSTALLED=false
+CODEGRAPH_INSTALLED=false
+SENTRY_INSTALLED=false
+HEADROOM_INSTALLED=false
 PYTHON_CMD=""
 
 detect_python() {
@@ -91,10 +94,82 @@ detect_python() {
     fi
 }
 
+has_npm() {
+    command -v npm >/dev/null 2>&1 && npm --version >/dev/null 2>&1
+}
+
+has_uv() {
+    command -v uv >/dev/null 2>&1 && uv --version >/dev/null 2>&1
+}
+
+has_pipx() {
+    command -v pipx >/dev/null 2>&1 && pipx --version >/dev/null 2>&1
+}
+
+python_in_venv() {
+    if [ -n "${VIRTUAL_ENV:-}" ]; then
+        return 0
+    fi
+    [ -n "$PYTHON_CMD" ] && "$PYTHON_CMD" -c 'import sys; raise SystemExit(0 if sys.prefix != getattr(sys, "base_prefix", sys.prefix) else 1)' >/dev/null 2>&1
+}
+
+python_scripts_dir() {
+    [ -n "$PYTHON_CMD" ] && "$PYTHON_CMD" -c 'import sysconfig; print(sysconfig.get_path("scripts") or "")' 2>/dev/null
+}
+
+find_python_cli() {
+    local cmd="$1"
+    local scripts_dir user_base candidate
+    if command -v "$cmd" >/dev/null 2>&1 && "$cmd" --help >/dev/null 2>&1; then
+        command -v "$cmd"
+        return 0
+    fi
+    scripts_dir=""
+    user_base=""
+    if [ -n "$PYTHON_CMD" ]; then
+        scripts_dir=$(python_scripts_dir)
+        user_base=$("$PYTHON_CMD" -m site --user-base 2>/dev/null || true)
+    fi
+    for candidate in \
+        "$HOME/.local/bin/$cmd" \
+        "$HOME/.local/bin/$cmd.exe" \
+        "$HOME/.local/bin/$cmd.cmd" \
+        "$scripts_dir/$cmd" \
+        "$scripts_dir/$cmd.exe" \
+        "$scripts_dir/$cmd.cmd" \
+        "$user_base/bin/$cmd" \
+        "$user_base/bin/$cmd.exe" \
+        "$user_base/bin/$cmd.cmd"; do
+        if [ -n "$candidate" ] && [ -x "$candidate" ] && "$candidate" --help >/dev/null 2>&1; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done
+    return 1
+}
+
+has_codegraph() {
+    command -v codegraph >/dev/null 2>&1 && codegraph --version >/dev/null 2>&1
+}
+
+has_sentry() {
+    if command -v sentry >/dev/null 2>&1 && sentry --version >/dev/null 2>&1; then
+        return 0
+    fi
+    command -v sentry-cli >/dev/null 2>&1 && sentry-cli --version >/dev/null 2>&1
+}
+
+has_headroom() {
+    command -v headroom >/dev/null 2>&1 && headroom --version >/dev/null 2>&1
+}
+
 detect_optional_accelerators() {
     DETECTED_SKILLS=""
     GRAPHIFY_INSTALLED=false
     CAVEMAN_INSTALLED=false
+    CODEGRAPH_INSTALLED=false
+    SENTRY_INSTALLED=false
+    HEADROOM_INSTALLED=false
     GRAPHIFY_STATUS="Graphify: not found under $SKILLS_DIR and no graphify CLI detected -- /grok will fall back to a manual directory/stack scan."
     if [ -d "$SKILLS_DIR" ]; then
         # shellcheck disable=SC2012
@@ -119,6 +194,24 @@ detect_optional_accelerators() {
         CAVEMAN_STATUS="Caveman: installed -- Philosophy V and /compact delegate to /caveman and /caveman-compress."
         CAVEMAN_INSTALLED=true
     fi
+
+    CODEGRAPH_STATUS="CodeGraph: not found on PATH -- /grok and /audit-arch fall back to graphify/Understand-Anything/manual scan."
+    if has_codegraph; then
+        CODEGRAPH_STATUS="CodeGraph: detected on PATH -- /grok and /audit-arch can delegate to it for call-graph/blast-radius queries."
+        CODEGRAPH_INSTALLED=true
+    fi
+
+    SENTRY_STATUS="Sentry: not found -- /diagnose falls back to manual reproduction script or log-tracing."
+    if has_sentry; then
+        SENTRY_STATUS="Sentry: detected on PATH -- /diagnose can pull telemetry and crash traces directly using the CLI or REST API."
+        SENTRY_INSTALLED=true
+    fi
+
+    HEADROOM_STATUS="Headroom: not found on PATH -- /ak-headroom and Cache Optimization fall back to uncompressed context."
+    if has_headroom; then
+        HEADROOM_STATUS="Headroom: detected on PATH -- /ak-headroom and Cache Optimization can delegate to it for reversible compression."
+        HEADROOM_INSTALLED=true
+    fi
 }
 
 confirm_optional_install() {
@@ -138,39 +231,64 @@ install_graphify_optional() {
     if [ "$GRAPHIFY_INSTALLED" = true ]; then
         return
     fi
-    detect_python
-    if [ -z "$PYTHON_CMD" ]; then
-        echo -e "\033[33mGraphify optional install skipped: python3/python not found. See DEPENDENCIES.md.\033[0m"
-        return
-    fi
-    if ! "$PYTHON_CMD" -m pip --version >/dev/null 2>&1; then
-        echo -e "\033[33mGraphify optional install skipped: pip is not available for $PYTHON_CMD. See DEPENDENCIES.md.\033[0m"
-        return
-    fi
-    if ! confirm_optional_install "Graphify (python package graphifyy)"; then
-        return
-    fi
-    if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
-        echo -e "\033[36mDRY RUN: would run '$PYTHON_CMD -m pip install --user graphifyy' then 'graphify install'\033[0m"
-        return
-    fi
-    "$PYTHON_CMD" -m pip install --user graphifyy \
-        || echo -e "\033[33mGraphify optional install failed. Continue with manual /ak-grok fallback.\033[0m"
 
-    GRAPHIFY_CMD=""
-    if command -v graphify >/dev/null 2>&1 && graphify --help >/dev/null 2>&1; then
-        GRAPHIFY_CMD="$(command -v graphify)"
+    if has_uv; then
+        if ! confirm_optional_install "Graphify (uv tool package graphifyy + graphify install)"; then
+            return
+        fi
+        if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+            echo -e "\033[36mDRY RUN: would run 'uv tool install graphifyy' then 'graphify install'\033[0m"
+            return
+        fi
+        uv tool install graphifyy \
+            || { echo -e "\033[33mGraphify optional install failed. Continue with manual /ak-grok fallback.\033[0m"; return; }
+    elif has_pipx; then
+        if ! confirm_optional_install "Graphify (pipx package graphifyy + graphify install)"; then
+            return
+        fi
+        if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+            echo -e "\033[36mDRY RUN: would run 'pipx install graphifyy' then 'graphify install'\033[0m"
+            return
+        fi
+        pipx install graphifyy \
+            || { echo -e "\033[33mGraphify optional install failed. Continue with manual /ak-grok fallback.\033[0m"; return; }
     else
-        USER_BASE=$("$PYTHON_CMD" -m site --user-base 2>/dev/null || true)
-        if [ -n "$USER_BASE" ] && [ -x "$USER_BASE/bin/graphify" ] && "$USER_BASE/bin/graphify" --help >/dev/null 2>&1; then
-            GRAPHIFY_CMD="$USER_BASE/bin/graphify"
+        detect_python
+        if [ -z "$PYTHON_CMD" ]; then
+            echo -e "\033[33mGraphify optional install skipped: uv, pipx, and python3/python not found. See DEPENDENCIES.md.\033[0m"
+            return
+        fi
+        if ! "$PYTHON_CMD" -m pip --version >/dev/null 2>&1; then
+            echo -e "\033[33mGraphify optional install skipped: pip is not available for $PYTHON_CMD. See DEPENDENCIES.md.\033[0m"
+            return
+        fi
+        if ! confirm_optional_install "Graphify (python package graphifyy)"; then
+            return
+        fi
+        if python_in_venv; then
+            if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+                echo -e "\033[36mDRY RUN: would run '$PYTHON_CMD -m pip install graphifyy' then 'graphify install'\033[0m"
+                return
+            fi
+            "$PYTHON_CMD" -m pip install graphifyy \
+                || { echo -e "\033[33mGraphify optional install failed. Continue with manual /ak-grok fallback.\033[0m"; return; }
+        else
+            if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+                echo -e "\033[36mDRY RUN: would run '$PYTHON_CMD -m pip install --user graphifyy' then 'graphify install'\033[0m"
+                return
+            fi
+            "$PYTHON_CMD" -m pip install --user graphifyy \
+                || { echo -e "\033[33mGraphify optional install failed. Continue with manual /ak-grok fallback.\033[0m"; return; }
         fi
     fi
+
+    GRAPHIFY_CMD=""
+    GRAPHIFY_CMD=$(find_python_cli graphify || true)
     if [ -n "$GRAPHIFY_CMD" ]; then
         "$GRAPHIFY_CMD" install \
             || echo -e "\033[33mGraphify package installed, but skill registration failed. Run 'graphify install' after review.\033[0m"
     else
-        echo -e "\033[33mGraphify package installed, but the graphify CLI is not on PATH. Add the Python user scripts directory to PATH, then run 'graphify install'.\033[0m"
+        echo -e "\033[33mGraphify package installed, but the graphify CLI is not on PATH. Run 'uv tool update-shell' or 'pipx ensurepath' if applicable, then run 'graphify install'.\033[0m"
     fi
 }
 
@@ -195,11 +313,121 @@ install_caveman_optional() {
         || echo -e "\033[33mCaveman optional install failed. Continue with manual terse-style fallback.\033[0m"
 }
 
+install_codegraph_optional() {
+    if [ "$CODEGRAPH_INSTALLED" = true ]; then
+        return
+    fi
+    if ! has_npm; then
+        echo -e "\033[33mCodeGraph optional install skipped: npm not found. See DEPENDENCIES.md.\033[0m"
+        return
+    fi
+    if ! confirm_optional_install "CodeGraph (npm package @colbymchenry/codegraph + codegraph install)"; then
+        return
+    fi
+    if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+        echo -e "\033[36mDRY RUN: would run 'npm install -g @colbymchenry/codegraph' then 'codegraph install'\033[0m"
+        return
+    fi
+    npm install -g @colbymchenry/codegraph \
+        || { echo -e "\033[33mCodeGraph optional install failed. Continue with manual /ak-grok fallback.\033[0m"; return; }
+    if has_codegraph; then
+        codegraph install \
+            || echo -e "\033[33mCodeGraph CLI installed, but agent registration failed. Run 'codegraph install' after review.\033[0m"
+    else
+        echo -e "\033[33mCodeGraph package installed, but codegraph is not on PATH. Add the npm global bin directory to PATH, then run 'codegraph install'.\033[0m"
+    fi
+}
+
+install_sentry_optional() {
+    if [ "$SENTRY_INSTALLED" = true ]; then
+        return
+    fi
+    if ! has_npm; then
+        echo -e "\033[33mSentry CLI optional install skipped: npm not found. See DEPENDENCIES.md.\033[0m"
+        return
+    fi
+    if ! confirm_optional_install "Sentry CLI (npm package sentry; auth remains manual)"; then
+        return
+    fi
+    if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+        echo -e "\033[36mDRY RUN: would run 'npm install -g sentry'\033[0m"
+        return
+    fi
+    npm install -g sentry \
+        || { echo -e "\033[33mSentry CLI optional install failed. Continue with manual /ak-diagnose fallback.\033[0m"; return; }
+    echo -e "\033[36mSentry CLI installed. Run 'sentry auth login' when you want telemetry-backed diagnosis.\033[0m"
+}
+
+install_headroom_optional() {
+    if [ "$HEADROOM_INSTALLED" = true ]; then
+        return
+    fi
+    if has_uv; then
+        if ! confirm_optional_install "Headroom CLI (uv tool package headroom-ai[all])"; then
+            return
+        fi
+        if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+            echo -e "\033[36mDRY RUN: would run 'uv tool install \"headroom-ai[all]\"'\033[0m"
+            return
+        fi
+        uv tool install "headroom-ai[all]" \
+            || { echo -e "\033[33mHeadroom optional install failed. Continue with uncompressed context fallback.\033[0m"; return; }
+        echo -e "\033[36mHeadroom CLI installed. Run 'uv tool update-shell' if headroom is not on PATH, then /ak-headroom for MCP/proxy setup.\033[0m"
+        return
+    fi
+
+    if has_pipx; then
+        if ! confirm_optional_install "Headroom CLI (pipx package headroom-ai[all])"; then
+            return
+        fi
+        if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+            echo -e "\033[36mDRY RUN: would run 'pipx install \"headroom-ai[all]\"'\033[0m"
+            return
+        fi
+        pipx install "headroom-ai[all]" \
+            || { echo -e "\033[33mHeadroom optional install failed. Continue with uncompressed context fallback.\033[0m"; return; }
+        echo -e "\033[36mHeadroom CLI installed. Run 'pipx ensurepath' if headroom is not on PATH, then /ak-headroom for MCP/proxy setup.\033[0m"
+        return
+    fi
+
+    detect_python
+    if [ -z "$PYTHON_CMD" ]; then
+        echo -e "\033[33mHeadroom optional install skipped: uv, pipx, and python3/python not found. See DEPENDENCIES.md.\033[0m"
+        return
+    fi
+    if ! "$PYTHON_CMD" -m pip --version >/dev/null 2>&1; then
+        echo -e "\033[33mHeadroom optional install skipped: pip is not available for $PYTHON_CMD. See DEPENDENCIES.md.\033[0m"
+        return
+    fi
+    if ! confirm_optional_install "Headroom CLI (python package headroom-ai[all])"; then
+        return
+    fi
+    if python_in_venv; then
+        if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+            echo -e "\033[36mDRY RUN: would run '$PYTHON_CMD -m pip install \"headroom-ai[all]\"'\033[0m"
+            return
+        fi
+        "$PYTHON_CMD" -m pip install "headroom-ai[all]" \
+            || { echo -e "\033[33mHeadroom optional install failed. Continue with uncompressed context fallback.\033[0m"; return; }
+    else
+        if [ "$OPTIONAL_INSTALL_DRY_RUN" = "1" ] || [ "$OPTIONAL_INSTALL_DRY_RUN" = "true" ]; then
+            echo -e "\033[36mDRY RUN: would run '$PYTHON_CMD -m pip install --user \"headroom-ai[all]\"'\033[0m"
+            return
+        fi
+        "$PYTHON_CMD" -m pip install --user "headroom-ai[all]" \
+            || { echo -e "\033[33mHeadroom optional install failed. Continue with uncompressed context fallback.\033[0m"; return; }
+    fi
+    echo -e "\033[36mHeadroom CLI installed. Add the Python user scripts directory to PATH if needed, then run /ak-headroom for MCP/proxy setup.\033[0m"
+}
+
 detect_optional_accelerators
 if [ "$INSTALL_OPTIONAL" = true ]; then
-    echo -e "\033[36mOptional accelerator install requested. Supported: Graphify and Caveman. CodeGraph, Sentry, and Headroom remain manual environment/tool installs.\033[0m"
+    echo -e "\033[36mOptional accelerator install requested. Supported: Graphify, Caveman, CodeGraph, Sentry CLI, and Headroom.\033[0m"
     install_graphify_optional
     install_caveman_optional
+    install_codegraph_optional
+    install_sentry_optional
+    install_headroom_optional
     detect_optional_accelerators
 fi
 
@@ -208,26 +436,8 @@ if [ -n "$DETECTED_SKILLS" ]; then
     echo -e "\033[36mDetected agent skills: $DETECTED_SKILLS\033[0m"
 fi
 echo -e "\033[36m$CAVEMAN_STATUS\033[0m"
-
-# Detect the CodeGraph CLI (read-only -- checks PATH only, never installs anything).
-CODEGRAPH_STATUS="CodeGraph: not found on PATH -- /grok and /audit-arch fall back to graphify/Understand-Anything/manual scan."
-if command -v codegraph >/dev/null 2>&1; then
-    CODEGRAPH_STATUS="CodeGraph: detected on PATH -- /grok and /audit-arch can delegate to it for call-graph/blast-radius queries."
-fi
 echo -e "\033[36m$CODEGRAPH_STATUS\033[0m"
-
-# Detect Sentry CLI (read-only -- checks PATH only, never installs anything).
-SENTRY_STATUS="Sentry: not found -- /diagnose falls back to manual reproduction script or log-tracing."
-if command -v sentry >/dev/null 2>&1 || command -v sentry-cli >/dev/null 2>&1; then
-    SENTRY_STATUS="Sentry: detected on PATH -- /diagnose can pull telemetry and crash traces directly using the CLI or REST API."
-fi
 echo -e "\033[36m$SENTRY_STATUS\033[0m"
-
-# Detect Headroom CLI (read-only -- checks PATH only, never installs anything).
-HEADROOM_STATUS="Headroom: not found on PATH -- /ak-headroom and Cache Optimization fall back to uncompressed context."
-if command -v headroom >/dev/null 2>&1; then
-    HEADROOM_STATUS="Headroom: detected on PATH -- /ak-headroom and Cache Optimization can delegate to it for reversible compression."
-fi
 echo -e "\033[36m$HEADROOM_STATUS\033[0m"
 
 # Generate the portable rule files from the single canonical templates/RULESET.md.

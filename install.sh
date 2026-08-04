@@ -555,6 +555,7 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 - **\`/ak-scratch\`**: Scaffold new projects with standard folder layouts and template configs → \`.agents/skills/scratch/SKILL.md\`.
 - **\`/ak-compact\`**: Log consolidation, project facts compilation, skill-observation capture, inbox clearing, and corrections capture.
 - **\`/ak-handoff\`**: Compile handoff notes to \`memory/handoff.md\` for incoming agents.
+- **\`/ak-headroom\`**: Detect and configure Headroom for reversible token compression (MCP/proxy); skip cleanly when it is not installed → \`.agents/skills/headroom/SKILL.md\`.
 " "SKILL.md"
 
 # Split RULESET.md into sections.

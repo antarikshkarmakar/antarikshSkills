@@ -91,6 +91,19 @@ def main():
     with open(ruleset_path, "r", encoding="utf-8") as f:
         ruleset_content = f.read()
 
+    # Load the root master SKILL.md and the two installers. The installers embed a
+    # copy of the master skill's command index, so all three must list every skill
+    # or toolless/web-UI users silently lose commands (this is how /ak-headroom went
+    # missing from the index for several releases).
+    master_skill_path = os.path.join(root, "SKILL.md")
+    with open(master_skill_path, "r", encoding="utf-8") as f:
+        master_skill_content = f.read()
+
+    installer_contents = {}
+    for installer in ("install.sh", "install.ps1"):
+        with open(os.path.join(root, installer), "r", encoding="utf-8") as f:
+            installer_contents[installer] = f.read()
+
     skill_observations_template = os.path.join(root, "templates", "skill-observations.md")
     if not os.path.isfile(skill_observations_template):
         errors.append("templates/skill-observations.md is missing")
@@ -173,6 +186,16 @@ def main():
         ruleset_search_str = f".agents/skills/{folder}/SKILL.md"
         if ruleset_search_str not in ruleset_content:
             errors.append(f"templates/RULESET.md is missing reference to '{ruleset_search_str}' in command table")
+
+        # F. check the root master SKILL.md command index (toolless/web-UI fallback)
+        if f"`/{skill_name}`" not in master_skill_content:
+            errors.append(f"SKILL.md command index is missing '/{skill_name}'")
+
+        # G. check both installers' embedded copies of that index
+        for installer, content in installer_contents.items():
+            # install.sh escapes backticks (\`), install.ps1 doubles them (``)
+            if f"\\`/{skill_name}\\`" not in content and f"``/{skill_name}``" not in content:
+                errors.append(f"{installer} embedded command index is missing '/{skill_name}'")
 
     # Also verify that no extra skills are declared in package.json/plugin.json
     for key, path in package_skills.items():

@@ -25,6 +25,7 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 - **`/ak-to-prd`**: Scopes features with module quizzes and drafts PRD to `memory/prds/` → `.agents/skills/to-prd/SKILL.md`.
 - **`/ak-spec`**: Spec-driven loop (specify -> clarify -> plan -> tasks -> analyze -> implement -> converge) → `.agents/skills/spec/SKILL.md`.
 - **`/ak-tdd`**: Test-driven development. Iron Law: no production code without a failing test first; RED must fail for the right reason; delete code written before its test.
+- **`/ak-verify`**: Verification before completion. Iron Law: no completion claims without fresh verification evidence; identify the proving command, run it in full, read the output, then claim → `.agents/skills/verify/SKILL.md`.
 - **`/ak-diagnose`**: Read error text and recent diff first -> reproduce -> bisect scope -> 5-whys root cause -> surgical fix -> prevent. Iron Law: no fixes without root cause investigation first.
 - **`/ak-bughunt`**: Sweep recent commits for critical defects (trace callers -> concrete trigger scenario -> minimal gated fix or one-line all-clear) → `.agents/skills/bughunt/SKILL.md`.
 - **`/ak-devops`**: Scaffold container/IaC files, run linters, validate dry-run setups.

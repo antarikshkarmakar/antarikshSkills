@@ -113,6 +113,7 @@ Don't silently fix smells — flag for `/ak-audit-arch`. Prefer deep modules wit
 | `/ak-to-prd` | Product requirements doc with module quiz → `.agents/skills/to-prd/SKILL.md` |
 | `/ak-spec` | Spec-driven development: specify → clarify → plan → tasks → analyze → implement → converge → `.agents/skills/spec/SKILL.md` |
 | `/ak-tdd` | Test-driven development loop → `.agents/skills/tdd/SKILL.md` |
+| `/ak-verify` | Verification before completion (evidence gate) → `.agents/skills/verify/SKILL.md` |
 | `/ak-diagnose` | Structured debugging → `.agents/skills/diagnose/SKILL.md` |
 | `/ak-bughunt` | High-severity bug hunt on recent commits → `.agents/skills/bughunt/SKILL.md` |
 | `/ak-devops` | DevOps & CI/CD automation → `.agents/skills/devops/SKILL.md` |

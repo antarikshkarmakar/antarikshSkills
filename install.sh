@@ -536,8 +536,8 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 - **\`/ak-align-docs\`**: Scope alignment + Shared Language glossary update + ADR generation → \`.agents/skills/align-docs/SKILL.md\`.
 - **\`/ak-to-prd\`**: Scopes features with module quizzes and drafts PRD to \`memory/prds/\` → \`.agents/skills/to-prd/SKILL.md\`.
 - **\`/ak-spec\`**: Spec-driven loop (specify -> clarify -> plan -> tasks -> analyze -> implement -> converge) → \`.agents/skills/spec/SKILL.md\`.
-- **\`/ak-tdd\`**: Test-driven development (write tests -> run fail -> implement -> run pass).
-- **\`/ak-diagnose\`**: Reproduce bug -> bisect scope -> find root cause -> surgical fix -> prevent.
+- **\`/ak-tdd\`**: Test-driven development. Iron Law: no production code without a failing test first; RED must fail for the right reason; delete code written before its test.
+- **\`/ak-diagnose\`**: Read error text and recent diff first -> reproduce -> bisect scope -> 5-whys root cause -> surgical fix -> prevent. Iron Law: no fixes without root cause investigation first.
 - **\`/ak-bughunt\`**: Sweep recent commits for critical defects (trace callers -> concrete trigger scenario -> minimal gated fix or one-line all-clear) → \`.agents/skills/bughunt/SKILL.md\`.
 - **\`/ak-devops\`**: Scaffold container/IaC files, run linters, validate dry-run setups.
 - **\`/ak-ci-check\`**: Run local line ending, shellcheck, Trivy scan, secrets scan, and indentation diff checks.

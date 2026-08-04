@@ -15,6 +15,16 @@ Before writing a single line of code, locate and inspect:
 - **`memory/projects/<name>.md`**: Confirm repository conventions and patterns.
 - If you are altering a shared module or contract, stop and align with the user first.
 
+## 1a. Right-Size the Work
+Before implementing, cut the change into units. **A unit is the smallest piece that carries its own test cycle and is worth a reviewer's separate verdict.**
+
+- Fold setup, config, scaffolding, and doc updates into the unit whose deliverable needs them — they are not separate units.
+- Split only where a reviewer could sensibly reject one unit while approving its neighbour.
+- Each unit ends with something independently testable. If a unit cannot be tested on its own, it is half a unit — merge it with its other half.
+- Units that must land together to keep the tree green are one unit, not two.
+
+Too-large units hide defects in a wall of diff; too-small units cost more in ceremony than they return. If the work exceeds 3 independent units, consider `/ak-orchestrate`.
+
 ## 2. Surgical Minimal Implementation
 Follow the **Ponytail Lazy Developer Ladder**:
 - Reuse existing code/dependencies.

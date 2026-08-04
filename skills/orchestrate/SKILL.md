@@ -13,14 +13,29 @@ Coordinate a fleet of subagents for work that is too large or too parallel for o
 
 ## 0. Gate — Is a Fleet Warranted? (Ponytail Rung 1)
 Spawning agents costs tokens and coordination overhead. Only orchestrate when ALL are true:
-- The work splits into **3 or more independent units** (modules, hypotheses, or file groups with no shared write surface).
-- Units do not modify the same files or contracts concurrently (check `INTERFACES.md`).
-- The task exceeds what a single session can hold in context (large refactor, migration, multi-module audit, parallel hypothesis testing).
+
+1. **Success is verifiable.** You can state the check — a test, a rubric, a required output, a diff — that decides whether each unit succeeded. **If success cannot be verified, do not delegate it.** An unverifiable unit does not come back wrong; it comes back *confident*, and you have no way to tell the difference. Define the check first, or keep the work yourself.
+2. The work splits into **3 or more independent units** (modules, hypotheses, or file groups with no shared write surface).
+3. Units do not modify the same files or contracts concurrently (check `INTERFACES.md`).
+4. The task exceeds what a single session can hold in context (large refactor, migration, multi-module audit, parallel hypothesis testing).
 
 If not, stay solo — a fleet for a small task wastes money, not saves it.
 
+> [!WARNING]
+> **Splittable is not the same as should-be-split.** Some work needs one coherent context and degrades when cut into isolated units: architecture and interface design, tightly coupled refactors, anything where the units must agree on a judgement call rather than a contract, and narrative/documentation work with a single through-line. Each child sees only its brief, so cross-unit taste and consistency are exactly what a fleet cannot supply. When the hard part is *coherence* rather than *volume*, stay solo even if the file boundaries look clean.
+
 ## 1. PLAN
 Run the `/ak-align` scoping gate on the whole task first: goal, success criteria, non-goals, plan. The fleet inherits this scope; children never re-negotiate it.
+
+### Declare the Complexity Budget Before Spending It
+State the limits up front, in the ledger, while the numbers are still cheap to choose. A budget decided mid-run is decided under sunk-cost pressure:
+
+- Maximum children spawned (total) and maximum running concurrently
+- Maximum fix rounds per unit (default 5 — see step 5b)
+- Wall-clock ceiling, and token or cost ceiling if the runner reports them
+- Minimum evidence required before a unit counts as DONE
+
+**When the budget is exhausted, stop and report honestly**: the best current artifact, which units completed, which are unresolved, and the reason for stopping. **Do not present partial work as if it were complete** — a fluent summary over a half-finished fleet is the most expensive failure mode here, because it costs the user their chance to intervene. Budget exhaustion is a legitimate outcome; disguising it is not (Philosophy X, `/ak-verify`).
 
 ## 2. DECOMPOSE
 Partition into independent work units:
@@ -36,6 +51,7 @@ Before the first dispatch, create a ledger at `memory/orchestrate/<task-slug>.md
 ```markdown
 # Fleet ledger — task: <task-slug>
 - Plan: [one-line goal, or link to the /ak-align scope]
+- Budget: [max children / max concurrent / max fix rounds / wall-clock / cost — from step 1]
 - Units: [list of unit names from step 2]
 
 ## Unit: <unit-name>
@@ -102,6 +118,8 @@ Review each returned unit in two separate passes. They catch different failures 
 2. **Code quality** — run `/ak-review` (adversarial duel) on the unit diff. Correct-but-unsafe code fails here.
 
 Stage 1 first: there is no point reviewing the quality of the wrong work. Verify against the child's *evidence*, not its summary — a child reporting "success" is a claim, and the VCS diff is the proof (Philosophy X).
+
+**Reviewers must differ from each other and from the implementer.** Parallel workers on the same model with the same prompt produce *correlated* errors — they miss the same things for the same reasons. A second reviewer that shares the first one's prompt, evidence, and role adds cost and the illusion of confirmation, not coverage. Give each reviewer a distinct **prompt, evidence set, or role** (as `/ak-review` does with its Security / Edge Case / Performance / Architecture attackers). Agreement between two identical reviewers is one opinion counted twice.
 
 ### 5b. Fix Rounds — Escalate, Then Stop
 When a unit fails review, do not simply re-dispatch the same brief at the same child indefinitely. Cap it at **5 rounds** and escalate:

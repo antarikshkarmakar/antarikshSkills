@@ -547,7 +547,7 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 - **\`/ak-review\`**: Adversarial attacker duel verification against edge cases and interface drift.
 - **\`/ak-prreview\`**: Gated PR review creating draft reviews for explicit user approval.
 - **\`/ak-worktree\`**: Worktree-isolated parallel subagent sweep orchestration.
-- **\`/ak-orchestrate\`**: Fleet orchestration (plan -> decompose -> brief -> delegate -> synthesize) → \`.agents/skills/orchestrate/SKILL.md\`.
+- **\`/ak-orchestrate\`**: Fleet orchestration (plan -> decompose -> ledger -> brief -> delegate -> two-stage review -> synthesize). Ledger on disk survives compaction; children inherit nothing, so the brief carries everything → \`.agents/skills/orchestrate/SKILL.md\`.
 - **\`/ak-doc\`**: Direct module and interface documentation via tables and diagrams → \`.agents/skills/doc/SKILL.md\`.
 - **\`/ak-grok\`**: Incremental repository scans (RAG index building/AST parsing) to map structure.
 - **\`/ak-audit-arch\`**: Sweep codebase for architectural smells (god files, duplicate logic, tangles).

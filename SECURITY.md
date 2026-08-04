@@ -32,6 +32,7 @@ This repository ships **prompt-level agent instructions** (`SKILL.md` files, rul
 | PowerShell hooks run with `-ExecutionPolicy Bypass` | `install.ps1` | Standard mechanism for Claude Code hooks on default Windows policy; the hooks are opt-in (`-Hooks` flag), short, and readable before install. The installer never fetches remote code. |
 | Hook config executes scripts from `${CLAUDE_PROJECT_DIR}` | `templates/.claude/settings.json` | This is the definition of a Claude Code session hook. Integrity depends on the user's own project directory, which the user controls. |
 | Med risk: fetches error telemetry / posts PR reviews | `skills/diagnose/SKILL.md`, `skills/prreview/SKILL.md` | Core function of those skills. Credentials come from environment variables only (never printed or stored), and PR posting sits behind an explicit yes/no gate. |
+| Writes token-labeled data (`SENTRY_AUTH_TOKEN_STATUS`) into a generated file | `install.sh`, `install.ps1` | **False positive** — the placeholder is replaced with the literal string `Configured (from env)` or `Not configured`, never the token value. `$SENTRY_AUTH_TOKEN` / `$env:SENTRY_AUTH_TOKEN` is read only inside a presence test (`[ -n ... ]`), and the generated `memory/local_env.md` is gitignored. The finding matches on the variable *name*, not on any secret reaching disk. |
 
 If an audit surfaces something **not** listed here, treat it as unreviewed and report it.
 

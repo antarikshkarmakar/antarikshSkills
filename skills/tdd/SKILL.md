@@ -68,3 +68,5 @@ If you catch yourself thinking any of these, stop — the answer is always the r
 
 ## Evidence Over Claims
 Never claim TDD is done based on code inspection. Run the tests. Show the pass output as proof.
+
+Full gate, claim→evidence table, and rationalization checks: **`/ak-verify`**.

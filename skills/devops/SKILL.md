@@ -98,3 +98,5 @@ Do not declare deployment readiness or bug resolution based on inspection. Prove
 - Success outputs of linters/validation runs.
 - Green test logs.
 - Executed `terraform plan` summaries showing `0 errors`.
+
+Full gate, claim→evidence table, and rationalization checks: **`/ak-verify`**.

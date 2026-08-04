@@ -71,3 +71,5 @@ If a confirmed finding is plausibly causing **active damage right now** (corrupt
 
 ## Evidence Over Claims
 Never report a bug as fixed based on code inspection. Run the regression test and show it passing.
+
+Full gate, claim→evidence table, and rationalization checks: **`/ak-verify`**.

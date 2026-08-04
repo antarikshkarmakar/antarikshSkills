@@ -127,3 +127,5 @@ Ensure that code formatting is clean, consistent, and free of trailing spaces or
 
 ## Evidence Over Claims
 Before declaring a branch ready to be pushed or PR created, run `/ak-ci-check` and verify all outcomes are green.
+
+Full gate, claim→evidence table, and rationalization checks: **`/ak-verify`**.

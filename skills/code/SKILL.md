@@ -51,3 +51,5 @@ Stage, commit, and explain changes concisely:
 
 ## Evidence Over Claims
 Do not declare the task finished based on visual code inspection. Run all tests and validation scripts, and present the final terminal pass output to the user as direct proof of correctness.
+
+Full gate, claim→evidence table, and rationalization checks: **`/ak-verify`**.

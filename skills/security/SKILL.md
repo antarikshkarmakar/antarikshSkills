@@ -70,3 +70,5 @@ Output a brief Markdown summary of the audit findings:
 
 ## Evidence Over Claims
 Do not declare an audit complete based on raw assumptions. List every tool run, provide command outputs/reports, and explain the exact threat modeling vectors tested.
+
+Full gate, claim→evidence table, and rationalization checks: **`/ak-verify`**.

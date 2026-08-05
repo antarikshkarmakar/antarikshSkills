@@ -28,7 +28,7 @@ If not, stay solo — a fleet for a small task wastes money, not saves it.
 Run the `/ak-align` scoping gate on the whole task first: goal, success criteria, non-goals, plan. The fleet inherits this scope; children never re-negotiate it.
 
 ### Declare the Complexity Budget Before Spending It
-State the limits up front, in the ledger, while the numbers are still cheap to choose. A budget decided mid-run is decided under sunk-cost pressure:
+Decide the limits now, while the numbers are still cheap to choose — a budget decided mid-run is decided under sunk-cost pressure. They are written down in the ledger's `Budget:` field when you create it in step 2.5:
 
 - Maximum children spawned (total) and maximum running concurrently
 - Maximum fix rounds per unit (default 5 — see step 5b)
@@ -89,6 +89,7 @@ Format:
 - **Bounds**: [exact directories/files the child may modify — nothing else]
 - **Context**: [relevant excerpts from memory/projects/<name>.md, INTERFACES.md contracts in scope]
 - **Success criteria**: [verifiable checks — tests to pass, outputs to produce]
+- **Known-failing at baseline**: [checks already red before this fleet started, from step 2.6 — "none" if the tree was green. A child must not spend rounds fixing these]
 - **Report format**: [see step 5 — require it explicitly]
 - **Forbidden**: [contracts not to change, files not to touch, no new dependencies without flagging]
 ```

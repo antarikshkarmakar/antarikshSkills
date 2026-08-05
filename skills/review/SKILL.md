@@ -17,6 +17,9 @@ Classify the diff first — skip axes the diff can't trigger:
 
 ## 3. Attacker Phase
 Assume the Proposer is wrong. Attack on applicable axes:
+
+> [!IMPORTANT]
+> **Attack the diff, not the intention.** Drop everything you know about what the change was *supposed* to do and read only what is actually there. Reviewing your own work is the hard case: you supply the missing context from memory and score the code for what you meant rather than what you wrote. The next reader gets the diff and nothing else — review as that reader. "It's obviously meant to handle X" is not a defence; if X isn't handled in the code, the attack lands.
 - **Edge Cases** — empty inputs, boundary values, nulls
 - **Race Conditions** — concurrent access, async timing
 - **Silent Failures** — errors swallowed, exceptions caught and ignored

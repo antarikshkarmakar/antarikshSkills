@@ -33,7 +33,9 @@ Before writing code, stop at first rung that works:
 - No speculative features
 - Don't touch adjacent code/formatting/comments
 - Remove unused code your changes introduced; don't touch pre-existing dead code
+- **No placeholders shipped as done**: never hand back stubs, empty blocks, `// TODO`, or "fix this later" comments as completed work. If a piece is genuinely out of scope, say so in the report — do not bury it in the code as a comment the user has to find
 - **Strict Plan Gate**: Every change requires a goal, success criteria, and a plan. For low-risk changes (e.g. typos, single-line local fixes), you only need a goal and verification step without a full Socratic loop. Trigger a full `/ak-align` scoping gate for changes affecting shared contracts, architecture, security, DevOps, multi-file edits, or whenever ambiguity is present.
+- **Plans stay proportional to the change**: a plan, PRD, ADR, or spec describes files, goals, and verification — not pseudo-code, not the implementation written twice. A document longer than the change it plans is a failure of the plan, not thoroughness; the reader stops reading and the detail rots on contact with the code. Applies to `/ak-align-docs`, `/ak-to-prd`, and `/ak-spec` output.
 
 ### III. Interface Contracts (Swarm Safety)
 - Before modifying shared API/utility → check `INTERFACES.md`
@@ -75,6 +77,8 @@ Before any visible-to-others or hard-to-reverse action → show exactly what wil
 
 ### X. Goal-Driven Execution (Evidence over Claims)
 - Define success criteria before acting
+- **Criteria must be binary and observable** — answerable yes/no by reading output or running a command. "Improve error handling" is not a criterion; "every handler returns a typed error, and `npm test` exits 0" is. No scales, scores, or "rate out of 10" — a vague criterion cannot fail, so it verifies nothing
+- **Prefer a programmatic check over a judgement call** — an exit code, a diff, a test result, a grep. Reserve model judgement for criteria no command can assess (meaning, taste, intent). Run the command that exists before writing an opinion
 - Never claim done based on code inspection — run verification, show proof
 - State plan: `1. [Step] → verify: [check]`
 - Loop until verified

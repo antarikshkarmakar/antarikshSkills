@@ -31,6 +31,7 @@ Follow the **Ponytail Lazy Developer Ladder**:
 - Implement the absolute minimum logic required to satisfy the goal.
 - Avoid speculative features, unused parameters, or redundant utility functions.
 - Do not modify adjacent whitespace, formatting, or comments.
+- **Ship no placeholders.** No stubs, empty blocks, `// TODO`, or "handle this later" comments left behind as if the work were finished. Anything you deliberately left undone belongs in your report to the user, not buried in a comment they have to discover.
 
 ## 3. Local Verification
 Run localized tests and builds to verify changes:

@@ -30,6 +30,14 @@ Before stating any status — done, fixed, passing, working, clean, deployed:
 
 Skipping a step is not a faster verification; it is an unverified claim.
 
+## Prefer the Command Over the Opinion
+When both exist, a programmatic check beats a judgement call: exit codes, test counts, diffs, `grep`, a build. Reserve your own judgement for what no command can assess — meaning, taste, whether the thing solves the user's actual problem. If a check exists and you reasoned instead of running it, you guessed.
+
+## Judge the Output, Not Your Intent
+When checking your own work, evaluate the **artifact alone** — the code, the output, the file as it now stands — without replaying what you were *trying* to do. You know what you meant, and that knowledge quietly fills gaps that are not actually there on disk. A reader arriving cold has only the artifact.
+
+Practical form: state the criterion, look only at the output, decide. If you catch yourself thinking "well, it's obviously meant to…", stop — that sentence is author-intent bias, and the next reader will not have your intent to lean on.
+
 ## Claim → Required Evidence
 
 | Claim | Requires | Not sufficient |

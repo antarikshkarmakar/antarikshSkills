@@ -16,7 +16,7 @@ Use before starting any non-trivial change, code or non-code. Closes the require
 Ask targeted questions about:
 - The goal — what are we actually building?
 - Constraints — what's fixed, what can't change?
-- What "done" looks like — how do we verify success?
+- What "done" looks like — how do we verify success? Push until each criterion is **binary and observable**: a command that exits 0, a test that passes, a file that exists, output a reader can check. "Better error handling" is a wish; "every handler returns a typed error and `npm test` exits 0" is a criterion. A criterion that cannot fail has not been agreed — it has been postponed
 - Edge cases already considered
 - What's explicitly out of scope
 

@@ -20,7 +20,7 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 
 ## 2. Slash Commands Index & Workflows
 - **`/ak-grill`**: Interrogate scope, check edge cases, and output action plan → `.agents/skills/grill/SKILL.md`.
-- **`/ak-align`**: Pre-coding Socratic scope alignment to agree on plans and success criteria.
+- **`/ak-align`**: Pre-coding Socratic scope alignment to agree on plans and success criteria; push each criterion until it is binary and observable.
 - **`/ak-align-docs`**: Scope alignment + Shared Language glossary update + ADR generation → `.agents/skills/align-docs/SKILL.md`.
 - **`/ak-to-prd`**: Scopes features with module quizzes and drafts PRD to `memory/prds/` → `.agents/skills/to-prd/SKILL.md`.
 - **`/ak-spec`**: Spec-driven loop (specify -> clarify -> plan -> tasks -> analyze -> implement -> converge) → `.agents/skills/spec/SKILL.md`.
@@ -31,9 +31,9 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 - **`/ak-devops`**: Scaffold container/IaC files, run linters, validate dry-run setups.
 - **`/ak-ci-check`**: Run local line ending, shellcheck, Trivy scan, secrets scan, and indentation diff checks.
 - **`/ak-security`**: OWASP threat audit, local credentials scan, dependency CVE audit, and security report.
-- **`/ak-skillset`**: Observation intake -> skill triage (USE_EXISTING, etc.) -> 11 lenses analysis -> XML spec -> public/internal safety sweep -> critique duel.
-- **`/ak-code`**: Surgical minimal implementation (contracts check -> lazy ladder -> tests -> diff check).
-- **`/ak-review`**: Adversarial attacker duel verification against edge cases and interface drift.
+- **`/ak-skillset`**: RED baseline (no failure without the skill = no skill) -> observation intake -> skill triage (USE_EXISTING, etc.) -> 11 lenses analysis -> XML spec, no ungrounded sections -> GREEN check on behaviour -> safety sweep -> critique duel.
+- **`/ak-code`**: Surgical minimal implementation (contracts check -> right-size units -> lazy ladder -> tests -> diff check). Ship no placeholders or TODO stubs as finished work.
+- **`/ak-review`**: Adversarial attacker duel against edge cases and interface drift. Attack the diff, not the intention behind it.
 - **`/ak-prreview`**: Gated PR review creating draft reviews for explicit user approval.
 - **`/ak-worktree`**: Worktree-isolated parallel subagent sweep orchestration. Record a clean test baseline at creation; finish with an explicit merge/PR/keep/discard choice before destructive cleanup.
 - **`/ak-orchestrate`**: Fleet orchestration (gate on verifiable success -> plan + budget -> decompose -> ledger -> brief -> delegate -> two-stage review by differing reviewers -> synthesize). Do not delegate what you cannot verify; do not split work whose hard part is coherence; report budget exhaustion honestly → `.agents/skills/orchestrate/SKILL.md`.

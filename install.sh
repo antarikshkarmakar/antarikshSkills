@@ -543,7 +543,7 @@ This is a master-skill for developer agents. When running in a toolless or web-U
 - **\`/ak-devops\`**: Scaffold container/IaC files, run linters, validate dry-run setups.
 - **\`/ak-ci-check\`**: Run local line ending, shellcheck, Trivy scan, secrets scan, and indentation diff checks.
 - **\`/ak-security\`**: OWASP threat audit, local credentials scan, dependency CVE audit, and security report.
-- **\`/ak-skillset\`**: RED baseline (no failure without the skill = no skill) -> observation intake -> skill triage (USE_EXISTING, etc.) -> 11 lenses analysis -> XML spec, no ungrounded sections -> GREEN check on behaviour -> safety sweep -> critique duel.
+- **\`/ak-skillset\`**: RED baseline (skill must fix a capability failure or a rigour failure; neither = no skill) -> observation intake -> skill triage (USE_EXISTING, etc.) -> 11 lenses analysis -> XML spec, no ungrounded sections -> GREEN check on behaviour -> safety sweep -> critique duel.
 - **\`/ak-code\`**: Surgical minimal implementation (contracts check -> right-size units -> lazy ladder -> tests -> diff check). Ship no placeholders or TODO stubs as finished work.
 - **\`/ak-review\`**: Adversarial attacker duel against edge cases and interface drift. Attack the diff, not the intention behind it.
 - **\`/ak-prreview\`**: Gated PR review creating draft reviews for explicit user approval.

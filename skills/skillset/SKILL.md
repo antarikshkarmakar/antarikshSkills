@@ -38,14 +38,24 @@ Before creating or editing any instructions, classify the user request into one 
 2. Run them **without** the skill — a fresh subagent where the runner supports it (RULESET Subagent Delegation), otherwise a clean session.
 3. Record **verbatim** what goes wrong: the wrong assumption, the skipped step, the unsafe default.
 
-**If the baseline does not fail, stop — the skill is unnecessary** (Ponytail Rung 1: does it need to exist?). A skill that documents what the agent already does correctly costs context on every load and returns nothing. Say so and close the request.
+**A baseline can fail in two different ways, and both justify a skill:**
 
-If it does fail, those recorded failures become the skill's requirements and its trigger keywords. You are no longer guessing what the skill should say — the baseline told you.
+- **Capability failure** — the agent cannot do the task, or does it wrongly. The skill supplies missing knowledge or procedure.
+- **Rigour failure** — the agent reaches a defensible answer, but without evidence, without consistent scoping, or without leaving a record the next run can build on. The skill supplies discipline.
+
+**If the baseline neither fails nor lacks rigour — it is correct *and* well-evidenced *and* repeatable — stop. The skill is unnecessary** (Ponytail Rung 1: does it need to exist?). A skill that documents what the agent already does well costs context on every load and returns nothing. Say so and close the request.
+
+Do not read "the baseline got the right answer" as "no skill needed". Ask the sharper question: **what did the baseline fail to do *well*?** A run that reasons its way to a correct conclusion, with no reproduction, no severity classification, and nothing written down for next time, has failed on rigour even though its answer was right.
+
+Whichever kind of failure you found, name it now — it fixes what the GREEN check in 2.6 is allowed to claim. A skill justified on rigour must be measured on rigour; do not later defend it as a detection improvement it never demonstrated.
+
+The recorded failures become the skill's requirements and its trigger keywords. You are no longer guessing what the skill should say — the baseline told you.
 
 ## 2.6 Verification Gate — Prove the Skill Works (GREEN)
 After drafting (step 4) and before shipping, re-run the **same** baseline tasks **with** the skill:
 
-- **Gate on behavioural delta**, not on how the text reads. The with-skill runs must not reproduce the baseline failures. A skill that reads well and changes nothing has failed.
+- **Gate on behavioural delta**, not on how the text reads. The with-skill runs must not reproduce the baseline failures — **of the kind you named in 2.5**. A capability-justified skill must fix wrong answers; a rigour-justified skill must produce the evidence, scoping, or record the baseline lacked. A skill that reads well and changes nothing has failed.
+- **If you built a known-positive case to test one specific rule, verify the case actually requires that rule** before trusting the result. State why the planted problem cannot be found without the rule, then check that claim — if a plain reading of the changed lines reveals it, the case is testing something else and the run cannot vouch for that rule. Re-scope what you claim, or rebuild the case.
 - **Check triggering separately from content**: does the description fire on realistic phrasings, and stay quiet on near-misses that belong to a different skill? Over-triggering is a defect — it hijacks unrelated work.
 - If the failures persist, fix the skill against **what you observed**, not what you assume the agent misread. Re-run.
 

@@ -66,6 +66,15 @@ Rules:
 - The ledger names commits. Those commits exist in Git even when your context no longer remembers creating them. **After a compaction, trust the ledger and `git log` over your own recollection.**
 - The ledger is working state, not a deliverable; `/ak-compact` distils it into `memory/projects/<name>.md` at the end and the file can then be archived.
 
+## 2.6 PRE-FLIGHT — Check the Baseline Before Fanning Out
+Run the test suite, build, and lint **once, on the untouched tree**, before dispatching anyone. Record the result in the ledger.
+
+- **Green** → any failure a child reports is theirs, and the evidence bar in their brief is meaningful.
+- **Already red** → **stop and tell the user before spending a fleet.** Every child inherits the breakage, each one "fixes" a failure it did not cause, the fix loop burns its rounds on a phantom, and the reports come back contradictory. A fleet dispatched onto a red tree is the most expensive way to discover the tree was red.
+- **Red but you proceed anyway** (user's call): record exactly which checks were already failing in the ledger *and* in every brief, so children can tell inherited breakage from their own.
+
+One cheap serial run here saves N parallel children from chasing the same ghost.
+
 ## 3. BRIEF — One Per Child
 Every child gets a self-contained brief. A child must be able to work from the brief alone, without this conversation.
 

@@ -86,6 +86,7 @@ Before any visible-to-others or hard-to-reverse action → show exactly what wil
 - **Criteria must be binary and observable** — answerable yes/no by reading output or running a command. "Improve error handling" is not a criterion; "every handler returns a typed error, and `npm test` exits 0" is. No scales, scores, or "rate out of 10" — a vague criterion cannot fail, so it verifies nothing
 - **Prefer a programmatic check over a judgement call** — an exit code, a diff, a test result, a grep. Reserve model judgement for criteria no command can assess (meaning, taste, intent). Run the command that exists before writing an opinion
 - Never claim done based on code inspection — run verification, show proof
+- **No invented precision**: never dress a judgement call in numbers it did not come from. "87% confident", "risk score 7/10", or "92% coverage" stated without running the tool are fabrications that borrow the authority of measurement. Say *strong / moderate / weak*, or *likely / unsure*, and name what would settle it. A measured number must cite the command that produced it
 - State plan: `1. [Step] → verify: [check]`
 - Loop until verified
 

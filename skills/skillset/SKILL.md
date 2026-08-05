@@ -31,6 +31,28 @@ Before creating or editing any instructions, classify the user request into one 
 
 ---
 
+## 2.5 Baseline Gate — Prove the Skill Is Needed (RED)
+**A skill is a behavioural claim, not a document.** It earns its place only if an agent does measurably better *with* it than *without* it. Before analysing or drafting anything, establish the baseline:
+
+1. Pick 1-2 representative tasks the proposed skill is meant to improve.
+2. Run them **without** the skill — a fresh subagent where the runner supports it (RULESET Subagent Delegation), otherwise a clean session.
+3. Record **verbatim** what goes wrong: the wrong assumption, the skipped step, the unsafe default.
+
+**If the baseline does not fail, stop — the skill is unnecessary** (Ponytail Rung 1: does it need to exist?). A skill that documents what the agent already does correctly costs context on every load and returns nothing. Say so and close the request.
+
+If it does fail, those recorded failures become the skill's requirements and its trigger keywords. You are no longer guessing what the skill should say — the baseline told you.
+
+## 2.6 Verification Gate — Prove the Skill Works (GREEN)
+After drafting (step 4) and before shipping, re-run the **same** baseline tasks **with** the skill:
+
+- **Gate on behavioural delta**, not on how the text reads. The with-skill runs must not reproduce the baseline failures. A skill that reads well and changes nothing has failed.
+- **Check triggering separately from content**: does the description fire on realistic phrasings, and stay quiet on near-misses that belong to a different skill? Over-triggering is a defect — it hijacks unrelated work.
+- If the failures persist, fix the skill against **what you observed**, not what you assume the agent misread. Re-run.
+
+Record the before/after in the daily log so the next revision has a baseline to beat.
+
+---
+
 ## 3. Deep Analysis Phase (11 Thinking Lenses)
 Before generating or improving a skill, evaluate its utility through the following 11 thinking lenses:
 1.  **Core Goal**: What exact problem does this skill solve, and what is the target business value?
@@ -65,6 +87,8 @@ Do not write markdown skill steps directly from analysis. Write a structured XML
 </skill_spec>
 ```
 Once the spec is complete and verified, generate/update `SKILL.md` from it.
+
+**Never fill a section you cannot ground — omit it.** An empty `<security>` block written because the template has one, a `<prerequisites>` list invented to look thorough, or a step whose `<verification>` is "check it works" are all worse than absent: they read as decided when nothing was decided, and the next author trusts them. If the baseline (step 2.5) produced no evidence for a section, leave it out. Sections are earned by evidence, not by the template's shape (RULESET Phil II, plan proportionality).
 
 ---
 

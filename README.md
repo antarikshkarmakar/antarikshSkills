@@ -31,7 +31,7 @@ Review the Gen/Socket/Snyk security assessment the CLI shows before confirming �
 
 ## Why This Exists
 
-Most agent setups force a choice between two failure modes: a pile of slash commands you have to remember to reach for, or a single LLM/IDE pairing that loses all context the moment you switch tools. This framework is a single canonical ruleset (`templates/RULESET.md`) that compiles into whatever file each tool actually reads — `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md` — so the same philosophy, memory, and command set follow you across tools and sessions instead of resetting every time you switch one.
+Most agent setups force a choice between two failure modes: a pile of slash commands you have to remember to reach for, or a single LLM/IDE pairing that loses all context the moment you switch tools. This framework is a single canonical ruleset (`templates/RULESET.md`) that compiles into whatever file each tool actually reads — `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `.clinerules/`, `GEMINI.md`, `.github/copilot-instructions.md` — so the same philosophy, memory, and command set follow you across tools and sessions instead of resetting every time you switch one.
 
 It integrates the best paradigms in agentic development, grouped by what problem each one solves:
 
@@ -67,7 +67,7 @@ It integrates the best paradigms in agentic development, grouped by what problem
 
 - `templates/RULESET.md`: **The single canonical source** for the shared rules body (philosophies, command protocol, Second Brain protocol). Slash commands are a lean lookup table pointing to `.agents/skills/` — detailed instructions live in modular skill files, not in RULESET.md itself. Edit this file, not the 6 generated rule files below — they drift out of sync if hand-edited directly.
 - `skills/`: **Modular on-demand skill files.** Each slash command is a thin pointer in RULESET.md; the full workflow lives in its own `.agents/skills/<name>/SKILL.md`. This keeps RULESET.md lean (~150 lines) and context-cache-friendly. Currently includes: `align/`, `align-docs/`, `tdd/`, `diagnose/`, `bughunt/`, `verify/`, `devops/`, `ci-check/`, `security/`, `skillset/`, `code/`, `review/`, `prreview/`, `worktree/`, `orchestrate/`, `spec/`, `doc/`, `grok/`, `audit-arch/`, `scratch/`, `compact/`, `handoff/`, `grill/`, `to-prd/`, `headroom/`.
-- `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md`: **Generated** from `templates/RULESET.md` plus a tool-specific header, at install time. Also copies the root-level `skills/` recursively to the target directory as `.agents/skills/`. Used by Codex/OpenCode/CLI assistants, Claude Code, Cursor, Cline/Roo-Code, Gemini CLI, and GitHub Copilot Chat respectively. (`.cursorrules` is Cursor's legacy format — still read, but Cursor's current standard is `.cursor/rules/*.mdc`; Cursor users are covered either way since Cursor also reads `AGENTS.md` natively. Copilot's autonomous coding agent already reads `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` directly — `.github/copilot-instructions.md` is what closes the gap for everyday Copilot Chat.)
+- `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.clinerules/01-antariksh-framework.md`, `GEMINI.md`, `.github/copilot-instructions.md`: **Generated** from `templates/RULESET.md` plus a tool-specific header, at install time. Also copies the root-level `skills/` recursively to the target directory as `.agents/skills/`. Used by Codex/OpenCode/CLI assistants, Claude Code, Cursor, Cline/Roo-Code, Gemini CLI, and GitHub Copilot Chat respectively. (`.cursorrules` is Cursor's legacy format — still read, but Cursor's current standard is `.cursor/rules/*.mdc`; Cursor users are covered either way since Cursor also reads `AGENTS.md` natively. Copilot's autonomous coding agent already reads `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` directly — `.github/copilot-instructions.md` is what closes the gap for everyday Copilot Chat.)
 - `SKILL.md`: **Generated** master skill definition for this framework (used by Claude Code's Skill system, Antigravity, OpenClaw, etc.). It compiles into a self-contained command index and session loop guide to support toolless/web-UI environments.
 - `install.ps1`: Windows PowerShell deployer script.
 - `install.sh`: macOS/Linux/WSL Bash deployer script.
@@ -179,7 +179,7 @@ Hooks are still opt-in project scaffolding, not automatic plugin side effects. R
 *   **On-Demand Skills**: Projects created with our installer already have `.agents/skills/` copied recursively; OpenClaw will automatically discover and parse these skills on workspace load.
 
 #### Everything else (also covered, not asked for above but worth knowing)
-- **Cline / Roo-Code**: reads `.clinerules`.
+- **Cline / Roo-Code**: reads the `.clinerules/` directory (all `.md` files in it are combined). Cline also reads `AGENTS.md` natively, so Cline users are covered either way. If you installed before v1.12.0 you will have a single-file `.clinerules`; the installer moves it to `.clinerules.legacy.bak` and writes the directory form, because one path cannot be both.
 - **Gemini CLI**: reads `GEMINI.md` as its own native convention.
 - **No fixed convention** (raw Ollama, DeepSeek, Minimax, or a plain web-UI chat): falls back to the Cross-LLM Tool-Fallback Protocol below — paste file contents in, the agent works from what's pasted.
 
@@ -282,7 +282,7 @@ Because of the architectural differences between IDEs and agents, publishing pro
 
 ##### Cursor & VS Code Marketplace
 Cursor and VS Code do not offer a native prompt marketplace. To distribute this framework to their users globally:
-1. **VS Code Extension Wrapper**: Build a lightweight VS Code extension that places your `.cursorrules`, `.cursor/rules/*.mdc`, and `.clinerules` configurations into workspace folders programmatically.
+1. **VS Code Extension Wrapper**: Build a lightweight VS Code extension that places your `.cursorrules`, `.cursor/rules/*.mdc`, and `.clinerules/` configurations into workspace folders programmatically.
 2. **Publish**: Package the extension and publish it on the official [Visual Studio Marketplace](https://marketplace.visualstudio.com/) or the [Open VSX Registry](https://open-vsx.org/).
 3. **Cursor Directory**: Submit your namespaced MDC rules to community directories like [cursor.directory](https://cursor.directory/) for easy copy-pasting.
 

@@ -486,13 +486,63 @@ You are an expert developer assistant executing within Cursor. You follow the **
 
 " ".cursorrules"
 
-generate_rule_file "$TARGET_PATH/.clinerules" "# Cline/Roo-Code System Rules (.clinerules)
+# Cline's documented convention is a .clinerules/ DIRECTORY of .md rule files.
+# A path cannot be both a file and a directory, so a legacy single-file
+# .clinerules is moved aside (never deleted -- it may have been hand-edited).
+if [ -f "$TARGET_PATH/.clinerules" ]; then
+    mv "$TARGET_PATH/.clinerules" "$TARGET_PATH/.clinerules.legacy.bak"
+    echo -e "\033[33mMoved legacy .clinerules file to .clinerules.legacy.bak (Cline now reads the .clinerules/ directory). Delete the backup once you have copied over any local edits.\033[0m"
+fi
+
+generate_rule_file "$TARGET_PATH/.clinerules/01-antariksh-framework.md" "# Cline/Roo-Code System Rules (.clinerules)
 
 You are an expert developer assistant executing within Cline or Roo-Code. You follow the **Antariksh Unified Developer Framework**.
 
 ---
 
-" ".clinerules"
+" ".clinerules/01-antariksh-framework.md"
+
+# Scaffold an empty .claude/rules/ so users have a place for their own
+# path-scoped rules. The framework's own ruleset stays in CLAUDE.md because it
+# is universal; this directory is for project rules that should load only when
+# Claude touches matching files.
+if [ ! -f "$TARGET_PATH/.claude/rules/README.md" ] || [ "$FORCE" = true ]; then
+    mkdir -p "$TARGET_PATH/.claude/rules"
+    cat > "$TARGET_PATH/.claude/rules/README.md" <<'CLAUDERULES'
+# .claude/rules/
+
+Project rules for Claude Code, loaded in addition to `CLAUDE.md`.
+
+Put **your own** project rules here. The Antariksh framework ruleset lives in
+`CLAUDE.md` because it applies everywhere; this directory is for guidance that
+should load only when Claude works on matching files.
+
+## Path-scoped rules
+
+A rule with a `paths:` frontmatter list loads only when Claude reads a matching
+file, which keeps it out of context the rest of the time:
+
+```markdown
+---
+paths:
+  - "src/api/**/*.ts"
+---
+
+# API rules
+
+- Every endpoint validates its input before use.
+- Errors use the shared error envelope.
+```
+
+A rule file with no `paths:` field loads every session, same as `CLAUDE.md`.
+
+For a repeatable multi-step procedure, write a skill under `.agents/skills/`
+instead — skills load on demand rather than sitting in context.
+CLAUDERULES
+    echo -e "\033[32mScaffolded: .claude/rules/README.md\033[0m"
+else
+    echo -e "\033[33mSkipped: .claude/rules/README.md (already exists, use --force to overwrite)\033[0m"
+fi
 
 generate_rule_file "$TARGET_PATH/GEMINI.md" "# Gemini CLI Guidelines (GEMINI.md)
 

@@ -34,7 +34,7 @@ Install the Antariksh core rule files. Copy files from `templates/` using the lo
 - `CLAUDE.md`
 - `GEMINI.md`
 - `.cursorrules`
-- `.clinerules`
+- `.clinerules/01-antariksh-framework.md`
 - `inbox.md`
 - `task.md`
 
